@@ -1,0 +1,11 @@
+node_modules/
+.astrocache/
+.sass-cache/
+dist/
+*.log
+.env
+*.md
+*.mdx
+*.yarn-integrity
+*.lock
+*.cache
