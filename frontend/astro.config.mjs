@@ -16,6 +16,8 @@ export default defineConfig({
       }
     }
   },
-  adapter: node(),
+  adapter: node({
+    mode: 'standalone'
+  }),
   integrations: [react(), tailwind()]
 });
