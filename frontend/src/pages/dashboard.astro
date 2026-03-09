@@ -1,110 +1,139 @@
 ---
-function Dashboard() {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+import Layout from '../layouts/Layout.astro';
+---
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      window.location.href = "/login";
-      return;
+<Layout title="Dashboard - keyPear">
+  <Dashboard client:load />
+</Layout>
+
+<script>
+  import { QueryProvider } from '../contexts/QueryProvider';
+  import { AuthProvider, useAuth } from '../contexts/AuthContext';
+  import { FileBrowser } from '../components/FileBrowser';
+  import { SettingsPage } from '../components/SettingsPage';
+  import { Button } from '../components/ui/button';
+  import { 
+    FolderOpen, 
+    Settings, 
+    LogOut, 
+    Cloud,
+    Menu,
+    X
+  } from 'lucide-react';
+  import { useState, useEffect } from 'react';
+  import Cookies from 'js-cookie';
+
+  function DashboardContent() {
+    const { user, isLoading, logout } = useAuth();
+    const [activeView, setActiveView] = useState<'files' | 'settings'>('files');
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    useEffect(() => {
+      if (!isLoading && !user) {
+        window.location.href = '/login';
+      }
+    }, [user, isLoading]);
+
+    if (isLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      );
     }
 
-    // Verify token and get user info
-    fetch("http://localhost:3001/api/me", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Session expired");
-        return res.json();
-      })
-      .then(data => {
-        setUser(data.user);
-        setLoading(false);
-      })
-      .catch(err => {
-        localStorage.removeItem("token");
-        window.location.href = "/login";
-      });
-  }, []);
+    if (!user) return null;
 
-  function handleLogout() {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  }
+    const handleLogout = async () => {
+      await logout();
+      window.location.href = '/login';
+    };
 
-  if (loading) {
     return (
-      <div class="min-h-screen flex items-center justify-center bg-gray-50">
-        <div class="text-gray-600">Loading...</div>
+      <div className="min-h-screen flex">
+        {/* Sidebar */}
+        <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r transform transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0`}>
+          <div className="flex flex-col h-full">
+            <div className="p-4 border-b">
+              <div className="flex items-center gap-2">
+                <Cloud className="w-8 h-8 text-indigo-600" />
+                <span className="text-xl font-bold">keyPear</span>
+              </div>
+            </div>
+            
+            <nav className="flex-1 p-4 space-y-2">
+              <button
+                onClick={() => setActiveView('files')}
+                className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left ${activeView === 'files' ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-gray-100'}`}
+              >
+                <FolderOpen className="w-5 h-5" />
+                Files
+              </button>
+              <button
+                onClick={() => setActiveView('settings')}
+                className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left ${activeView === 'settings' ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-gray-100'}`}
+              >
+                <Settings className="w-5 h-5" />
+                Settings
+              </button>
+            </nav>
+
+            <div className="p-4 border-t">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <span className="text-indigo-600 font-medium">
+                    {user.name?.[0] || user.email[0].toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{user.name || 'User'}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                </div>
+              </div>
+              <Button variant="outline" className="w-full" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col min-h-screen">
+          {/* Mobile Header */}
+          <header className="lg:hidden flex items-center justify-between p-4 border-b bg-white">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)}>
+              {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+            <span className="font-semibold">keyPear</span>
+            <div className="w-6" />
+          </header>
+
+          <div className="flex-1 overflow-auto">
+            {activeView === 'files' ? <FileBrowser /> : <SettingsPage />}
+          </div>
+        </main>
+
+        {/* Mobile Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
       </div>
     );
   }
 
-  return (
-    <div class="min-h-screen bg-gray-50">
-      <nav class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between h-16">
-            <div class="flex items-center">
-              <h1 class="text-xl font-semibold text-gray-900">KeyPear Dashboard</h1>
-            </div>
-            <div class="flex items-center">
-              <span class="mr-4 text-gray-700">{user?.email}</span>
-              <button
-                onClick={handleLogout}
-                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+  function Dashboard() {
+    return (
+      <QueryProvider>
+        <AuthProvider>
+          <DashboardContent />
+        </AuthProvider>
+      </QueryProvider>
+    );
+  }
 
-      <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="px-4 py-6 sm:px-0">
-          <div class="border-4 border-dashed border-gray-200 rounded-lg h-96 p-8">
-            <div class="text-center">
-              <h2 class="text-2xl font-semibold text-gray-900 mb-4">Welcome to KeyPear</h2>
-              <p class="text-gray-600 mb-8">Your secure storage solution. File management features coming soon.</p>
-              
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-                <div class="bg-white p-6 rounded-lg shadow">
-                  <h3 class="text-lg font-medium text-gray-900">Upload Files</h3>
-                  <p class="mt-2 text-gray-600">Upload and organize your files securely</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow">
-                  <h3 class="text-lg font-medium text-gray-900">Share Files</h3>
-                  <p class="mt-2 text-gray-600">Create shareable links with expiry</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow">
-                  <h3 class="text-lg font-medium text-gray-900">Manage Storage</h3>
-                  <p class="mt-2 text-gray-600">Track your storage usage and quotas</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-}
----
-
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content="KeyPear Storage - Dashboard" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-    <title>Dashboard</title>
-  </head>
-  <body>
-    <Dashboard />
-  </body>
-</html>
+  window.Dashboard = Dashboard;
+</script>
