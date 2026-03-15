@@ -9,12 +9,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Check auth state
   const isAuthenticated = auth.isLoggedIn();
   
-  // Initial render
-  router.navigate(window.location.pathname, { app, isAuthenticated });
+  // Initial render - include query params
+  const pathWithParams = window.location.pathname + (window.location.search || '');
+  router.navigate(pathWithParams, { app, isAuthenticated });
   
   // Handle navigation via browser back/forward
   window.addEventListener('popstate', (e) => {
-    router.navigate(window.location.pathname, { 
+    const path = window.location.pathname + (window.location.search || '');
+    router.navigate(path, { 
       app, 
       isAuthenticated: auth.isLoggedIn() 
     });
@@ -25,8 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const link = e.target.closest('a');
     if (link && link.href && link.href.startsWith(window.location.origin)) {
       e.preventDefault();
-      const path = new URL(link.href).pathname;
-      router.navigate(path, { 
+      const url = new URL(link.href);
+      const pathWithParams = url.pathname + (url.search || '');
+      router.navigate(pathWithParams, { 
         app, 
         isAuthenticated: auth.isLoggedIn() 
       });

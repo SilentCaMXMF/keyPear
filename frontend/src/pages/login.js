@@ -1,14 +1,20 @@
 // Login Page
 import { auth } from '../utils/auth.js';
 
-export function loginPage({ error } = {}) {
+export function loginPage(props = {}) {
+  // Check for registered=true in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const registered = urlParams.get('registered');
+  const success = registered === 'true' ? 'Account created! Please sign in.' : (props.success || '');
+  
   return `
     <div class="auth-container">
       <div class="auth-card">
         <h1>KeyPear</h1>
         <p style="text-align: center; margin-bottom: 1rem; color: var(--text-light);">Sign in to your account</p>
         
-        ${error ? `<div class="error">${error}</div>` : ''}
+        ${props.error ? `<div class="error">${props.error}</div>` : ''}
+        ${success ? `<div class="success">${success}</div>` : ''}
         
         <form id="login-form">
           <div class="form-group">
