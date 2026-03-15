@@ -13,7 +13,11 @@ const routes = {
 };
 
 export const router = {
-  navigate(path, { app, isAuthenticated }) {
+  navigate(pathWithParams, { app, isAuthenticated }) {
+    // Extract path and query params
+    const [path, query] = pathWithParams.split('?');
+    const queryString = query ? `?${query}` : '';
+    
     // Protected routes
     if ((path === '/dashboard' || path === '/settings') && !isAuthenticated) {
       window.history.pushState({}, '', '/login');
@@ -31,7 +35,7 @@ export const router = {
     const page = routes[path] || routes['/'];
     app.innerHTML = page();
     
-    // Update URL
-    window.history.pushState({}, '', path);
+    // Update URL with query params
+    window.history.pushState({}, '', path + queryString);
   }
 };

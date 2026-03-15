@@ -2,6 +2,13 @@
 const TOKEN_KEY = 'keypear_token';
 const USER_KEY = 'keypear_user';
 
+// Get API URL - must be set in Vercel env vars
+const API_URL = typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL 
+  : (typeof process !== 'undefined' && process?.env?.VITE_API_URL) 
+    ? process.env.VITE_API_URL 
+    : 'http://localhost:3001';
+
 export const auth = {
   isLoggedIn() {
     return !!localStorage.getItem(TOKEN_KEY);
@@ -17,7 +24,7 @@ export const auth = {
   },
   
   async login(email, password) {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    console.log('Logging in to:', `${API_URL}/api/auth/login`);
     
     const response = await fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
@@ -38,7 +45,7 @@ export const auth = {
   },
   
   async register(name, email, password) {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    console.log('Registering to:', `${API_URL}/api/auth/register`);
     
     const response = await fetch(`${API_URL}/api/auth/register`, {
       method: 'POST',
