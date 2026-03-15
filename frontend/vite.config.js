@@ -10,6 +10,6 @@ export default defineConfig({
       },
     },
   },
-  // Environment variables that should be exposed to client
-  envPrefix: ['VITE_'],
+  // Ensure VITE_ env vars are exposed to client
+  envPrefix: 'VITE_'
 });

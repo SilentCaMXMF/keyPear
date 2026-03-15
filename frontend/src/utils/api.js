@@ -1,8 +1,17 @@
 // API Utilities
 import { auth } from './auth.js';
 
-// Use Vite environment variable, fallback to localhost for development
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Get API URL - VITE_API_URL must be set in Vercel project settings
+function getApiUrl() {
+  const viteUrl = typeof import.meta !== 'undefined' ? import.meta.env?.VITE_API_URL : undefined;
+  if (viteUrl) return viteUrl;
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:3001';
+  }
+  return 'http://localhost:3001';
+}
+
+const API_URL = getApiUrl();
 
 async function fetchWithAuth(url, options = {}) {
   const token = auth.getToken();
