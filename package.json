@@ -1,12 +1,12 @@
 {
-  "name": "astro-express-app",
+  "name": "keypear",
   "version": "1.0.0",
-  "description": "Astro frontend + Express backend application",
+  "description": "KeyPear - Personal Cloud Storage",
   "scripts": {
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "build": "cd frontend && npm run build",
+    "build": "cd frontend && npm install && npm run build",
     "start:backend": "cd backend && npm start",
     "start": "cd backend && npm start"
   },
