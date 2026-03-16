@@ -323,3 +323,81 @@ cd frontend && npm install vitest
 - Storage: `storage/user-files/` (gitignored)
 - Thumbnails: `storage/thumbnails/`
 - Chunk uploads: `storage/chunks/` (temp)
+
+<!-- Added: 2026-03-15 -->
+## Cloudflare Tunnel Multi-Backend Setup for KeyPear
+
+Cloudflare Tunnel can serve multiple backend applications through hostname-based routing using a single tunnel connection.
+
+### Architecture
+```
+Client → Cloudflare Edge → Tunnel → Local cloudflared → Backend Services
+                    ↑                    ↑                    ↑
+              (DNS Lookup)     (Ingress Rules)     (Local Ports)
+```
+
+### Configuration File (~/.cloudflared/config.yml)
+```yaml
+tunnel: <tunnel-id>
+credentials-file: /path/to/credentials.json
+
+ingress:
+  - hostname: api.keypear.pedroocalado.eu
+    service: http://127.0.0.1:3001
+    originRequest:
+      noTLSVerify: true
+  - hostname: homelab-backendpi.pedroocalado.eu
+    service: http://127.0.0.1:3000
+    originRequest:
+      noTLSVerify: true
+  - service: http_status:404  # Catch-all
+```
+
+### Setup Steps
+1. Ensure backends running locally:
+   - KeyPear API: port 3001
+   - Other services: designated ports
+
+2. Create tunnel:
+   ```bash
+   cloudflared tunnel create <tunnel-name>
+   ```
+
+3. Configure ingress rules in config.yml or Dashboard
+
+4. Create DNS CNAME records:
+   ```bash
+   cloudflared tunnel route dns <tunnel-name> api.keypear.pedroocalado.eu
+   cloudflared tunnel route dns <tunnel-name> homelab-backendpi.pedroocalado.eu
+   ```
+
+5. Start tunnel:
+   ```bash
+   cloudflared tunnel run <tunnel-name>
+   ```
+
+6. Cloudflare Settings:
+   - SSL/TLS → Encryption Mode: Flexible
+   - DNS records: Proxy status = Proxied
+
+### Verification
+- Tunnel info: `cloudflared tunnel info <tunnel-name>`
+- DNS check: `dig <hostname> CNAME`
+- Config sync: `curl http://127.0.0.1:20241/metrics | grep config_version`
+- Endpoint test: `curl -I https://<hostname>/`
+
+### Troubleshooting
+If endpoints timeout:
+1. Verify local backends: `curl http://127.0.0.1:<port>/`
+2. Check tunnel running: `ps aux | grep cloudflared`
+3. Verify DNS: `dig <hostname>`
+4. Check config version in metrics
+5. Look for "Updated to new configuration" in tunnel logs
+6. Test HTTP to bypass SSL: `curl -v http://<hostname>/`
+
+### Best Practices
+- Keep ingress rules in version-controlled config.yml
+- Use noTLSVerify: true only for local HTTP services
+- Always include catch-all rule
+- Monitor tunnel metrics and logs
+- Test with HTTP first during debugging

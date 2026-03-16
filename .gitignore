@@ -8,3 +8,5 @@ dist/
 *.yarn-integrity
 *.lock
 *.cache
+backend/data/*.db
+storage/
