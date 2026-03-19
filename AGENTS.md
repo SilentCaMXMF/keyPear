@@ -401,3 +401,66 @@ If endpoints timeout:
 - Always include catch-all rule
 - Monitor tunnel metrics and logs
 - Test with HTTP first during debugging
+
+<!-- Added: 2026-03-19 -->
+## Cloudflare Tunnel Setup for KeyPear API
+
+To expose the KeyPear API running on Raspberry Pi (port 3001) via Cloudflare Tunnel:
+
+### Prerequisites
+- Domain managed by Cloudflare (pedroocalado.eu)
+- Existing wildcard SSL certificate: *.pedroocalado.eu (covers subdomains like api.pedroocalado.eu)
+- KeyPear backend running locally on port 3001
+- cloudflared installed
+
+### Steps
+
+1. **Create Tunnel**
+   ```bash
+   cloudflared tunnel create keyPear-api
+   # Save the generated tunnel ID and credentials file path
+   ```
+
+2. **Configure Tunnel** (~/.cloudflared/config.yml)
+   ```yaml
+   tunnel: <tunnel-id-from-step-1>
+   credentials-file: /path/to/credentials.json
+
+   ingress:
+     - hostname: api.pedroocalado.eu  # Must match existing wildcard cert
+       service: http://127.0.0.1:3001
+       originRequest:
+         noTLSVerify: true  # For local HTTP service
+     - service: http_status:404  # Catch-all
+   ```
+
+3. **Route DNS**
+   ```bash
+   cloudflared tunnel route dns keyPear-api api.pedroocalado.eu
+   ```
+
+4. **Start Tunnel**
+   ```bash
+   cloudflared tunnel run keyPear-api
+   # Or run as service:
+   # sudo systemctl start cloudflared-keyPear-api
+   ```
+
+5. **Verify Setup**
+   - Check tunnel status: `cloudflared tunnel list`
+   - Verify DNS: `dig api.pedroocalado.eu CNAME`
+   - Test endpoint: `curl https://api.pedroocalado.eu/api/auth/me`
+   - Check config version: `curl http://127.0.0.1:20241/metrics | grep config_version`
+
+### Troubleshooting
+
+- **SSL Handshake Failure**: Ensure hostname in config.yml matches a domain covered by your Cloudflare SSL certificate
+- **502 Errors**: Verify backend is running on configured port (3001)
+- **Config Version 0**: Tunnel is managed via Dashboard, not local config. Delete tunnel from Dashboard first, then recreate with local config
+- **Connection Refused**: Check cloudflared logs: `journalctl -u cloudflared -f` or check /tmp/cloudflared.log
+
+### Notes
+- Universal SSL certificates for new subdomains can take 5-30 minutes to provision
+- Use subdomains covered by existing certificates (like *.pedroocalado.eu) for immediate availability
+- Keep tunnel process running for continued access
+- For production, consider running cloudflared as a systemd service
