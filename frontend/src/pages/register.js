@@ -6,7 +6,7 @@ export function registerPage({ error, success } = {}) {
     <div class="auth-container">
       <div class="auth-card">
         <h1>KeyPear</h1>
-        <p style="text-align: center; margin-bottom: 1rem; color: var(--text-light);">Create your account</p>
+        <p class="subtitle">Create your account</p>
         
         ${error ? `<div class="error">${error}</div>` : ''}
         ${success ? `<div class="success">${success}</div>` : ''}
@@ -14,21 +14,21 @@ export function registerPage({ error, success } = {}) {
         <form id="register-form">
           <div class="form-group">
             <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" required autocomplete="name">
+            <input type="text" id="name" name="name" required autocomplete="name" placeholder="Your name">
           </div>
           
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" required autocomplete="email">
+            <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
           </div>
           
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" required minlength="6" autocomplete="new-password">
-            <small style="color: var(--text-light)">Minimum 6 characters</small>
+            <input type="password" id="password" name="password" required minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters">
+            <small>Minimum 6 characters</small>
           </div>
           
-          <button type="submit" class="btn">Create Account</button>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-2);">Create Account</button>
         </form>
         
         <div class="auth-footer">
@@ -65,6 +65,8 @@ export function initRegisterPage() {
       errorDiv.className = 'error';
       errorDiv.textContent = err.message;
       
+      const existingError = form.querySelector('.error');
+      if (existingError) existingError.remove();
       form.insertBefore(errorDiv, form.firstChild);
     }
   });

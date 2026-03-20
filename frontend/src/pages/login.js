@@ -1,4 +1,4 @@
-// Login Page with Debug Logging
+// Login Page
 import { auth } from '../utils/auth.js';
 
 export function loginPage(props = {}) {
@@ -10,7 +10,7 @@ export function loginPage(props = {}) {
     <div class="auth-container">
       <div class="auth-card">
         <h1>KeyPear</h1>
-        <p style="text-align: center; margin-bottom: 1rem; color: var(--text-light);">Sign in to your account</p>
+        <p class="subtitle">Sign in to your account</p>
         
         ${props.error ? `<div class="error">${props.error}</div>` : ''}
         ${success ? `<div class="success">${success}</div>` : ''}
@@ -18,15 +18,15 @@ export function loginPage(props = {}) {
         <form id="login-form">
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" required autocomplete="email">
+            <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
           </div>
           
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" required autocomplete="current-password">
+            <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
           </div>
           
-          <button type="submit" class="btn">Sign In</button>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-2);">Sign In</button>
         </form>
         
         <div class="auth-footer">
@@ -51,23 +51,10 @@ export function initLoginPage() {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       
-      console.log('[Login Debug] Attempting login with:', email);
-      
       const data = await auth.login(email, password);
       
-      console.log('[Login Debug] Login successful, received data:', {
-        token: data.token ? data.token.substring(0, 10) + '...' : null,
-        user: data.user
-      });
-      
-      console.log('[Login Debug] Checking localStorage after login:');
-      console.log('[Login Debug] keypear_token:', localStorage.getItem('keypear_token') ? 'PRESENT' : 'MISSING');
-      console.log('[Login Debug] keypear_user:', localStorage.getItem('keypear_user') ? 'PRESENT' : 'MISSING');
-      
-      console.log('[Login Debug] Redirecting to /dashboard');
       window.location.href = '/dashboard';
     } catch (err) {
-      console.error('[Login Debug] Login failed:', err);
       btn.disabled = false;
       btn.textContent = 'Sign In';
       
@@ -75,6 +62,8 @@ export function initLoginPage() {
       errorDiv.className = 'error';
       errorDiv.textContent = err.message;
       
+      const existingError = form.querySelector('.error');
+      if (existingError) existingError.remove();
       form.insertBefore(errorDiv, form.firstChild);
     }
   });
