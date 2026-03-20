@@ -1,6 +1,6 @@
-const express = require('express');
-const passport = require('passport');
-const { initPassport, passport: passportInstance } = require('../services/passport');
+import express from 'express';
+import passport from 'passport';
+import { initPassport } from '../services/passport.js';
 
 const router = express.Router();
 
@@ -30,4 +30,4 @@ router.get('/github/callback', passport.authenticate('github', { failureRedirect
   res.redirect(`${process.env.FRONTEND_URL}/oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`);
 });
 
-module.exports = router;
+export default router;

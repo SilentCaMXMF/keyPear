@@ -18,7 +18,11 @@ const thumbnailService = {
       fs.mkdirSync(THUMBNAIL_DIR, { recursive: true });
     }
 
-    const thumbnailPath = path.join(THUMBNAIL_DIR, `${fileId}.jpg`);
+    let thumbnailPath = path.join(THUMBNAIL_DIR, `${fileId}.jpg`);
+    // Remove leading './' if present to make the path relative to the app root
+    if (thumbnailPath.startsWith('./')) {
+      thumbnailPath = thumbnailPath.slice(2);
+    }
 
     try {
       await sharp(filePath)
@@ -37,7 +41,11 @@ const thumbnailService = {
   },
 
   async deleteThumbnail(fileId) {
-    const thumbnailPath = path.join(THUMBNAIL_DIR, `${fileId}.jpg`);
+    let thumbnailPath = path.join(THUMBNAIL_DIR, `${fileId}.jpg`);
+    // Remove leading './' if present to make the path relative to the app root
+    if (thumbnailPath.startsWith('./')) {
+      thumbnailPath = thumbnailPath.slice(2);
+    }
     if (fs.existsSync(thumbnailPath)) {
       fs.unlinkSync(thumbnailPath);
     }

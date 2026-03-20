@@ -14,6 +14,7 @@ import authRoutes from './routes/auth.js';
 import filesRoutes from './routes/files.js';
 import foldersRoutes from './routes/folders.js';
 import shareRoutes from './routes/share.js';
+import oauthRoutes from './routes/oauth.js';
 
 // Import database
 import { initDatabase } from './services/database.js';
@@ -38,6 +39,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/folders', foldersRoutes);
 app.use('/api/share', shareRoutes);
+app.use('/api/auth/oauth', oauthRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

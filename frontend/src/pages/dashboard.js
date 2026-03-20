@@ -78,15 +78,16 @@ export function dashboardPage() {
           return;
         }
         
-        document.getElementById('file-list').innerHTML = files.map(file => '
-          <li class="file-item" data-id="' + file.id + '" data-type="' + file.type + '">
-            <div class="file-icon">' + (file.type === 'folder' ? '📁' : '📄') + '</div>
+        document.getElementById('file-list').innerHTML = files.map(file => `
+          <li class="file-item" data-id="${file.id}" data-type="${file.type}">
+            <div class="file-icon">${file.type === 'folder' ? '📁' : '📄'}</div>
             <div class="file-info">
-              <div class="file-name">' + file.name + '</div>
-              <div class="file-meta">' + formatSize(file.size) + ' • ' + formatDate(file.createdAt) + '</div>
+              <div class="file-name">${file.name}</div>
+              <div class="file-meta">${formatSize(file.size)} • ${formatDate(file.createdAt)}</div>
             </div>
           </li>
-        ').join('');
+        `).join('');
+      }
       }
       
       function formatSize(bytes) {

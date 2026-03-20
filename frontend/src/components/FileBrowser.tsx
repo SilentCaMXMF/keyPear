@@ -309,7 +309,11 @@ export function FileBrowser({ folderId }: FileBrowserProps) {
                       key={file.id}
                       className="flex flex-col items-center p-2 rounded-lg hover:bg-accent cursor-pointer group relative"
                     >
-                      <FileIcon mimeType={file.mime_type} thumbnail={file.thumbnail_path} />
+                      <FileIcon 
+                      mimeType={file.mime_type} 
+                      thumbnail={file.thumbnail_path} 
+                      fileId={file.id}
+                    />
                       <span className="text-xs mt-1 text-center truncate w-full">
                         {file.filename}
                       </span>
