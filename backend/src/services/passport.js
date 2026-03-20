@@ -1,8 +1,8 @@
-const passport = require('passport');
-const { Strategy: GoogleStrategy } = require('passport-google-oauth20');
-const { Strategy: GitHubStrategy } = require('passport-github2');
-const jwt = require('jsonwebtoken');
-const { User, Session, ActivityLog } = require('../models');
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as GitHubStrategy } from 'passport-github2';
+import jwt from 'jsonwebtoken';
+import { User, Session, ActivityLog } from '../models/index.js';
 
 const JWT_EXPIRES_IN = '15m';
 const REFRESH_TOKEN_EXPIRES_IN = '7d';
@@ -59,7 +59,7 @@ const oauthCallback = async (accessToken, refreshToken, profile, done) => {
   }
 };
 
-const initPassport = () => {
+export const initPassport = () => {
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use(
       new GoogleStrategy(
@@ -90,4 +90,4 @@ const initPassport = () => {
   passport.deserializeUser((user, done) => done(null, user));
 };
 
-module.exports = { initPassport, passport };
+export { passport };

@@ -1,46 +1,37 @@
-const db = require('./db');
+import { dbWrapper } from '../services/database.js';
 
-const Share = {
+export const Share = {
   async create({ fileId, token, expiresAt }) {
-    const result = await db.query(
-      `INSERT INTO shares (file_id, token, expires_at)
-       VALUES ($1, $2, $3)
-       RETURNING *`,
-      [fileId, token, expiresAt]
+    const id = crypto.randomUUID();
+    await dbWrapper.run(
+      'INSERT INTO shares (id, fileId, token, expiresAt) VALUES (?, ?, ?, ?)',
+      [id, fileId, token, expiresAt]
     );
-    return result.rows[0];
+    return { id, fileId, token, expiresAt };
   },
 
   async findByToken(token) {
-    const result = await db.query(
-      `SELECT s.*, f.filename, f.storage_path 
-       FROM shares s 
-       JOIN files f ON s.file_id = f.id 
-       WHERE s.token = $1 AND (s.expires_at IS NULL OR s.expires_at > NOW())`,
+    const result = await dbWrapper.query(
+      'SELECT * FROM shares WHERE token = ?',
       [token]
     );
     return result.rows[0];
   },
 
   async findById(id) {
-    const result = await db.query('SELECT * FROM shares WHERE id = $1', [id]);
+    const result = await dbWrapper.query('SELECT * FROM shares WHERE id = ?', [id]);
     return result.rows[0];
   },
 
   async findByUser(userId) {
-    const result = await db.query(
-      `SELECT s.*, f.filename 
-       FROM shares s 
-       JOIN files f ON s.file_id = f.id 
-       WHERE f.user_id = $1`,
+    const result = await dbWrapper.query(
+      'SELECT s.*, f.name as filename FROM shares s JOIN files f ON s.fileId = f.id WHERE f.userId = ?',
       [userId]
     );
     return result.rows;
   },
 
   async delete(id) {
-    await db.query('DELETE FROM shares WHERE id = $1', [id]);
+    await dbWrapper.run('DELETE FROM shares WHERE id = ?', [id]);
   },
 };
-
-module.exports = Share;

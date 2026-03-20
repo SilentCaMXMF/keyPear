@@ -32,7 +32,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 // Initialize database
-initDatabase();
+initDatabase().catch(console.error);
 
 // Routes
 app.use('/api/auth', authRoutes);

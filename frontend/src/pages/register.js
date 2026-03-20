@@ -36,35 +36,36 @@ export function registerPage({ error, success } = {}) {
         </div>
       </div>
     </div>
-    
-    <script>
-      document.getElementById('register-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = e.target.querySelector('button');
-        btn.disabled = true;
-        btn.textContent = 'Creating account...';
-        
-        try {
-          const name = document.getElementById('name').value;
-          const email = document.getElementById('email').value;
-          const password = document.getElementById('password').value;
-          
-          await auth.register(name, email, password);
-          
-          // Show success and redirect to login
-          window.location.href = '/login?registered=true';
-        } catch (err) {
-          btn.disabled = false;
-          btn.textContent = 'Create Account';
-          
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'error';
-          errorDiv.textContent = err.message;
-          
-          const form = document.getElementById('register-form');
-          form.insertBefore(errorDiv, form.firstChild);
-        }
-      });
-    </script>
   `;
+}
+
+export function initRegisterPage() {
+  const form = document.getElementById('register-form');
+  if (!form) return;
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button');
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+    
+    try {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      await auth.register(name, email, password);
+      
+      window.location.href = '/login?registered=true';
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+      
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error';
+      errorDiv.textContent = err.message;
+      
+      form.insertBefore(errorDiv, form.firstChild);
+    }
+  });
 }

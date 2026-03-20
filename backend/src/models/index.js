@@ -1,14 +1,14 @@
-const db = require('./db');
-const User = require('./user');
-const Folder = require('./folder');
-const File = require('./file');
-const Session = require('./session');
-const Share = require('./share');
-const ActivityLog = require('./activityLog');
-const ChunkUpload = require('./chunkUpload');
+import { dbWrapper } from '../services/database.js';
+import { User } from './user.js';
+import { Folder } from './folder.js';
+import { File } from './file.js';
+import { Session } from './session.js';
+import { Share } from './share.js';
+import { ActivityLog } from './activityLog.js';
+import { ChunkUpload } from './chunkUpload.js';
 
-module.exports = {
-  db,
+export {
+  dbWrapper as db,
   User,
   Folder,
   File,

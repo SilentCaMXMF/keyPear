@@ -11,7 +11,8 @@
     "start": "cd backend && npm start"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "tsx": "^4.21.0"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

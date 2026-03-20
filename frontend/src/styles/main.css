@@ -208,6 +208,32 @@ body {
   color: var(--text-light);
 }
 
+.file-item {
+  position: relative;
+}
+
+.file-delete-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--error);
+  font-size: 1.25rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.file-item:hover .file-delete-btn {
+  opacity: 1;
+}
+
+.file-delete-btn:hover {
+  color: #dc2626;
+}
+
 /* Upload */
 .dropzone {
   border: 2px dashed var(--border);
@@ -233,4 +259,17 @@ body {
     border-right: none;
     border-bottom: 1px solid var(--border);
   }
+}
+
+/* Context Menu */
+.context-menu-item {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--text);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.context-menu-item:hover {
+  background: var(--border);
 }

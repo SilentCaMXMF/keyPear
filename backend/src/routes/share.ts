@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { randomBytes } from 'crypto';
-import { db } from '../services/database.js';
+import { dbWrapper as db } from '../services/database.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();

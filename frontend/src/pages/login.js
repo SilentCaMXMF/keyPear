@@ -2,7 +2,6 @@
 import { auth } from '../utils/auth.js';
 
 export function loginPage(props = {}) {
-  // Check for registered=true in URL
   const urlParams = new URLSearchParams(window.location.search);
   const registered = urlParams.get('registered');
   const success = registered === 'true' ? 'Account created! Please sign in.' : (props.success || '');
@@ -28,56 +27,55 @@ export function loginPage(props = {}) {
           </div>
           
           <button type="submit" class="btn">Sign In</button>
-        </div>
+        </form>
         
         <div class="auth-footer">
           <p>Don't have an account? <a href="/register">Create one</a></p>
         </div>
       </div>
     </div>
-    
-    <script>
-      document.getElementById('login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = e.target.querySelector('button');
-        btn.disabled = true;
-        btn.textContent = 'Signing in...';
-        
-        try {
-          const email = document.getElementById('email').value;
-          const password = document.getElementById('password').value;
-          
-          console.log('[Login Debug] Attempting login with:', email);
-          
-          const data = await auth.login(email, password);
-          
-          console.log('[Login Debug] Login successful, received data:', {
-            token: data.token ? data.token.substring(0, 10) + '...' : null,
-            user: data.user
-          });
-          
-          console.log('[Login Debug] Checking localStorage after login:');
-          console.log('[Login Debug] keypear_token:', localStorage.getItem('keypear_token') ? 'PRESENT' : 'MISSING');
-          console.log('[Login Debug] keypear_user:', localStorage.getItem('keypear_user') ? 'PRESENT' : 'MISSING');
-          if (localStorage.getItem('keypear_user')) {
-            console.log('[Login Debug] User data:', JSON.parse(localStorage.getItem('keypear_user')));
-          }
-          
-          console.log('[Login Debug] Redirecting to /dashboard');
-          window.location.href = '/dashboard';
-        } catch (err) {
-          console.error('[Login Debug] Login failed:', err);
-          btn.disabled = false;
-          btn.textContent = 'Sign In';
-          
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'error';
-          errorDiv.textContent = err.message;
-          
-          const form = document.getElementById('login-form');
-          form.insertBefore(errorDiv, form.firstChild);
-        }
-      });
-    </script>
   `;
+}
+
+export function initLoginPage() {
+  const form = document.getElementById('login-form');
+  if (!form) return;
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button');
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
+    
+    try {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      console.log('[Login Debug] Attempting login with:', email);
+      
+      const data = await auth.login(email, password);
+      
+      console.log('[Login Debug] Login successful, received data:', {
+        token: data.token ? data.token.substring(0, 10) + '...' : null,
+        user: data.user
+      });
+      
+      console.log('[Login Debug] Checking localStorage after login:');
+      console.log('[Login Debug] keypear_token:', localStorage.getItem('keypear_token') ? 'PRESENT' : 'MISSING');
+      console.log('[Login Debug] keypear_user:', localStorage.getItem('keypear_user') ? 'PRESENT' : 'MISSING');
+      
+      console.log('[Login Debug] Redirecting to /dashboard');
+      window.location.href = '/dashboard';
+    } catch (err) {
+      console.error('[Login Debug] Login failed:', err);
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error';
+      errorDiv.textContent = err.message;
+      
+      form.insertBefore(errorDiv, form.firstChild);
+    }
+  });
 }

@@ -2,27 +2,10 @@
 const TOKEN_KEY = 'keypear_token';
 const USER_KEY = 'keypear_user';
 
-// Get API URL - VITE_API_URL must be set in Vercel project settings
-function getApiUrl() {
-  // Try Vite env var (set at build time by Vercel)
-  const viteUrl = typeof import.meta !== 'undefined' ? import.meta.env?.VITE_API_URL : undefined;
-  if (viteUrl) return viteUrl;
-  
-  // Fallback for local dev
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:3001';
-  }
-  
-  // Default fallback - this would be wrong in production
-  return 'http://localhost:3001';
-}
-
-const API_URL = getApiUrl();
-
-// Debug: log the API URL being used
-if (typeof window !== 'undefined') {
-  console.log('KeyPear API URL:', API_URL);
-}
+// Use localhost:3001 for dev, env var for production
+const API_URL = typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL 
+  : 'http://localhost:3001';
 
 export const auth = {
   isLoggedIn() {

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { db } from '../services/database.js';
+import { dbWrapper } from '../services/database.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
 
@@ -24,8 +24,8 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
     
-    // Get user from database
-    const user = db.prepare('SELECT id, name, email FROM users WHERE id = ?').get(decoded.userId) as { id: string; name: string; email: string } | undefined;
+    const result = dbWrapper.query('SELECT id, name, email FROM users WHERE id = ?', [decoded.userId]);
+    const user = result.rows[0] as { id: string; name: string; email: string } | undefined;
     
     if (!user) {
       return res.status(401).json({ message: 'User not found' });

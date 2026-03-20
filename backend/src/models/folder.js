@@ -1,62 +1,34 @@
-const db = require('./db');
+import { dbWrapper } from '../services/database.js';
 
-const Folder = {
+export const Folder = {
   async create({ userId, parentFolderId, name }) {
-    const result = await db.query(
-      `INSERT INTO folders (user_id, parent_folder_id, name)
-       VALUES ($1, $2, $3)
-       RETURNING *`,
-      [userId, parentFolderId, name]
+    const id = crypto.randomUUID();
+    await dbWrapper.run(
+      'INSERT INTO folders (id, userId, parentId, name) VALUES (?, ?, ?, ?)',
+      [id, userId, parentFolderId, name]
     );
-    return result.rows[0];
+    return { id, userId, parentFolderId, name };
   },
 
   async findById(id) {
-    const result = await db.query('SELECT * FROM folders WHERE id = $1', [id]);
+    const result = await dbWrapper.query('SELECT * FROM folders WHERE id = ?', [id]);
     return result.rows[0];
   },
 
-  async findByUser(userId, parentFolderId = null, includeDeleted = false) {
-    let query = `SELECT * FROM folders WHERE user_id = $1 AND parent_folder_id <=> $2`;
-    const params = [userId, parentFolderId];
-
-    if (!includeDeleted) {
-      query += ` AND deleted_at IS NULL`;
-    }
-
-    query += ` ORDER BY name`;
-
-    const result = await db.query(query, params);
+  async findByUser(userId, parentFolderId = null) {
+    const result = await dbWrapper.query(
+      'SELECT * FROM folders WHERE userId = ? AND parentId = ?',
+      [userId, parentFolderId]
+    );
     return result.rows;
   },
 
   async update(id, { name }) {
-    const result = await db.query(
-      'UPDATE folders SET name = $1 WHERE id = $2 RETURNING *',
-      [name, id]
-    );
-    return result.rows[0];
-  },
-
-  async softDelete(id) {
-    const result = await db.query(
-      `UPDATE folders SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *`,
-      [id]
-    );
-    return result.rows[0];
-  },
-
-  async restore(id) {
-    const result = await db.query(
-      `UPDATE folders SET deleted_at = NULL WHERE id = $1 RETURNING *`,
-      [id]
-    );
-    return result.rows[0];
+    await dbWrapper.run('UPDATE folders SET name = ? WHERE id = ?', [name, id]);
+    return { id, name };
   },
 
   async delete(id) {
-    await db.query('DELETE FROM folders WHERE id = $1', [id]);
+    await dbWrapper.run('DELETE FROM folders WHERE id = ?', [id]);
   },
 };
-
-module.exports = Folder;
