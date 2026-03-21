@@ -505,6 +505,14 @@ a:hover {
   background: var(--surface-container-high);
 }
 
+.file-item[data-type="folder"] .file-icon {
+  background: var(--secondary-container);
+}
+
+.file-item[data-type="folder"] .file-name {
+  color: var(--primary);
+}
+
 .file-icon {
   width: 2.5rem;
   height: 2.5rem;

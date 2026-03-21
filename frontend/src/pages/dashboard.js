@@ -3,6 +3,8 @@ import { api } from '../utils/api.js';
 
 const API_URL = import.meta.env?.VITE_API_URL || 'http://localhost:3001';
 let currentFolderId = null;
+let currentFolderName = null;
+let folderPath = [];
 let currentView = 'files';
 let searchQuery = '';
 let sortBy = 'created_at';
@@ -167,14 +169,21 @@ function updateStorageDisplay(storage) {
 
 function updateBreadcrumb() {
   const breadcrumb = document.getElementById('breadcrumb');
-  if (!breadcrumb) return;
+  const container = document.getElementById('breadcrumb-container');
+  if (!breadcrumb || !container) return;
   
   if (!currentFolderId) {
+    container.style.display = 'block';
     breadcrumb.textContent = 'My Files';
     return;
   }
   
-  breadcrumb.innerHTML = `<a href="#" data-folder-id="" style="color: inherit;">My Files</a>`;
+  container.style.display = 'block';
+  breadcrumb.innerHTML = `
+    <a href="#" data-folder-id="" style="color: inherit;">My Files</a>
+    <span style="margin: 0 0.5rem; color: var(--outline);">/</span>
+    <span style="color: var(--on-surface);">${currentFolderName || 'Folder'}</span>
+  `;
 }
 
 function renderFiles(files, folders) {
@@ -353,6 +362,7 @@ function updateBulkActions() {
 function switchView(view) {
   currentView = view;
   currentFolderId = null;
+  currentFolderName = null;
   selectedItems.clear();
   updateBulkActions();
   
@@ -426,7 +436,23 @@ async function loadNormalFiles() {
     api.getFolders(currentFolderId, searchQuery)
   ]);
   
+  if (currentFolderId && foldersData.folders) {
+    const currentFolder = foldersData.folders.find(f => f.id === currentFolderId);
+    if (!currentFolder) {
+      const allFolders = await api.getFolderTree().catch(() => ({ folders: [] }));
+      const folder = allFolders.folders?.find(f => f.id === currentFolderId);
+      if (folder) {
+        currentFolderName = folder.name;
+      }
+    } else {
+      currentFolderName = currentFolder.name;
+    }
+  } else if (!currentFolderId) {
+    currentFolderName = null;
+  }
+  
   updateStorageDisplay(filesData.storage);
+  updateBreadcrumb();
   renderFiles(filesData.files || [], foldersData.folders || []);
 }
 
@@ -705,6 +731,17 @@ export function initDashboardPage() {
     auth.logout();
   });
   
+  document.getElementById('breadcrumb')?.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (link) {
+      e.preventDefault();
+      currentFolderId = null;
+      currentFolderName = null;
+      selectedItems.clear();
+      loadFiles();
+    }
+  });
+  
   document.querySelectorAll('.nav-item[data-page]').forEach(item => {
     item.addEventListener('click', (e) => {
       e.preventDefault();
@@ -818,7 +855,8 @@ export function initDashboardPage() {
     const link = e.target.closest('#breadcrumb a');
     if (link) {
       e.preventDefault();
-      currentFolderId = link.dataset.folderId || null;
+      currentFolderId = null;
+      currentFolderName = null;
       selectedItems.clear();
       loadFiles();
       return;
@@ -847,7 +885,7 @@ export function initDashboardPage() {
       const type = deleteBtn.dataset.type;
       const name = deleteBtn.dataset.name;
       if (confirm(`Delete "${name}"?`)) {
-        (type === 'folder' ? api.deleteFolder(id) : api.deleteFile(id))
+        (type === 'folder' || type === 'trash-folder' ? api.deleteFolder(id) : api.deleteFile(id))
           .then(() => loadFiles())
           .catch(err => alert('Failed: ' + err.message));
       }
@@ -855,16 +893,17 @@ export function initDashboardPage() {
     }
     
     const fileItem = e.target.closest('.file-item');
-    if (fileItem && !e.target.closest('.file-checkbox')) {
+    if (fileItem && !e.target.closest('.file-checkbox') && !e.target.closest('.file-actions')) {
       const type = fileItem.dataset.type;
       const name = fileItem.dataset.name;
       const id = fileItem.dataset.id;
       
       if (type === 'folder') {
         currentFolderId = id;
+        currentFolderName = name;
         selectedItems.clear();
         loadFiles();
-      } else {
+      } else if (type !== 'trash-file' && type !== 'trash-folder' && type !== 'shared-file') {
         api.downloadFile(id, name);
       }
     }
