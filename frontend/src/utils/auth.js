@@ -2,9 +2,20 @@
 const TOKEN_KEY = 'keypear_token';
 const USER_KEY = 'keypear_user';
 
-// Use VITE_API_URL env var for production, localhost for dev
-const API_URL = import.meta.env?.VITE_API_URL 
-  || 'http://localhost:3001';
+// API URL - use environment variable or fallback
+const getApiUrl = () => {
+  // Try different env var names
+  const envUrl = import.meta.env?.VITE_API_URL 
+    || import.meta.env?.VITE_API_BASE_URL
+    || import.meta.env?.PUBLIC_API_URL
+    || '';
+  
+  // Remove trailing slash
+  return envUrl.replace(/\/$/, '');
+};
+
+const API_URL = getApiUrl();
+console.log('API URL:', API_URL);
 
 export const auth = {
   isLoggedIn() {
@@ -21,18 +32,29 @@ export const auth = {
   },
   
   async login(email, password) {
-    const response = await fetch(`${API_URL}/api/auth/login`, {
+    const url = `${API_URL}/api/auth/login`;
+    console.log('Login URL:', url);
+    
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
     
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Login failed');
+    const text = await response.text();
+    console.log('Login response:', text.substring(0, 200));
+    
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error(`Invalid response: ${text.substring(0, 100)}`);
     }
     
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || data.error || 'Login failed');
+    }
+    
     localStorage.setItem(TOKEN_KEY, data.accessToken);
     localStorage.setItem(USER_KEY, JSON.stringify(data.user));
     
@@ -40,18 +62,28 @@ export const auth = {
   },
   
   async register(name, email, password) {
-    const response = await fetch(`${API_URL}/api/auth/register`, {
+    const url = `${API_URL}/api/auth/register`;
+    console.log('Register URL:', url);
+    
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password })
     });
     
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Registration failed');
+    const text = await response.text();
+    
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error(`Invalid response: ${text.substring(0, 100)}`);
     }
     
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || data.error || 'Registration failed');
+    }
+    
     return data;
   },
   
