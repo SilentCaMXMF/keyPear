@@ -8,6 +8,7 @@ let sortBy = 'created_at';
 let sortOrder = 'DESC';
 let selectedItems = new Set();
 let uploadProgress = null;
+let pendingMoveItem = null;
 
 export function dashboardPage() {
   const user = auth.getUser();
@@ -278,6 +279,8 @@ async function showMoveModal(itemId, itemType) {
   const modal = document.getElementById('move-modal');
   const treeEl = document.getElementById('folder-tree');
   
+  pendingMoveItem = { id: itemId, type: itemType };
+  
   modal.style.display = 'flex';
   treeEl.innerHTML = '<div class="loading">Loading folders...</div>';
   
@@ -317,6 +320,7 @@ async function showMoveModal(itemId, itemType) {
 
 function hideMoveModal() {
   document.getElementById('move-modal').style.display = 'none';
+  pendingMoveItem = null;
 }
 
 async function handleMoveConfirm(itemId, itemType) {
@@ -543,9 +547,10 @@ export function initDashboardPage() {
   
   document.getElementById('move-cancel-btn')?.addEventListener('click', hideMoveModal);
   document.getElementById('move-confirm-btn')?.addEventListener('click', () => {
-    const itemId = document.getElementById('context-menu').dataset.itemId;
-    const itemType = document.getElementById('context-menu').dataset.itemType;
-    handleMoveConfirm(itemId, itemType);
+    if (pendingMoveItem) {
+      handleMoveConfirm(pendingMoveItem.id, pendingMoveItem.type);
+      pendingMoveItem = null;
+    }
   });
   
   document.addEventListener('click', (e) => {
