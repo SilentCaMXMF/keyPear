@@ -41,14 +41,22 @@ async function fetchWithAuth(url, options = {}) {
 
 export const api = {
   // Files
-  async getFiles(path = '/') {
-    return fetchWithAuth(`${API_URL}/api/files?path=${encodeURIComponent(path)}`);
+  async getFiles(folderId = null) {
+    const [filesRes, foldersRes] = await Promise.all([
+      fetchWithAuth(`${API_URL}/api/files?folderId=${folderId || ''}`),
+      fetchWithAuth(`${API_URL}/api/folders?parentFolderId=${folderId || ''}`)
+    ]);
+    
+    const files = (filesRes.files || []).map(f => ({ ...f, type: 'file' }));
+    const folders = (foldersRes.folders || []).map(f => ({ ...f, type: 'folder' }));
+    
+    return [...folders, ...files];
   },
   
-  async uploadFile(file, path = '/') {
+  async uploadFile(file, folderId = null) {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('path', path);
+    if (folderId) formData.append('folderId', folderId);
     
     const token = auth.getToken();
     const response = await fetch(`${API_URL}/api/files/upload`, {
@@ -69,11 +77,15 @@ export const api = {
     return fetchWithAuth(`${API_URL}/api/files/${id}`, { method: 'DELETE' });
   },
   
-  async createFolder(name, path = '/') {
+  async createFolder(name, parentFolderId = null) {
     return fetchWithAuth(`${API_URL}/api/folders`, {
       method: 'POST',
-      body: JSON.stringify({ name, path }),
+      body: JSON.stringify({ name, parentFolderId }),
     });
+  },
+  
+  async deleteFolder(id) {
+    return fetchWithAuth(`${API_URL}/api/folders/${id}`, { method: 'DELETE' });
   },
   
   // User

@@ -3,7 +3,7 @@ import { auth } from '../utils/auth.js';
 import { api } from '../utils/api.js';
 
 const API_URL = 'http://localhost:3001';
-let currentPath = '/';
+let currentFolderId = null;
 
 export function dashboardPage() {
   const user = auth.getUser();
@@ -94,19 +94,12 @@ function updateBreadcrumb() {
   const breadcrumb = document.getElementById('breadcrumb');
   if (!breadcrumb) return;
   
-  if (currentPath === '/') {
+  if (!currentFolderId) {
     breadcrumb.textContent = 'My Files';
     return;
   }
   
-  const parts = currentPath.split('/').filter(Boolean);
-  breadcrumb.innerHTML = `<a href="#" data-path="/" style="color: inherit;">My Files</a>`;
-  
-  let path = '';
-  for (const part of parts) {
-    path += '/' + part;
-    breadcrumb.innerHTML += ` <span style="color: var(--on-surface-variant);">/</span> <a href="#" data-path="${path}" style="color: inherit;">${part}</a>`;
-  }
+  breadcrumb.innerHTML = `<a href="#" data-folder-id="" style="color: inherit;">My Files</a>`;
 }
 
 function renderFiles(files) {
@@ -126,22 +119,23 @@ function renderFiles(files) {
   }
   
   list.innerHTML = files.map(file => `
-    <li class="file-item" data-id="${file.id}" data-type="${file.type}" data-name="${file.name}" data-path="${file.path || currentPath}">
+    <li class="file-item" data-id="${file.id}" data-type="${file.type}" data-name="${file.filename || file.name}" data-parent="${file.parent_folder_id || ''}">
       <div class="file-icon">${file.type === 'folder' ? '📁' : '📄'}</div>
       <div class="file-info">
-        <div class="file-name">${file.name}</div>
-        <div class="file-meta">${formatSize(file.size)} • ${formatDate(file.createdAt)}</div>
+        <div class="file-name">${file.filename || file.name}</div>
+        <div class="file-meta">${formatSize(file.size)} • ${formatDate(file.created_at || file.createdAt)}</div>
       </div>
-      <button class="file-delete-btn" data-id="${file.id}" data-name="${file.name}" title="Delete">×</button>
+      <button class="file-delete-btn" data-id="${file.id}" data-type="${file.type}" data-name="${file.filename || file.name}" title="Delete">×</button>
     </li>
   `).join('');
 }
 
 async function loadFiles() {
   try {
-    const files = await api.getFiles(currentPath);
+    const files = await api.getFiles(currentFolderId);
     renderFiles(files);
   } catch (err) {
+    console.error('Load files error:', err);
     const list = document.getElementById('file-list');
     if (list) {
       list.innerHTML = `
@@ -154,10 +148,10 @@ async function loadFiles() {
 }
 
 async function handleFiles(e) {
-  const files = Array.from(e.target.files);
-  for (const file of files) {
+  const fileList = Array.from(e.target.files);
+  for (const file of fileList) {
     try {
-      await api.uploadFile(file, currentPath);
+      await api.uploadFile(file, currentFolderId);
     } catch (err) {
       console.error('Upload failed:', err);
     }
@@ -262,7 +256,7 @@ async function handleContextAction(action, fileId, fileType, fileName) {
 }
 
 export function initDashboardPage() {
-  currentPath = '/';
+  currentFolderId = null;
   loadFiles();
   
   document.addEventListener('click', hideContextMenu);
@@ -314,7 +308,7 @@ export function initDashboardPage() {
   document.getElementById('create-folder-btn')?.addEventListener('click', () => {
     const name = folderInput?.value.trim();
     if (name) {
-      api.createFolder(name, currentPath).then(() => {
+      api.createFolder(name, currentFolderId).then(() => {
         if (folderInput) folderInput.value = '';
         folderContainer.style.display = 'none';
         loadFiles();
@@ -337,7 +331,7 @@ export function initDashboardPage() {
     const link = e.target.closest('#breadcrumb a');
     if (link) {
       e.preventDefault();
-      currentPath = link.dataset.path;
+      currentFolderId = link.dataset.folderId || null;
       loadFiles();
     }
   });
@@ -348,9 +342,14 @@ export function initDashboardPage() {
     if (deleteBtn) {
       e.stopPropagation();
       const id = deleteBtn.dataset.id;
+      const type = deleteBtn.dataset.type;
       const name = deleteBtn.dataset.name;
       if (confirm('Delete "' + name + '"?')) {
-        api.deleteFile(id).then(() => loadFiles()).catch(err => alert('Failed: ' + err.message));
+        if (type === 'folder') {
+          api.deleteFolder(id).then(() => loadFiles()).catch(err => alert('Failed: ' + err.message));
+        } else {
+          api.deleteFile(id).then(() => loadFiles()).catch(err => alert('Failed: ' + err.message));
+        }
       }
       return;
     }
@@ -362,7 +361,7 @@ export function initDashboardPage() {
       const id = fileItem.dataset.id;
       
       if (type === 'folder') {
-        currentPath = currentPath === '/' ? '/' + name : currentPath + '/' + name;
+        currentFolderId = id;
         loadFiles();
       } else {
         downloadFile(id, name);
