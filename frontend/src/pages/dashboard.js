@@ -17,124 +17,184 @@ export function dashboardPage() {
   const user = auth.getUser();
   
   return `
-    <div class="dashboard">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <h2>KeyPear</h2>
-          <p class="label-small">${user?.name || 'User'}</p>
+    <!-- Top App Bar -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 px-6 py-3">
+      <div class="flex items-center justify-between max-w-full">
+        <div class="flex items-center gap-8">
+          <span class="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">keyPear</span>
+          <div class="hidden md:block relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+            <input 
+              type="text" 
+              id="search-input"
+              class="bg-slate-100 dark:bg-slate-800/50 border-none rounded-lg pl-10 pr-4 py-2 text-sm w-80 focus:ring-2 focus:ring-primary/20 transition-all outline-none" 
+              placeholder="Search files..."
+              value="${searchQuery}"
+            >
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="h-8 w-8 rounded-full overflow-hidden bg-emerald-100 flex items-center justify-center">
+            <span class="text-sm font-bold text-primary">${user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex pt-16">
+      <!-- Sidebar -->
+      <aside class="bg-slate-50 dark:bg-slate-950 h-screen w-64 fixed left-0 top-0 z-40 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col pt-20">
+        <div class="px-4 mb-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="h-10 w-10 rounded-lg bg-primary-container flex items-center justify-center text-white">
+              <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">lock</span>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold tracking-tight text-on-surface">${user?.name || 'User'}</h2>
+              <p class="text-[10px] text-primary font-medium uppercase tracking-wider">Active Session</p>
+            </div>
+          </div>
+          
+          <!-- Storage Bar -->
+          <div class="bg-white dark:bg-slate-900 rounded-xl p-3 mb-4">
+            <div class="flex justify-between text-xs text-on-surface-variant mb-2">
+              <span id="storage-used">0 B</span>
+              <span id="storage-quota">10 GB</span>
+            </div>
+            <div class="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-primary to-primary-container rounded-full transition-all" id="storage-fill" style="width: 0%"></div>
+            </div>
+          </div>
         </div>
         
-        <div class="storage-bar">
-          <div class="storage-info">
-            <span id="storage-used">0 B</span> / <span id="storage-quota">10 GB</span>
-          </div>
-          <div class="storage-progress">
-            <div class="storage-fill" id="storage-fill" style="width: 0%"></div>
-          </div>
-        </div>
-        
-        <nav>
-          <a href="#" class="nav-item active" data-page="files">
-            <span>📁</span> My Files
+        <nav class="flex-1 px-2 space-y-1">
+          <a href="#" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${currentView === 'files' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-r-2 border-emerald-600' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900'}" data-page="files">
+            <span class="material-symbols-outlined text-xl">folder</span>
+            My Files
           </a>
-          <a href="#" class="nav-item" data-page="shared">
-            <span>🔗</span> Shared with me
+          <a href="#" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${currentView === 'shared' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-r-2 border-emerald-600' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900'}" data-page="shared">
+            <span class="material-symbols-outlined text-xl">group</span>
+            Shared with Me
           </a>
-          <a href="#" class="nav-item" data-page="recent">
-            <span>🕐</span> Recent
+          <a href="#" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${currentView === 'recent' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-r-2 border-emerald-600' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900'}" data-page="recent">
+            <span class="material-symbols-outlined text-xl">schedule</span>
+            Recent
           </a>
-          <a href="#" class="nav-item" data-page="trash">
-            <span>🗑️</span> Trash
+          <a href="#" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${currentView === 'trash' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-r-2 border-emerald-600' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900'}" data-page="trash">
+            <span class="material-symbols-outlined text-xl">delete</span>
+            Trash
           </a>
         </nav>
         
-        <div>
-          <a href="#" class="nav-item" data-action="logout">
-            <span>🚪</span> Sign Out
+        <div class="p-4 border-t border-slate-200/50 dark:border-slate-800/50">
+          <a href="#" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg transition-all" data-action="logout">
+            <span class="material-symbols-outlined text-xl">logout</span>
+            Sign Out
           </a>
         </div>
       </aside>
-      
-      <main class="main-content">
-        <div class="file-browser">
-          <div class="toolbar">
-            <div class="toolbar-left" id="files-toolbar">
-              <button class="btn btn-primary" id="upload-btn">
-                <span>+</span> Upload
-              </button>
-              <button class="btn btn-secondary" id="new-folder-btn">
-                <span>📂</span> New Folder
-              </button>
-              
-              <div id="folder-input-container" class="inline-input" style="display: none;">
-                <input type="text" id="folder-name-input" placeholder="Folder name">
-                <button class="btn btn-primary btn-sm" id="create-folder-btn">Create</button>
-                <button class="btn btn-tertiary btn-sm" id="cancel-folder-btn">Cancel</button>
+
+      <!-- Main Content -->
+      <main class="flex-1 ml-64 p-8">
+        <div class="max-w-6xl mx-auto">
+          <!-- Header -->
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+            <div>
+              <div class="flex items-center gap-3 mb-2" id="breadcrumb-container">
+                <h1 class="text-2xl font-black text-on-surface tracking-tight" id="breadcrumb-title">My Files</h1>
               </div>
+              <p class="text-on-surface-variant text-sm">Securely store and manage your files.</p>
             </div>
-            
-            <div class="toolbar-left" id="trash-toolbar" style="display: none;">
-              <button class="btn btn-sm btn-tertiary" id="empty-trash-btn" disabled>Empty Trash</button>
-            </div>
-            
-            <div class="toolbar-right" id="files-search">
-              <div class="search-box">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="search-input" placeholder="Search files..." value="${searchQuery}">
+            <div class="flex items-center gap-3">
+              <div id="files-search" class="${currentView !== 'files' ? 'hidden' : ''}">
+                <select id="sort-select" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+                  <option value="created_at:DESC" ${sortBy === 'created_at' && sortOrder === 'DESC' ? 'selected' : ''}>Newest</option>
+                  <option value="created_at:ASC" ${sortBy === 'created_at' && sortOrder === 'ASC' ? 'selected' : ''}>Oldest</option>
+                  <option value="filename:ASC" ${sortBy === 'filename' && sortOrder === 'ASC' ? 'selected' : ''}>Name A-Z</option>
+                  <option value="filename:DESC" ${sortBy === 'filename' && sortOrder === 'DESC' ? 'selected' : ''}>Name Z-A</option>
+                  <option value="size:DESC" ${sortBy === 'size' && sortOrder === 'DESC' ? 'selected' : ''}>Size ↓</option>
+                  <option value="size:ASC" ${sortBy === 'size' && sortOrder === 'ASC' ? 'selected' : ''}>Size ↑</option>
+                </select>
               </div>
               
-              <select id="sort-select" class="sort-select">
-                <option value="created_at:DESC" ${sortBy === 'created_at' && sortOrder === 'DESC' ? 'selected' : ''}>Newest</option>
-                <option value="created_at:ASC" ${sortBy === 'created_at' && sortOrder === 'ASC' ? 'selected' : ''}>Oldest</option>
-                <option value="filename:ASC" ${sortBy === 'filename' && sortOrder === 'ASC' ? 'selected' : ''}>Name A-Z</option>
-                <option value="filename:DESC" ${sortBy === 'filename' && sortOrder === 'DESC' ? 'selected' : ''}>Name Z-A</option>
-                <option value="size:DESC" ${sortBy === 'size' && sortOrder === 'DESC' ? 'selected' : ''}>Size ↓</option>
-                <option value="size:ASC" ${sortBy === 'size' && sortOrder === 'ASC' ? 'selected' : ''}>Size ↑</option>
-              </select>
+              <button id="new-folder-btn" class="${currentView !== 'files' ? 'hidden' : ''} bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-on-surface px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                <span class="material-symbols-outlined text-lg">create_new_folder</span>
+                New Folder
+              </button>
+              
+              <button id="upload-btn" class="${currentView !== 'files' ? 'hidden' : ''} bg-gradient-to-br from-primary to-primary-container text-white px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/20 hover:opacity-90 transition-all">
+                <span class="material-symbols-outlined text-lg">upload</span>
+                Upload
+              </button>
+              
+              <button id="empty-trash-btn" class="${currentView !== 'trash' ? 'hidden' : ''} bg-error-container text-on-error-container px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition-all">
+                Empty Trash
+              </button>
             </div>
           </div>
-          
-          <div id="breadcrumb-container" class="breadcrumb-container">
-            <span id="breadcrumb">My Files</span>
-          </div>
-          
-          <div id="bulk-actions" class="bulk-actions" style="display: none;">
-            <span id="selected-count">0 selected</span>
-            <button class="btn btn-sm btn-error" id="bulk-delete-btn">Delete Selected</button>
-            <button class="btn btn-sm btn-secondary" id="bulk-move-btn">Move</button>
-            <button class="btn btn-sm btn-tertiary" id="clear-selection-btn">Clear</button>
-          </div>
-          
-          <div id="upload-progress" class="upload-progress" style="display: none;">
-            <div class="progress-bar">
-              <div class="progress-fill" id="progress-fill"></div>
+
+          <!-- Inline folder creation -->
+          <div id="folder-input-container" class="hidden mb-4 bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary">create_new_folder</span>
+              <input type="text" id="folder-name-input" class="flex-1 bg-slate-100 dark:bg-slate-900 border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none" placeholder="Folder name">
+              <button id="create-folder-btn" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90">Create</button>
+              <button id="cancel-folder-btn" class="bg-slate-100 dark:bg-slate-700 text-on-surface px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600">Cancel</button>
             </div>
-            <span id="progress-text">Uploading... 0%</span>
           </div>
-          
-          <div class="dropzone" id="dropzone">
-            <p>Drag and drop files here or click to upload</p>
-            <input type="file" id="file-input" hidden multiple>
+
+          <!-- Bulk Actions -->
+          <div id="bulk-actions" class="hidden mb-4 bg-primary-container/10 border border-primary/20 rounded-xl p-3 flex items-center gap-4">
+            <span class="text-sm font-medium text-primary" id="selected-count">0 selected</span>
+            <button id="bulk-delete-btn" class="bg-error text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-700">Delete</button>
+            <button id="bulk-move-btn" class="bg-secondary text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-600">Move</button>
+            <button id="clear-selection-btn" class="text-on-surface-variant text-xs font-medium hover:text-on-surface">Clear</button>
           </div>
-          
-          <ul class="file-list" id="file-list">
-            <li style="text-align: center; padding: var(--space-8); color: var(--on-surface-variant);">
-              Loading files...
-            </li>
-          </ul>
+
+          <!-- Upload Progress -->
+          <div id="upload-progress" class="hidden mb-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="material-symbols-outlined text-blue-600 animate-spin">sync</span>
+              <span class="text-sm font-medium text-blue-700 dark:text-blue-300" id="progress-text">Uploading... 0%</span>
+            </div>
+            <div class="h-1.5 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
+              <div class="h-full bg-blue-500 rounded-full transition-all" id="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- File List Container -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden border border-slate-200/50 dark:border-slate-800/50">
+            <!-- Dropzone -->
+            <div id="dropzone" class="${currentView !== 'files' ? 'hidden' : ''} p-8 border-b border-slate-100 dark:border-slate-800 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+              <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-2">cloud_upload</span>
+              <p class="text-sm text-on-surface-variant">Drag and drop files here or click to upload</p>
+              <input type="file" id="file-input" class="hidden" multiple>
+            </div>
+
+            <!-- File List -->
+            <ul class="divide-y divide-slate-100 dark:divide-slate-800" id="file-list">
+              <li class="px-6 py-12 text-center text-on-surface-variant">
+                <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-3 block">folder_open</span>
+                <p>Loading files...</p>
+              </li>
+            </ul>
+          </div>
         </div>
       </main>
-      
-      <div id="context-menu" class="context-menu" style="display: none;"></div>
-      
-      <div id="move-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-          <h3>Move to...</h3>
-          <div id="folder-tree" class="folder-tree"></div>
-          <div class="modal-actions">
-            <button class="btn btn-tertiary" id="move-cancel-btn">Cancel</button>
-            <button class="btn btn-primary" id="move-confirm-btn">Move Here</button>
-          </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="context-menu" class="fixed bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-2 min-w-48 z-50 hidden">
+    </div>
+
+    <!-- Move Modal -->
+    <div id="move-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <h3 class="text-lg font-bold text-on-surface mb-4">Move to...</h3>
+        <div id="folder-tree" class="max-h-64 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-lg p-2 mb-4"></div>
+        <div class="flex justify-end gap-3">
+          <button id="move-cancel-btn" class="px-4 py-2 text-sm font-medium text-on-surface-variant hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">Cancel</button>
+          <button id="move-confirm-btn" class="px-4 py-2 text-sm font-bold bg-primary text-white rounded-lg hover:bg-primary/90">Move Here</button>
         </div>
       </div>
     </div>
@@ -168,22 +228,18 @@ function updateStorageDisplay(storage) {
 }
 
 function updateBreadcrumb() {
-  const breadcrumb = document.getElementById('breadcrumb');
-  const container = document.getElementById('breadcrumb-container');
-  if (!breadcrumb || !container) return;
+  const titleEl = document.getElementById('breadcrumb-title');
+  if (!titleEl) return;
   
   if (!currentFolderId) {
-    container.style.display = 'block';
-    breadcrumb.textContent = 'My Files';
+    titleEl.textContent = currentView === 'files' ? 'My Files' : 
+                         currentView === 'trash' ? 'Trash' :
+                         currentView === 'recent' ? 'Recent Files' :
+                         currentView === 'shared' ? 'Shared with Me' : 'My Files';
     return;
   }
   
-  container.style.display = 'block';
-  breadcrumb.innerHTML = `
-    <a href="#" data-folder-id="" style="color: inherit;">My Files</a>
-    <span style="margin: 0 0.5rem; color: var(--outline);">/</span>
-    <span style="color: var(--on-surface);">${currentFolderName || 'Folder'}</span>
-  `;
+  titleEl.textContent = currentFolderName || 'Folder';
 }
 
 function renderFiles(files, folders) {
@@ -199,9 +255,10 @@ function renderFiles(files, folders) {
   
   if (allItems.length === 0) {
     list.innerHTML = `
-      <li class="empty-state">
-        <div style="font-size: 3rem; margin-bottom: var(--space-4);">📭</div>
-        <p>${searchQuery ? 'No files match your search' : 'No files yet. Upload something!'}</p>
+      <li class="empty-state px-6 py-16 text-center">
+        <span class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-600 mb-4 block">folder_open</span>
+        <p class="text-on-surface-variant">${searchQuery ? 'No files match your search' : 'No files yet. Upload something!'}</p>
+        ${currentView === 'files' ? '<p class="text-sm text-on-surface-variant/60 mt-2">Drag and drop files or click Upload</p>' : ''}
       </li>
     `;
     return;
@@ -209,24 +266,32 @@ function renderFiles(files, folders) {
   
   list.innerHTML = allItems.map(item => {
     const isFolder = item.type === 'folder';
-    const icon = item.icon || (isFolder ? '📁' : '📄');
-    const thumbnail = item.hasThumbnail ? `<img src="${API_URL}/api/files/${item.id}/thumbnail" class="file-thumbnail" alt="" loading="lazy">` : '';
-    const displayIcon = thumbnail || `<span class="file-icon">${icon}</span>`;
+    const thumbnail = item.hasThumbnail ? `<img src="${API_URL}/api/files/${item.id}/thumbnail" class="h-10 w-10 rounded-lg object-cover" alt="" loading="lazy">` : '';
+    const icon = isFolder ? 'folder' : (item.icon?.includes('pdf') ? 'picture_as_pdf' : 
+                   item.icon?.includes('image') ? 'image' : 
+                   item.icon?.includes('video') ? 'videocam' :
+                   item.icon?.includes('audio') ? 'audio_file' : 'description');
+    const displayIcon = thumbnail || `<span class="material-symbols-outlined ${isFolder ? 'text-2xl text-primary' : 'text-2xl text-slate-400'}">${icon}</span>`;
     const isSelected = selectedItems.has(item.id);
+    const name = item.filename || item.name;
     
     return `
-      <li class="file-item ${isSelected ? 'selected' : ''}" 
+      <li class="file-item flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group ${isSelected ? 'bg-primary/5' : ''}" 
           data-id="${item.id}" 
           data-type="${item.type}" 
-          data-name="${item.filename || item.name}"
+          data-name="${name}"
           data-parent="${item.folder_id || item.parent_folder_id || ''}">
-        <input type="checkbox" class="file-checkbox" ${isSelected ? 'checked' : ''}>
-        <div class="file-preview">${displayIcon}</div>
-        <div class="file-info">
-          <div class="file-name">${item.filename || item.name}</div>
-          <div class="file-meta">${formatSize(item.size)}${item.created_at ? ' • ' + formatDate(item.created_at) : ''}</div>
+        <input type="checkbox" class="file-checkbox w-4 h-4 rounded border-slate-300 dark:border-slate-600 ${isSelected ? 'checked' : ''}" ${isSelected ? 'checked' : ''}>
+        <div class="h-10 w-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg">
+          ${displayIcon}
         </div>
-        <button class="file-delete-btn" data-id="${item.id}" data-type="${item.type}" data-name="${item.filename || item.name}" title="Delete">×</button>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-on-surface truncate">${name}</p>
+          <p class="text-xs text-on-surface-variant">${formatSize(item.size)}${item.created_at ? ' • ' + formatDate(item.created_at) : ''}</p>
+        </div>
+        <button class="file-delete-btn opacity-0 group-hover:opacity-100 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" data-id="${item.id}" data-type="${item.type}" data-name="${name}">
+          <span class="material-symbols-outlined text-red-500">delete</span>
+        </button>
       </li>
     `;
   }).join('');
@@ -242,35 +307,33 @@ function renderTrashFiles(files, folders) {
   
   if (allItems.length === 0) {
     list.innerHTML = `
-      <li class="empty-state">
-        <div style="font-size: 3rem; margin-bottom: var(--space-4);">🗑️</div>
-        <p>Trash is empty</p>
+      <li class="empty-state px-6 py-16 text-center">
+        <span class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-600 mb-4 block">delete</span>
+        <p class="text-on-surface-variant">Trash is empty</p>
       </li>
     `;
     return;
   }
   
   list.innerHTML = allItems.map(item => `
-    <li class="file-item" 
+    <li class="file-item flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group" 
         data-id="${item.id}" 
         data-type="${item.type === 'folder' ? 'trash-folder' : 'trash-file'}" 
         data-name="${item.name}">
-      <input type="checkbox" class="file-checkbox">
-      <div class="file-preview">
-        ${item.type === 'folder' 
-          ? '<span class="file-icon">📁</span>'
-          : (item.thumbnail_path 
-            ? `<img src="${API_URL}/api/files/${item.id}/thumbnail" class="file-thumbnail" alt="">`
-            : `<span class="file-icon">${item.icon || '📄'}</span>`)
-        }
+      <div class="h-10 w-10 flex items-center justify-center bg-red-50 dark:bg-red-900/20 rounded-lg">
+        <span class="material-symbols-outlined text-2xl text-red-500">${item.type === 'folder' ? 'folder' : 'description'}</span>
       </div>
-      <div class="file-info">
-        <div class="file-name">${item.name}</div>
-        <div class="file-meta">${item.type === 'folder' ? 'Folder' : formatSize(item.size)} • Deleted ${formatDate(item.deleted_at)}</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-on-surface truncate">${item.name}</p>
+        <p class="text-xs text-on-surface-variant">${item.type === 'folder' ? 'Folder' : formatSize(item.size)} • Deleted ${formatDate(item.deleted_at)}</p>
       </div>
-      <div class="file-actions">
-        <button class="restore-btn" data-id="${item.id}" data-type="${item.type}">↩️ Restore</button>
-        <button class="file-delete-btn danger" data-id="${item.id}" data-type="${item.type === 'folder' ? 'trash-folder' : 'trash-file'}" data-name="${item.name}" title="Delete permanently">×</button>
+      <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button class="restore-btn px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100">
+          Restore
+        </button>
+        <button class="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" data-id="${item.id}" data-type="${item.type === 'folder' ? 'trash-folder' : 'trash-file'}" data-name="${item.name}">
+          <span class="material-symbols-outlined text-red-500">delete_forever</span>
+        </button>
       </div>
     </li>
   `).join('');
@@ -281,33 +344,40 @@ function renderRecentFiles(files) {
   
   if (files.length === 0) {
     list.innerHTML = `
-      <li class="empty-state">
-        <div style="font-size: 3rem; margin-bottom: var(--space-4);">🕐</div>
-        <p>No recent files</p>
+      <li class="empty-state px-6 py-16 text-center">
+        <span class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-600 mb-4 block">schedule</span>
+        <p class="text-on-surface-variant">No recent files</p>
       </li>
     `;
     return;
   }
   
-  list.innerHTML = files.map(file => `
-    <li class="file-item" 
-        data-id="${file.id}" 
-        data-type="recent-file" 
-        data-name="${file.filename}">
-      <input type="checkbox" class="file-checkbox">
-      <div class="file-preview">
-        ${file.thumbnail_path 
-          ? `<img src="${API_URL}/api/files/${file.id}/thumbnail" class="file-thumbnail" alt="">`
-          : `<span class="file-icon">${file.icon || '📄'}</span>`
-        }
-      </div>
-      <div class="file-info">
-        <div class="file-name">${file.filename}</div>
-        <div class="file-meta">${formatSize(file.size)} • ${formatDate(file.created_at)}</div>
-      </div>
-      <button class="file-delete-btn" data-id="${file.id}" data-type="recent-file" data-name="${file.filename}" title="Delete">×</button>
-    </li>
-  `).join('');
+  list.innerHTML = files.map(file => {
+    const thumbnail = file.hasThumbnail ? `<img src="${API_URL}/api/files/${file.id}/thumbnail" class="h-10 w-10 rounded-lg object-cover" alt="">` : '';
+    const icon = file.icon?.includes('pdf') ? 'picture_as_pdf' : 
+                 file.icon?.includes('image') ? 'image' : 
+                 file.icon?.includes('video') ? 'videocam' :
+                 file.icon?.includes('audio') ? 'audio_file' : 'description';
+    const displayIcon = thumbnail || `<span class="material-symbols-outlined text-2xl text-slate-400">${icon}</span>`;
+    
+    return `
+      <li class="file-item flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group" 
+          data-id="${file.id}" 
+          data-type="recent-file" 
+          data-name="${file.filename}">
+        <div class="h-10 w-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg">
+          ${displayIcon}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-on-surface truncate">${file.filename}</p>
+          <p class="text-xs text-on-surface-variant">${formatSize(file.size)} • ${formatDate(file.created_at)}</p>
+        </div>
+        <button class="file-delete-btn opacity-0 group-hover:opacity-100 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" data-id="${file.id}" data-type="recent-file" data-name="${file.filename}">
+          <span class="material-symbols-outlined text-red-500">delete</span>
+        </button>
+      </li>
+    `;
+  }).join('');
 }
 
 function renderSharedFiles(shares) {
@@ -315,36 +385,42 @@ function renderSharedFiles(shares) {
   
   if (shares.length === 0) {
     list.innerHTML = `
-      <li class="empty-state">
-        <div style="font-size: 3rem; margin-bottom: var(--space-4);">🔗</div>
-        <p>No files shared with you</p>
+      <li class="empty-state px-6 py-16 text-center">
+        <span class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-600 mb-4 block">group</span>
+        <p class="text-on-surface-variant">No files shared with you</p>
       </li>
     `;
     return;
   }
   
-  list.innerHTML = shares.map(share => `
-    <li class="file-item shared-item" 
-        data-id="${share.file_id}" 
-        data-type="shared-file" 
-        data-name="${share.filename}"
-        data-token="${share.token}">
-      <input type="checkbox" class="file-checkbox">
-      <div class="file-preview">
-        ${share.thumbnail_path 
-          ? `<img src="${API_URL}/api/files/${share.file_id}/thumbnail" class="file-thumbnail" alt="">`
-          : `<span class="file-icon">📄</span>`
-        }
-      </div>
-      <div class="file-info">
-        <div class="file-name">${share.filename}</div>
-        <div class="file-meta">${formatSize(share.size)} • Shared by ${share.shared_by_name || 'Unknown'}</div>
-      </div>
-      <div class="file-actions">
-        <button class="btn btn-sm btn-primary download-btn" data-id="${share.file_id}" data-name="${share.filename}" title="Download">⬇️ Download</button>
-      </div>
-    </li>
-  `).join('');
+  list.innerHTML = shares.map(share => {
+    const thumbnail = share.hasThumbnail ? `<img src="${API_URL}/api/files/${share.file_id}/thumbnail" class="h-10 w-10 rounded-lg object-cover" alt="">` : '';
+    const icon = share.icon?.includes('pdf') ? 'picture_as_pdf' : 
+                 share.icon?.includes('image') ? 'image' : 
+                 share.icon?.includes('video') ? 'videocam' :
+                 share.icon?.includes('audio') ? 'audio_file' : 'description';
+    const displayIcon = thumbnail || `<span class="material-symbols-outlined text-2xl text-slate-400">${icon}</span>`;
+    
+    return `
+      <li class="file-item flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group" 
+          data-id="${share.file_id}" 
+          data-type="shared-file" 
+          data-name="${share.filename}"
+          data-token="${share.token}">
+        <div class="h-10 w-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg">
+          ${displayIcon}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-on-surface truncate">${share.filename}</p>
+          <p class="text-xs text-on-surface-variant">${formatSize(share.size)} • Shared by ${share.shared_by_name || 'Unknown'}</p>
+        </div>
+        <button class="download-btn bg-gradient-to-br from-primary to-primary-container text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all" data-id="${share.file_id}" data-name="${share.filename}">
+          <span class="material-symbols-outlined text-base">download</span>
+          Download
+        </button>
+      </li>
+    `;
+  }).join('');
 }
 
 function updateBulkActions() {
@@ -366,35 +442,7 @@ function switchView(view) {
   selectedItems.clear();
   updateBulkActions();
   
-  const filesToolbar = document.getElementById('files-toolbar');
-  const trashToolbar = document.getElementById('trash-toolbar');
-  const filesSearch = document.getElementById('files-search');
-  const breadcrumbContainer = document.getElementById('breadcrumb-container');
-  const dropzone = document.getElementById('dropzone');
-  
-  filesToolbar.style.display = view === 'files' ? 'flex' : 'none';
-  trashToolbar.style.display = view === 'trash' ? 'flex' : 'none';
-  filesSearch.style.display = (view === 'files' || view === 'shared') ? 'flex' : 'none';
-  breadcrumbContainer.style.display = view === 'files' ? 'block' : 'none';
-  dropzone.style.display = view === 'files' ? 'block' : 'none';
-  
-  const breadcrumb = document.getElementById('breadcrumb');
-  if (breadcrumb) {
-    switch (view) {
-      case 'trash':
-        breadcrumb.textContent = 'Trash';
-        break;
-      case 'recent':
-        breadcrumb.textContent = 'Recent Files';
-        break;
-      case 'shared':
-        breadcrumb.textContent = 'Shared with Me';
-        break;
-      default:
-        breadcrumb.textContent = 'My Files';
-    }
-  }
-  
+  updateBreadcrumb();
   loadFiles();
 }
 
@@ -508,7 +556,7 @@ async function showMoveModal(itemId, itemType) {
   pendingMoveItem = { id: itemId, type: itemType };
   
   modal.style.display = 'flex';
-  treeEl.innerHTML = '<div class="loading">Loading folders...</div>';
+  treeEl.innerHTML = '<div class="text-slate-500 text-sm px-3 py-2">Loading folders...</div>';
   
   try {
     const { folders } = await api.getFolderTree();
@@ -517,30 +565,37 @@ async function showMoveModal(itemId, itemType) {
       return folders
         .filter(f => f.parent_folder_id === parentId && f.id !== itemId)
         .map(f => `
-          <div class="tree-item" data-id="${f.id}" style="padding-left: ${level * 20}px">
-            <span class="tree-icon">📁</span> ${f.name}
+          <div class="tree-item cursor-pointer px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-id="${f.id}" style="padding-left: ${level * 16 + 12}px">
+            <span class="material-symbols-outlined text-primary mr-2 align-middle">folder</span>
+            <span class="text-sm text-slate-700 dark:text-slate-300">${f.name}</span>
             ${buildTree(f.id, level + 1)}
           </div>
         `).join('');
     };
     
     treeEl.innerHTML = `
-      <div class="tree-item root" data-id="">
-        <span class="tree-icon">🏠</span> My Files (Root)
+      <div class="tree-item cursor-pointer px-3 py-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors bg-emerald-50 dark:bg-emerald-900/20" data-id="">
+        <span class="material-symbols-outlined text-primary mr-2 align-middle">home</span>
+        <span class="text-sm font-medium text-primary">My Files (Root)</span>
       </div>
       ${buildTree()}
     `;
     
     treeEl.querySelectorAll('.tree-item').forEach(el => {
       el.addEventListener('click', () => {
-        treeEl.querySelectorAll('.tree-item').forEach(i => i.classList.remove('selected'));
-        el.classList.add('selected');
+        treeEl.querySelectorAll('.tree-item').forEach(i => {
+          i.classList.remove('bg-emerald-50', 'dark:bg-emerald-900/20');
+          i.classList.remove('bg-slate-100', 'dark:bg-slate-800');
+          i.classList.add('hover:bg-slate-100', 'dark:hover:bg-slate-800');
+        });
+        el.classList.remove('hover:bg-slate-100', 'dark:hover:bg-slate-800');
+        el.classList.add('bg-emerald-50', 'dark:bg-emerald-900/20');
         el.dataset.selectedId = el.dataset.id;
       });
     });
     
   } catch (err) {
-    treeEl.innerHTML = '<div class="error">Failed to load folders</div>';
+    treeEl.innerHTML = '<div class="text-red-500 text-sm px-3 py-2">Failed to load folders</div>';
   }
 }
 
@@ -575,36 +630,59 @@ function showContextMenu(e, item) {
   
   if (currentView === 'trash') {
     menuItems = `
-      <div class="context-menu-item" data-action="restore">↩️ Restore</div>
-      <div class="context-menu-item danger" data-action="deletePermanent">🗑️ Delete Permanently</div>
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300" data-action="restore">
+        <span class="material-symbols-outlined text-lg">restore</span> Restore
+      </button>
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600" data-action="deletePermanent">
+        <span class="material-symbols-outlined text-lg">delete_forever</span> Delete Permanently
+      </button>
     `;
   } else if (currentView === 'recent') {
     menuItems = `
-      <div class="context-menu-item" data-action="download">⬇️ Download</div>
-      <div class="context-menu-divider"></div>
-      <div class="context-menu-item danger" data-action="delete">🗑️ Delete</div>
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300" data-action="download">
+        <span class="material-symbols-outlined text-lg">download</span> Download
+      </button>
+      <div class="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600" data-action="delete">
+        <span class="material-symbols-outlined text-lg">delete</span> Delete
+      </button>
     `;
   } else if (currentView === 'shared') {
     menuItems = `
-      <div class="context-menu-item" data-action="download">⬇️ Download</div>
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300" data-action="download">
+        <span class="material-symbols-outlined text-lg">download</span> Download
+      </button>
     `;
   } else {
     menuItems = `
-      <div class="context-menu-item" data-action="open">📂 Open</div>
-      ${item.type !== 'folder' ? '<div class="context-menu-item" data-action="download">⬇️ Download</div>' : ''}
-      <div class="context-menu-item" data-action="copy">📋 Copy</div>
-      <div class="context-menu-item" data-action="rename">✏️ Rename</div>
-      <div class="context-menu-item" data-action="move">📦 Move</div>
-      <div class="context-menu-divider"></div>
-      <div class="context-menu-item danger" data-action="delete">🗑️ Delete</div>
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300" data-action="open">
+        <span class="material-symbols-outlined text-lg">folder_open</span> Open
+      </button>
+      ${item.type !== 'folder' ? `
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300" data-action="download">
+        <span class="material-symbols-outlined text-lg">download</span> Download
+      </button>` : ''}
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300" data-action="copy">
+        <span class="material-symbols-outlined text-lg">content_copy</span> Copy
+      </button>
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300" data-action="rename">
+        <span class="material-symbols-outlined text-lg">edit</span> Rename
+      </button>
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300" data-action="move">
+        <span class="material-symbols-outlined text-lg">drive_file_move</span> Move
+      </button>
+      <div class="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
+      <button class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600" data-action="delete">
+        <span class="material-symbols-outlined text-lg">delete</span> Delete
+      </button>
     `;
   }
   
   menu.innerHTML = menuItems;
   
   menu.style.display = 'block';
-  menu.style.left = Math.min(e.pageX, window.innerWidth - 180) + 'px';
-  menu.style.top = Math.min(e.pageY, window.innerHeight - 200) + 'px';
+  menu.style.left = Math.min(e.pageX, window.innerWidth - 200) + 'px';
+  menu.style.top = Math.min(e.pageY, window.innerHeight - 250) + 'px';
   menu.dataset.itemId = item.id;
   menu.dataset.itemType = item.type;
   menu.dataset.itemName = item.name;
@@ -742,12 +820,9 @@ export function initDashboardPage() {
     }
   });
   
-  document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+  document.querySelectorAll('.nav-link[data-page]').forEach(item => {
     item.addEventListener('click', (e) => {
       e.preventDefault();
-      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-      item.classList.add('active');
-      
       const page = item.dataset.page;
       switchView(page);
     });
@@ -976,7 +1051,7 @@ export function initDashboardPage() {
   });
   
   document.getElementById('context-menu')?.addEventListener('click', (e) => {
-    const item = e.target.closest('.context-menu-item');
+    const item = e.target.closest('[data-action]');
     if (item) {
       e.preventDefault();
       const menu = document.getElementById('context-menu');
