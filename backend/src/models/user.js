@@ -1,14 +1,16 @@
-import { db } from '../services/database.js';
+import { v4 as uuidv4 } from 'uuid';
+import { db } from './index.js';
+import bcrypt from 'bcrypt';
 
 const User = {
   async create({ email, passwordHash, oauthProvider, oauthId, name }) {
+    const id = uuidv4();
     const result = await db.query(
       `INSERT INTO users (id, email, password_hash, oauth_provider, oauth_id, name, storage_quota, storage_used)
-       VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5, 10737418240, 0)
-       RETURNING *`,
-      [email, passwordHash, oauthProvider, oauthId, name]
+       VALUES ($1, $2, $3, $4, $5, $6, 10737418240, 0)`,
+      [id, email, passwordHash, oauthProvider, oauthId, name]
     );
-    return result.rows[0];
+    return this.findById(id);
   },
 
   async findByEmail(email) {
@@ -31,7 +33,7 @@ const User = {
 
   async updateStorageUsed(userId, bytes) {
     const result = await db.query(
-      `UPDATE users SET storage_used = storage_used + $1 WHERE id = $2 RETURNING storage_used`,
+      `UPDATE users SET storage_used = storage_used + $1 WHERE id = $2`,
       [bytes, userId]
     );
     return result.rows[0];

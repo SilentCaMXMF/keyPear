@@ -1,14 +1,15 @@
-import { db } from '../services/database.js';
+import { v4 as uuidv4 } from 'uuid';
+import { db } from './index.js';
 
 const File = {
   async create({ userId, folderId, filename, storagePath, thumbnailPath, size, mimeType, checksum }) {
-    const result = await db.query(
+    const id = uuidv4();
+    await db.query(
       `INSERT INTO files (id, user_id, folder_id, filename, storage_path, thumbnail_path, size, mime_type, checksum)
-       VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING *`,
-      [userId, folderId, filename, storagePath, thumbnailPath, size, mimeType, checksum]
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [id, userId, folderId, filename, storagePath, thumbnailPath, size, mimeType, checksum]
     );
-    return result.rows[0];
+    return { id, user_id: userId, folder_id: folderId, filename, storage_path: storagePath, size };
   },
 
   async findById(id) {
@@ -16,30 +17,26 @@ const File = {
     return result.rows[0];
   },
 
-  async findByUser(userId, folderId = null, includeDeleted = false) {
-    let query = `SELECT * FROM files WHERE user_id = $1 AND folder_id = $2`;
-    if (!includeDeleted) {
-      query += ` AND deleted_at IS NULL`;
+  async findByUser(userId, folderId = null) {
+    let sql = `SELECT * FROM files WHERE user_id = $1 AND deleted_at IS NULL`;
+    const params = [userId];
+    
+    if (folderId) {
+      sql += ` AND folder_id = $2`;
+      params.push(folderId);
     }
-    query += ` ORDER BY created_at DESC`;
-    const result = await db.query(query, [userId, folderId]);
+    sql += ` ORDER BY created_at DESC`;
+    
+    const result = await db.query(sql, params);
     return result.rows;
   },
 
   async softDelete(id) {
-    const result = await db.query(
-      `UPDATE files SET deleted_at = NOW() WHERE id = $1 RETURNING *`,
-      [id]
-    );
-    return result.rows[0];
+    await db.query(`UPDATE files SET deleted_at = datetime('now') WHERE id = $1`, [id]);
   },
 
   async restore(id) {
-    const result = await db.query(
-      `UPDATE files SET deleted_at = NULL WHERE id = $1 RETURNING *`,
-      [id]
-    );
-    return result.rows[0];
+    await db.query(`UPDATE files SET deleted_at = NULL WHERE id = $1`, [id]);
   },
 
   async delete(id) {

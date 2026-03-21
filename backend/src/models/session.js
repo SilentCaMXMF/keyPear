@@ -1,19 +1,20 @@
-import { db } from '../services/database.js';
+import { v4 as uuidv4 } from 'uuid';
+import { db } from './index.js';
 
 const Session = {
   async create({ userId, refreshToken, expiresAt }) {
+    const id = uuidv4();
     const result = await db.query(
       `INSERT INTO sessions (id, user_id, refresh_token, expires_at)
-       VALUES (uuid_generate_v4(), $1, $2, $3)
-       RETURNING *`,
-      [userId, refreshToken, expiresAt]
+       VALUES ($1, $2, $3, $4)`,
+      [id, userId, refreshToken, expiresAt]
     );
-    return result.rows[0];
+    return { id, user_id: userId, refresh_token: refreshToken, expires_at: expiresAt };
   },
 
   async findByRefreshToken(refreshToken) {
     const result = await db.query(
-      'SELECT * FROM sessions WHERE refresh_token = $1 AND expires_at > NOW()',
+      `SELECT * FROM sessions WHERE refresh_token = $1`,
       [refreshToken]
     );
     return result.rows[0];

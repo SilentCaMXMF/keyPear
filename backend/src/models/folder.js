@@ -1,14 +1,15 @@
-import { db } from '../services/database.js';
+import { v4 as uuidv4 } from 'uuid';
+import { db } from './index.js';
 
 const Folder = {
   async create({ userId, parentFolderId, name }) {
-    const result = await db.query(
+    const id = uuidv4();
+    await db.query(
       `INSERT INTO folders (id, user_id, parent_folder_id, name)
-       VALUES (uuid_generate_v4(), $1, $2, $3)
-       RETURNING *`,
-      [userId, parentFolderId, name]
+       VALUES ($1, $2, $3, $4)`,
+      [id, userId, parentFolderId, name]
     );
-    return result.rows[0];
+    return { id, user_id: userId, parent_folder_id: parentFolderId, name };
   },
 
   async findById(id) {
@@ -16,37 +17,26 @@ const Folder = {
     return result.rows[0];
   },
 
-  async findByUser(userId, parentFolderId = null, includeDeleted = false) {
-    let query = `SELECT * FROM folders WHERE user_id = $1 AND parent_folder_id = $2`;
-    if (!includeDeleted) {
-      query += ` AND deleted_at IS NULL`;
+  async findByUser(userId, parentFolderId = null) {
+    let sql = `SELECT * FROM folders WHERE user_id = $1 AND deleted_at IS NULL`;
+    const params = [userId];
+    
+    if (parentFolderId) {
+      sql += ` AND parent_folder_id = $2`;
+      params.push(parentFolderId);
     }
-    const result = await db.query(query, [userId, parentFolderId]);
+    
+    const result = await db.query(sql, params);
     return result.rows;
   },
 
   async update(id, { name }) {
-    const result = await db.query(
-      'UPDATE folders SET name = $1 WHERE id = $2 RETURNING *',
-      [name, id]
-    );
-    return result.rows[0];
+    await db.query('UPDATE folders SET name = $1 WHERE id = $2', [name, id]);
+    return { id, name };
   },
 
   async softDelete(id) {
-    const result = await db.query(
-      `UPDATE folders SET deleted_at = NOW() WHERE id = $1 RETURNING *`,
-      [id]
-    );
-    return result.rows[0];
-  },
-
-  async restore(id) {
-    const result = await db.query(
-      `UPDATE folders SET deleted_at = NULL WHERE id = $1 RETURNING *`,
-      [id]
-    );
-    return result.rows[0];
+    await db.query(`UPDATE folders SET deleted_at = datetime('now') WHERE id = $1`, [id]);
   },
 
   async delete(id) {

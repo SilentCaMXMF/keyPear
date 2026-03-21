@@ -1,14 +1,15 @@
-import { db } from '../services/database.js';
+import { v4 as uuidv4 } from 'uuid';
+import { db } from './index.js';
 
 const ActivityLog = {
   async create({ userId, action, fileId, metadata }) {
-    const result = await db.query(
+    const id = uuidv4();
+    await db.query(
       `INSERT INTO activity_logs (id, user_id, action, file_id, metadata)
-       VALUES (uuid_generate_v4(), $1, $2, $3, $4)
-       RETURNING *`,
-      [userId, action, fileId, JSON.stringify(metadata)]
+       VALUES ($1, $2, $3, $4, $5)`,
+      [id, userId, action, fileId, JSON.stringify(metadata)]
     );
-    return result.rows[0];
+    return { id, user_id: userId, action, file_id: fileId, metadata };
   },
 
   async findByUser(userId, limit = 50) {
