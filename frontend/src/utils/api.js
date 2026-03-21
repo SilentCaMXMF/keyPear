@@ -2,9 +2,11 @@
 import { auth } from './auth.js';
 
 // Use localhost:3001 for dev, env var for production
-const API_URL = typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL 
-  ? import.meta.env.VITE_API_URL 
-  : 'http://localhost:3001';
+const getApiUrl = () => {
+  const url = import.meta.env?.VITE_API_URL || 'http://localhost:3001';
+  return url.replace(/\/$/, '');
+};
+const API_URL = getApiUrl();
 
 async function fetchWithAuth(url, options = {}) {
   const token = auth.getToken();
@@ -42,9 +44,12 @@ async function fetchWithAuth(url, options = {}) {
 export const api = {
   // Files
   async getFiles(folderId = null) {
+    const filesUrl = `${API_URL}/api/files${folderId ? `?folderId=${folderId}` : ''}`;
+    const foldersUrl = `${API_URL}/api/folders${folderId ? `?parentFolderId=${folderId}` : ''}`;
+    
     const [filesRes, foldersRes] = await Promise.all([
-      fetchWithAuth(`${API_URL}/api/files?folderId=${folderId || ''}`),
-      fetchWithAuth(`${API_URL}/api/folders?parentFolderId=${folderId || ''}`)
+      fetchWithAuth(filesUrl),
+      fetchWithAuth(foldersUrl)
     ]);
     
     const files = (filesRes.files || []).map(f => ({ ...f, type: 'file' }));
