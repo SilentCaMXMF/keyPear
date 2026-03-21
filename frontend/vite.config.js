@@ -4,5 +4,10 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  envPrefix: 'VITE_'
+  envPrefix: 'VITE_',
+  base: '/',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+  },
 });
