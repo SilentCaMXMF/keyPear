@@ -259,86 +259,89 @@ POST /api/shares
 
 ## Database Schema
 
+> **Note:** This implementation uses SQLite (sql.js), so all types are stored as TEXT/INTEGER internally. The types below show the logical data type, not the SQLite storage type.
+
 ### users
 | Column | Type | Description |
 |--------|------|-------------|
-| id | UUID | Primary key |
-| email | VARCHAR(255) | Unique email |
-| password_hash | VARCHAR(255) | bcrypt hash |
-| oauth_provider | VARCHAR(50) | google/github |
-| oauth_id | VARCHAR(255) | OAuth ID |
-| name | VARCHAR(255) | Display name |
-| storage_used | BIGINT | Bytes used |
-| storage_quota | BIGINT | Default 10GB |
-| created_at | TIMESTAMP | Creation date |
+| id | TEXT (UUID) | Primary key |
+| email | TEXT | Unique email |
+| password_hash | TEXT | bcrypt hash |
+| oauth_provider | TEXT | google/github |
+| oauth_id | TEXT | OAuth ID |
+| name | TEXT | Display name |
+| storage_used | INTEGER | Bytes used |
+| storage_quota | INTEGER | Default 10GB (10737418240) |
+| created_at | TEXT | ISO timestamp |
 
 ### files
 | Column | Type | Description |
 |--------|------|-------------|
-| id | UUID | Primary key |
-| user_id | UUID | Owner reference |
-| folder_id | UUID | Parent folder (null = root) |
-| filename | VARCHAR(255) | Display name |
-| storage_path | VARCHAR(512) | Actual file path |
-| thumbnail_path | VARCHAR(512) | Thumbnail path |
-| size | BIGINT | File size in bytes |
-| mime_type | VARCHAR(100) | MIME type |
-| checksum | VARCHAR(64) | SHA-256 hash |
-| created_at | TIMESTAMP | Upload date |
-| deleted_at | TIMESTAMP | Soft delete date |
+| id | TEXT (UUID) | Primary key |
+| user_id | TEXT (UUID) | Owner reference |
+| folder_id | TEXT (UUID) | Parent folder (null = root) |
+| filename | TEXT | Display name |
+| storage_path | TEXT | Actual file path |
+| thumbnail_path | TEXT | Thumbnail path |
+| size | INTEGER | File size in bytes |
+| mime_type | TEXT | MIME type |
+| checksum | TEXT | SHA-256 hash |
+| created_at | TEXT | ISO timestamp |
+| deleted_at | TEXT | ISO timestamp (null if not deleted) |
 
 ### folders
 | Column | Type | Description |
 |--------|------|-------------|
-| id | UUID | Primary key |
-| user_id | UUID | Owner reference |
-| parent_folder_id | UUID | Parent folder (null = root) |
-| name | VARCHAR(255) | Folder name |
-| created_at | TIMESTAMP | Creation date |
-| deleted_at | TIMESTAMP | Soft delete date |
+| id | TEXT (UUID) | Primary key |
+| user_id | TEXT (UUID) | Owner reference |
+| parent_folder_id | TEXT (UUID) | Parent folder (null = root) |
+| name | TEXT | Folder name |
+| created_at | TEXT | ISO timestamp |
+| deleted_at | TEXT | ISO timestamp (null if not deleted) |
 
 ### shares
 | Column | Type | Description |
 |--------|------|-------------|
-| id | UUID | Primary key |
-| file_id | UUID | Referenced file |
-| token | VARCHAR(64) | Unique share token |
-| expires_at | TIMESTAMP | Expiration (null = never) |
-| shared_with_email | VARCHAR(255) | Email sharing |
-| shared_with_user_id | UUID | User-to-user sharing |
-| created_at | TIMESTAMP | Creation date |
+| id | TEXT (UUID) | Primary key |
+| file_id | TEXT (UUID) | Referenced file |
+| token | TEXT | Unique share token |
+| expires_at | TEXT | ISO timestamp (null = never) |
+| shared_with_email | TEXT | Email sharing (optional) |
+| shared_with_user_id | TEXT (UUID) | User-to-user sharing (optional) |
+| created_at | TEXT | ISO timestamp |
 
 ### sessions
 | Column | Type | Description |
 |--------|------|-------------|
-| id | UUID | Primary key |
-| user_id | UUID | User reference |
+| id | TEXT (UUID) | Primary key |
+| user_id | TEXT (UUID) | User reference |
 | refresh_token | TEXT | JWT refresh token |
-| expires_at | TIMESTAMP | Token expiration |
+| expires_at | TEXT | ISO timestamp |
+| created_at | TEXT | ISO timestamp |
 
 ### activity_logs
 | Column | Type | Description |
 |--------|------|-------------|
-| id | UUID | Primary key |
-| user_id | UUID | User reference |
-| action | VARCHAR(50) | Action type |
-| file_id | UUID | Related file |
-| timestamp | TIMESTAMP | Action time |
-| metadata | JSONB | Action details |
+| id | TEXT (UUID) | Primary key |
+| user_id | TEXT (UUID) | User reference |
+| action | TEXT | Action type |
+| file_id | TEXT (UUID) | Related file |
+| timestamp | TEXT | ISO timestamp |
+| metadata | TEXT | JSON string |
 
 ### chunk_uploads
 | Column | Type | Description |
 |--------|------|-------------|
-| id | UUID | Primary key |
-| user_id | UUID | User reference |
-| filename | VARCHAR(255) | Original filename |
+| id | TEXT (UUID) | Primary key |
+| user_id | TEXT (UUID) | User reference |
+| filename | TEXT | Original filename |
 | total_chunks | INTEGER | Total chunks expected |
-| total_size | BIGINT | Total file size |
-| mime_type | VARCHAR(100) | MIME type |
-| folder_id | UUID | Destination folder |
-| upload_path | VARCHAR(512) | Temp storage path |
-| created_at | TIMESTAMP | Start time |
-| expires_at | TIMESTAMP | Expiration for cleanup |
+| total_size | INTEGER | Total file size |
+| mime_type | TEXT | MIME type |
+| folder_id | TEXT (UUID) | Destination folder |
+| upload_path | TEXT | Temp storage path |
+| created_at | TEXT | ISO timestamp |
+| expires_at | TEXT | ISO timestamp |
 
 ## Security Features
 
@@ -439,8 +442,10 @@ sudo systemctl start keypear-smb keypear-api
 # Configure ~/.cloudflared/config.yml:
 #   tunnel: <tunnel-id>
 #   ingress:
-#     - hostname: api.keypear.pedroocalado.eu
+#     - hostname: backend-api.pedroocalado.eu
 #       service: http://127.0.0.1:3001
+#       originRequest:
+#         noTLSVerify: true
 #     - service: http_status:404
 
 cloudflared tunnel run keypear-api
@@ -515,8 +520,8 @@ lsof -ti:3001 | xargs kill -9
 mount | grep cifs
 
 # Manual mount
-sudo mount -t cifs //192.168.1.254/public /mnt/keypear \
-  -o credentials=/home/pi/.smbcredentials
+sudo mount -t cifs //192.168.1.254/public /home/pedroocalado/keypear_mount \
+  -o credentials=/home/pedroocalado/.smbcredentials,vers=1.0,sec=ntlmssp
 ```
 
 ### Database Locked
@@ -525,79 +530,6 @@ sudo mount -t cifs //192.168.1.254/public /mnt/keypear \
 ps aux | grep node
 # Restart the service
 sudo systemctl restart keypear-api
-```
-
-## Implementation Analysis
-
-### ✅ Verified Working Features
-
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Auth: register, login, logout, refresh | ✅ | Returns `accessToken`, `refreshToken`, `user` |
-| Files: CRUD operations | ✅ | Upload, list, rename, move, copy, delete, restore |
-| Files: /trash, /recent endpoints | ✅ | List trashed and recent files |
-| Files: download, thumbnail endpoints | ✅ | Stream file/thumbnail |
-| Folders: CRUD operations | ✅ | Create, rename, move, copy, delete, restore |
-| Folders: /tree, /trash endpoints | ✅ | Tree structure and trash listing |
-| Shares: CRUD operations | ✅ | Create, list, get by token, delete |
-| Shares: /shared-with-me | ✅ | List files shared with user |
-| Chunked uploads | ✅ | /upload/chunk, /upload/complete |
-| Activity logs | ✅ | GET / with user filtering |
-| Storage: SMB mount | ✅ | `path.join(SMB_MOUNT_PATH, 'keypear_files')` |
-| Thumbnail generation | ✅ | 200x200px JPEG via Sharp |
-| JWT auth | ✅ | 15min access, 7d refresh, bcrypt 12 rounds |
-| CORS | ✅ | vercel.app, localhost allowed |
-| SQLite (sql.js) | ✅ | Embedded database with auto-schema |
-
-### ❌ Missing / Not Implemented
-
-| Feature | README Says | Actual | Priority |
-|---------|-------------|--------|----------|
-| User profile endpoints | GET/PATCH `/me` | NOT implemented | Medium |
-| Rate limiting | Global 1000/15min, Auth 20/15min | NOT implemented | High |
-| OAuth (Passport) | passport.js listed | NOT wired to server.js | Low |
-| File metadata endpoint | GET `/:id` | NOT implemented | Low |
-
-### ⚠️ Discrepancies (Need Cleanup)
-
-| Item | README | Actual | Action |
-|------|--------|--------|--------|
-| Systemd service name | `keypear-api.service` | `keypear-backend.service` | Update README |
-| SMB mount path | `/mnt/keypear` | `/home/pedroocalado/keypear_mount` | Update README |
-| Cloudflare hostname | `api.keypear.pedroocalado.eu` | `backend-api.pedroocalado.eu` | Update README |
-| Database: sessions.expires_at | Listed in schema | NOT in actual schema | Add to schema |
-| Database: shares columns | shared_with_email, shared_with_user_id | NOT in schema | Add to schema |
-| Database: activity_logs.metadata | JSONB | TEXT | Schema mismatch |
-| JWT secrets fallback | JWT_ACCESS_SECRET, JWT_REFRESH_SECRET | Falls back to JWT_SECRET | Document behavior |
-
-### 📋 Refactoring Tasks
-
-1. **High Priority**
-   - [ ] Implement rate limiting middleware
-   - [ ] Add user profile endpoints (GET/PATCH /me)
-
-2. **Medium Priority**
-   - [ ] Wire up OAuth passport.js
-   - [ ] Add file metadata endpoint GET /:id
-
-3. **Documentation Cleanup**
-   - [ ] Fix systemd service name in README
-   - [ ] Fix SMB mount path in README
-   - [ ] Fix Cloudflare tunnel hostname in README
-   - [ ] Align database schema comments with actual implementation
-
-### 🔧 Schema Corrections Needed
-
-```sql
--- sessions table missing expires_at column (used but not in schema)
-ALTER TABLE sessions ADD COLUMN expires_at TEXT;
-
--- shares table missing email sharing columns
-ALTER TABLE shares ADD COLUMN shared_with_email TEXT;
-ALTER TABLE shares ADD COLUMN shared_with_user_id TEXT;
-
--- activity_logs.metadata is TEXT, not JSONB
--- No changes needed, just update documentation
 ```
 
 ## License

@@ -1,8 +1,5 @@
 -- Add shared_with columns to shares table for user-to-user sharing
-ALTER TABLE shares ADD COLUMN IF NOT EXISTS shared_with_email VARCHAR(255);
-ALTER TABLE shares ADD COLUMN IF NOT EXISTS shared_with_user_id UUID REFERENCES users(id) ON DELETE SET NULL;
-ALTER TABLE shares ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-
--- Create index for finding shares by user
-CREATE INDEX IF NOT EXISTS idx_shares_shared_with_email ON shares(shared_with_email);
-CREATE INDEX IF NOT EXISTS idx_shares_shared_with_user_id ON shares(shared_with_user_id);
+-- SQLite compatible syntax (no IF NOT EXISTS for ALTER TABLE, use try/catch in code)
+ALTER TABLE shares ADD COLUMN shared_with_email TEXT;
+ALTER TABLE shares ADD COLUMN shared_with_user_id TEXT;
+ALTER TABLE shares ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP;
