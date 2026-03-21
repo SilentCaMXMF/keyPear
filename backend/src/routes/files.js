@@ -36,6 +36,11 @@ const sanitizeFilename = (filename) => {
     .substring(0, 200);
 };
 
+const getFileMeta = (mimeType, filename) => ({
+  fileType: getFileType(mimeType, filename),
+  icon: getFileIcon(mimeType, filename),
+});
+
 router.post('/upload', authenticate, async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
@@ -82,8 +87,8 @@ router.post('/upload', authenticate, async (req, res) => {
     res.status(201).json({ 
       file: {
         ...file,
-        fileType: getFileType(mimeType, originalFilename),
-        icon: getFileIcon(mimeType, originalFilename),
+        ...getFileMeta(mimeType, originalFilename),
+        hasThumbnail: !!thumbnailPath,
       }
     });
   } catch (error) {
@@ -94,20 +99,169 @@ router.post('/upload', authenticate, async (req, res) => {
 
 router.get('/', authenticate, async (req, res) => {
   try {
-    const { folderId } = req.query;
-    const files = await File.findByUser(req.userId, folderId || null);
+    const { folderId, search, sort = 'created_at', order = 'DESC' } = req.query;
+    
+    let files;
+    if (search) {
+      files = await File.search(req.userId, search, folderId || null);
+    } else {
+      files = await File.findByUser(req.userId, folderId || null, sort, order);
+    }
     
     const filesWithMeta = files.map(f => ({
       ...f,
-      fileType: getFileType(f.mime_type, f.filename),
-      icon: getFileIcon(f.mime_type, f.filename),
+      ...getFileMeta(f.mime_type, f.filename),
       hasThumbnail: !!f.thumbnail_path,
     }));
 
-    res.json({ files: filesWithMeta });
+    const user = await User.findById(req.userId);
+
+    res.json({ 
+      files: filesWithMeta,
+      storage: {
+        used: user.storage_used || 0,
+        quota: user.storage_quota || 10 * 1024 * 1024 * 1024,
+      }
+    });
   } catch (error) {
     console.error('List files error:', error);
     res.status(500).json({ error: 'Failed to list files' });
+  }
+});
+
+router.patch('/:id', authenticate, async (req, res) => {
+  try {
+    const { name, folderId } = req.body;
+    const file = await File.findById(req.params.id);
+
+    if (!file || file.user_id !== req.userId) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    if (name !== undefined) {
+      const ext = path.extname(file.filename);
+      const baseName = path.basename(file.filename, ext);
+      const oldPath = file.storage_path;
+      const newFilename = sanitizeFilename(name + ext);
+      const newPath = path.join(path.dirname(oldPath), `${newFilename}_${file.id}${ext}`);
+      
+      fs.renameSync(oldPath, newPath);
+      await File.update(file.id, { filename: newFilename, storagePath: newPath });
+      
+      if (file.thumbnail_path && fs.existsSync(file.thumbnail_path)) {
+        const newThumbPath = path.join(path.dirname(file.thumbnail_path), `${file.id}.jpg`);
+        fs.renameSync(file.thumbnail_path, newThumbPath);
+        await File.update(file.id, { thumbnailPath: newThumbPath });
+      }
+      
+      await ActivityLog.create({ userId: req.userId, action: 'file_rename', fileId: file.id, metadata: { oldName: file.filename, newName: newFilename } });
+      
+      return res.json({ id: file.id, filename: newFilename });
+    }
+
+    if (folderId !== undefined) {
+      await File.update(file.id, { folderId: folderId || null });
+      await ActivityLog.create({ userId: req.userId, action: 'file_move', fileId: file.id, metadata: { folderId } });
+      return res.json({ id: file.id, folder_id: folderId || null });
+    }
+
+    res.status(400).json({ error: 'No valid update fields provided' });
+  } catch (error) {
+    console.error('Update file error:', error);
+    res.status(500).json({ error: 'Failed to update file' });
+  }
+});
+
+router.post('/:id/copy', authenticate, async (req, res) => {
+  try {
+    const { folderId } = req.body;
+    const originalFile = await File.findById(req.params.id);
+
+    if (!originalFile || originalFile.user_id !== req.userId) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    if (!fs.existsSync(originalFile.storage_path)) {
+      return res.status(404).json({ error: 'Original file not found on disk' });
+    }
+
+    const userDir = ensureStorageDir(req.userId);
+    const fileId = uuidv4();
+    const ext = path.extname(originalFile.filename);
+    const baseName = path.basename(originalFile.filename, ext).replace(/_[^_]+$/, '');
+    const newFilename = `${baseName}_copy_${fileId}${ext}`;
+    const newPath = path.join(userDir, newFilename);
+
+    fs.copyFileSync(originalFile.storage_path, newPath);
+    const checksum = crypto.createHash('sha256').update(fs.readFileSync(newPath)).digest('hex');
+
+    let thumbnailPath = null;
+    if (originalFile.thumbnail_path && fs.existsSync(originalFile.thumbnail_path)) {
+      const newThumbPath = path.join(path.dirname(originalFile.thumbnail_path), `${fileId}.jpg`);
+      fs.copyFileSync(originalFile.thumbnail_path, newThumbPath);
+      thumbnailPath = newThumbPath;
+    }
+
+    const newFile = await File.create({
+      userId: req.userId,
+      folderId: folderId || originalFile.folder_id,
+      filename: `${baseName}_copy${ext}`,
+      storagePath: newPath,
+      thumbnailPath,
+      size: originalFile.size,
+      mimeType: originalFile.mime_type,
+      checksum,
+    });
+
+    await User.updateStorageUsed(req.userId, originalFile.size);
+    await ActivityLog.create({ userId: req.userId, action: 'file_copy', fileId: newFile.id, metadata: { originalId: originalFile.id } });
+
+    res.status(201).json({ 
+      file: {
+        ...newFile,
+        ...getFileMeta(originalFile.mime_type, newFile.filename),
+        hasThumbnail: !!thumbnailPath,
+      }
+    });
+  } catch (error) {
+    console.error('Copy file error:', error);
+    res.status(500).json({ error: 'Failed to copy file' });
+  }
+});
+
+router.post('/bulk-delete', authenticate, async (req, res) => {
+  try {
+    const { fileIds } = req.body;
+    
+    if (!Array.isArray(fileIds) || fileIds.length === 0) {
+      return res.status(400).json({ error: 'No file IDs provided' });
+    }
+
+    let totalSize = 0;
+    for (const fileId of fileIds) {
+      const file = await File.findById(fileId);
+      if (file && file.user_id === req.userId) {
+        if (fs.existsSync(file.storage_path)) {
+          fs.unlinkSync(file.storage_path);
+        }
+        if (file.thumbnail_path && fs.existsSync(file.thumbnail_path)) {
+          fs.unlinkSync(file.thumbnail_path);
+        }
+        totalSize += file.size || 0;
+        await File.delete(fileId);
+      }
+    }
+
+    if (totalSize > 0) {
+      await User.updateStorageUsed(req.userId, -totalSize);
+    }
+
+    await ActivityLog.create({ userId: req.userId, action: 'bulk_delete', metadata: { count: fileIds.length } });
+
+    res.json({ message: `${fileIds.length} files deleted`, deleted: fileIds.length });
+  } catch (error) {
+    console.error('Bulk delete error:', error);
+    res.status(500).json({ error: 'Failed to delete files' });
   }
 });
 
@@ -192,7 +346,7 @@ router.post('/:id/restore', authenticate, async (req, res) => {
     res.json({ message: 'File restored' });
   } catch (error) {
     console.error('Restore error:', error);
-    res.status(500).json({ error: 'Restore failed' });
+    res.status(500).json({ error: 'Failed to restore file' });
   }
 });
 

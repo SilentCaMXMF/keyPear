@@ -643,6 +643,240 @@ a:hover {
 }
 
 /* ============================================
+   Storage Bar
+   ============================================ */
+.storage-bar {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.storage-info {
+  font-size: 0.75rem;
+  color: var(--outline);
+  margin-bottom: var(--space-2);
+}
+
+.storage-progress {
+  height: 4px;
+  background: var(--surface-container-low);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.storage-fill {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.3s;
+}
+
+/* ============================================
+   Toolbar
+   ============================================ */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.toolbar-left, .toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: var(--surface-container-low);
+  border-radius: 0.5rem;
+  padding: 0 var(--space-3);
+}
+
+.search-icon {
+  font-size: 0.875rem;
+  opacity: 0.5;
+}
+
+.search-box input {
+  border: none;
+  background: transparent;
+  padding: var(--space-2) var(--space-2);
+  outline: none;
+  font-size: 0.875rem;
+  width: 180px;
+}
+
+.sort-select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--outline-variant);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.inline-input {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.inline-input input {
+  padding: var(--space-2);
+  border: 1px solid var(--outline-variant);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.btn-sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.75rem;
+}
+
+.btn-error {
+  background: var(--error);
+  color: white;
+}
+
+/* ============================================
+   Bulk Actions
+   ============================================ */
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-container-high);
+  border-radius: 0.5rem;
+  margin: 0 var(--space-4);
+}
+
+#selected-count {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* ============================================
+   Upload Progress
+   ============================================ */
+.upload-progress {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-container-high);
+  border-radius: 0.5rem;
+  margin: 0 var(--space-4) var(--space-4);
+}
+
+.progress-bar {
+  height: 4px;
+  background: var(--surface-container-low);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: var(--space-2);
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.2s;
+}
+
+#progress-text {
+  font-size: 0.75rem;
+  color: var(--outline);
+}
+
+/* ============================================
+   Checkbox
+   ============================================ */
+.file-checkbox {
+  width: 1.125rem;
+  height: 1.125rem;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.file-item.selected {
+  background: var(--surface-container-high);
+}
+
+/* ============================================
+   Modal
+   ============================================ */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: var(--surface);
+  border-radius: 1rem;
+  padding: var(--space-6);
+  min-width: 300px;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+.modal-content h3 {
+  margin-bottom: var(--space-4);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+/* ============================================
+   Folder Tree
+   ============================================ */
+.folder-tree {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tree-item:hover {
+  background: var(--surface-container-low);
+}
+
+.tree-item.selected {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.tree-icon {
+  font-size: 1rem;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+.empty-state {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--on-surface-variant);
+}
+
+/* ============================================
    Responsive
    ============================================ */
 @media (max-width: 768px) {
@@ -667,5 +901,18 @@ a:hover {
   .main-content {
     margin-left: 0;
     padding: var(--space-4);
+  }
+  
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .toolbar-left, .toolbar-right {
+    flex-wrap: wrap;
+  }
+  
+  .search-box input {
+    width: 100%;
   }
 }

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../models/index.js';
+import { Folder, ActivityLog } from '../models/index.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
@@ -13,13 +14,15 @@ router.post('/', authenticate, async (req, res) => {
       return res.status(400).json({ message: 'Folder name is required' });
     }
     
-    const folderId = uuidv4();
-    await db.query(
-      `INSERT INTO folders (id, user_id, parent_folder_id, name) VALUES ($1, $2, $3, $4)`,
-      [folderId, req.userId, parentFolderId || null, name]
-    );
+    const folder = await Folder.create({
+      userId: req.userId,
+      parentFolderId: parentFolderId || null,
+      name,
+    });
     
-    res.status(201).json({ id: folderId, name, parentFolderId });
+    await ActivityLog.create({ userId: req.userId, action: 'folder_create', fileId: folder.id, metadata: { name } });
+    
+    res.status(201).json(folder);
   } catch (error) {
     console.error('Create folder error:', error);
     res.status(500).json({ message: 'Failed to create folder' });
@@ -28,32 +31,103 @@ router.post('/', authenticate, async (req, res) => {
 
 router.get('/', authenticate, async (req, res) => {
   try {
-    const { parentFolderId } = req.query;
-    const folders = await db.query(
-      `SELECT * FROM folders WHERE user_id = $1 AND deleted_at IS NULL${parentFolderId ? ' AND parent_folder_id = $2' : ' AND parent_folder_id IS NULL'}`,
-      parentFolderId ? [req.userId, parentFolderId] : [req.userId]
-    );
-    res.json({ folders: folders.rows });
+    const { parentFolderId, search } = req.query;
+    
+    let folders;
+    if (search) {
+      folders = await Folder.search(req.userId, search);
+    } else {
+      folders = await Folder.findByUser(req.userId, parentFolderId || null);
+    }
+    
+    res.json({ folders });
   } catch (error) {
     console.error('List folders error:', error);
     res.status(500).json({ error: 'Failed to list folders' });
   }
 });
 
+router.get('/tree', authenticate, async (req, res) => {
+  try {
+    const folders = await Folder.getTree(req.userId);
+    res.json({ folders });
+  } catch (error) {
+    console.error('Get folder tree error:', error);
+    res.status(500).json({ error: 'Failed to get folder tree' });
+  }
+});
+
 router.patch('/:id', authenticate, async (req, res) => {
   try {
-    const { name } = req.body;
-    await db.query('UPDATE folders SET name = $1 WHERE id = $2', [name, req.params.id]);
-    res.json({ id: req.params.id, name });
+    const { name, parentFolderId } = req.body;
+    const folder = await Folder.findById(req.params.id);
+    
+    if (!folder || folder.user_id !== req.userId) {
+      return res.status(404).json({ error: 'Folder not found' });
+    }
+
+    if (parentFolderId !== undefined) {
+      if (parentFolderId === req.params.id) {
+        return res.status(400).json({ error: 'Cannot move folder into itself' });
+      }
+      await Folder.move(req.params.id, parentFolderId || null);
+      await ActivityLog.create({ userId: req.userId, action: 'folder_move', fileId: req.params.id, metadata: { parentFolderId } });
+      return res.json({ id: req.params.id, parent_folder_id: parentFolderId || null });
+    }
+
+    if (name !== undefined) {
+      await Folder.update(req.params.id, { name });
+      await ActivityLog.create({ userId: req.userId, action: 'folder_rename', fileId: req.params.id, metadata: { oldName: folder.name, newName: name } });
+      return res.json({ id: req.params.id, name });
+    }
+
+    res.status(400).json({ error: 'No valid update fields provided' });
   } catch (error) {
-    console.error('Rename folder error:', error);
-    res.status(500).json({ message: 'Failed to rename folder' });
+    console.error('Update folder error:', error);
+    res.status(500).json({ error: 'Failed to update folder' });
+  }
+});
+
+router.post('/:id/copy', authenticate, async (req, res) => {
+  try {
+    const { parentFolderId } = req.body;
+    const original = await Folder.findById(req.params.id);
+    
+    if (!original || original.user_id !== req.userId) {
+      return res.status(404).json({ error: 'Folder not found' });
+    }
+
+    const newFolder = await Folder.create({
+      userId: req.userId,
+      parentFolderId: parentFolderId || original.parent_folder_id,
+      name: `${original.name}_copy`,
+    });
+
+    await ActivityLog.create({ userId: req.userId, action: 'folder_copy', fileId: newFolder.id, metadata: { originalId: original.id } });
+
+    res.status(201).json(newFolder);
+  } catch (error) {
+    console.error('Copy folder error:', error);
+    res.status(500).json({ error: 'Failed to copy folder' });
   }
 });
 
 router.delete('/:id', authenticate, async (req, res) => {
   try {
-    await db.query(`UPDATE folders SET deleted_at = datetime('now') WHERE id = $1`, [req.params.id]);
+    const { permanent } = req.query;
+    const folder = await Folder.findById(req.params.id);
+    
+    if (!folder || folder.user_id !== req.userId) {
+      return res.status(404).json({ error: 'Folder not found' });
+    }
+
+    if (permanent === 'true') {
+      await Folder.deleteRecursive(req.userId, req.params.id);
+      return res.json({ message: 'Folder permanently deleted' });
+    }
+
+    await Folder.softDelete(req.params.id);
+    await ActivityLog.create({ userId: req.userId, action: 'folder_delete', fileId: req.params.id, metadata: { name: folder.name } });
     res.json({ message: 'Folder deleted' });
   } catch (error) {
     console.error('Delete folder error:', error);

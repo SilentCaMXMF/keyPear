@@ -1,7 +1,5 @@
-// API Utilities
 import { auth } from './auth.js';
 
-// Use localhost:3001 for dev, env var for production
 const getApiUrl = () => {
   const url = import.meta.env?.VITE_API_URL || 'http://localhost:3001';
   return url.replace(/\/$/, '');
@@ -42,44 +40,105 @@ async function fetchWithAuth(url, options = {}) {
 }
 
 export const api = {
-  // Files
-  async getFiles(folderId = null) {
-    const filesUrl = `${API_URL}/api/files${folderId ? `?folderId=${folderId}` : ''}`;
-    const foldersUrl = `${API_URL}/api/folders${folderId ? `?parentFolderId=${folderId}` : ''}`;
+  async getFiles(folderId = null, { search = '', sort = 'created_at', order = 'DESC' } = {}) {
+    const params = new URLSearchParams();
+    if (folderId) params.set('folderId', folderId);
+    if (search) params.set('search', search);
+    params.set('sort', sort);
+    params.set('order', order);
     
-    const [filesRes, foldersRes] = await Promise.all([
-      fetchWithAuth(filesUrl),
-      fetchWithAuth(foldersUrl)
-    ]);
-    
-    const files = (filesRes.files || []).map(f => ({ ...f, type: 'file' }));
-    const folders = (foldersRes.folders || []).map(f => ({ ...f, type: 'folder' }));
-    
-    return [...folders, ...files];
+    const url = `${API_URL}/api/files?${params.toString()}`;
+    return fetchWithAuth(url);
   },
   
-  async uploadFile(file, folderId = null) {
-    const formData = new FormData();
-    formData.append('file', file);
-    if (folderId) formData.append('folderId', folderId);
-    
-    const token = auth.getToken();
-    const response = await fetch(`${API_URL}/api/files/upload`, {
+  async updateFile(id, data) {
+    return fetchWithAuth(`${API_URL}/api/files/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+  
+  async copyFile(id, folderId = null) {
+    return fetchWithAuth(`${API_URL}/api/files/${id}/copy`, {
       method: 'POST',
+      body: JSON.stringify({ folderId }),
+    });
+  },
+  
+  async bulkDelete(fileIds) {
+    return fetchWithAuth(`${API_URL}/api/files/bulk-delete`, {
+      method: 'POST',
+      body: JSON.stringify({ fileIds }),
+    });
+  },
+  
+  async uploadFile(file, folderId = null, onProgress = null) {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      if (folderId) formData.append('folderId', folderId);
+      
+      const token = auth.getToken();
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable && onProgress) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      });
+      
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            resolve(JSON.parse(xhr.responseText));
+          } catch {
+            reject(new Error('Invalid response'));
+          }
+        } else {
+          try {
+            const error = JSON.parse(xhr.responseText);
+            reject(new Error(error.message || 'Upload failed'));
+          } catch {
+            reject(new Error('Upload failed'));
+          }
+        }
+      });
+      
+      xhr.addEventListener('error', () => reject(new Error('Network error')));
+      
+      xhr.open('POST', `${API_URL}/api/files/upload`);
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.send(formData);
+    });
+  },
+  
+  async deleteFile(id, permanent = false) {
+    return fetchWithAuth(`${API_URL}/api/files/${id}?permanent=${permanent}`, { 
+      method: 'DELETE' 
+    });
+  },
+  
+  async restoreFile(id) {
+    return fetchWithAuth(`${API_URL}/api/files/${id}/restore`, { method: 'POST' });
+  },
+  
+  async downloadFile(id, filename) {
+    const token = auth.getToken();
+    const response = await fetch(`${API_URL}/api/files/${id}/download`, {
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-      body: formData,
     });
     
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Upload failed' }));
-      throw new Error(error.message || 'Upload failed');
-    }
+    if (!response.ok) throw new Error('Download failed');
     
-    return response.json();
-  },
-  
-  async deleteFile(id) {
-    return fetchWithAuth(`${API_URL}/api/files/${id}`, { method: 'DELETE' });
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   },
   
   async createFolder(name, parentFolderId = null) {
@@ -89,28 +148,47 @@ export const api = {
     });
   },
   
-  async deleteFolder(id) {
-    return fetchWithAuth(`${API_URL}/api/folders/${id}`, { method: 'DELETE' });
+  async updateFolder(id, data) {
+    return fetchWithAuth(`${API_URL}/api/folders/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
   },
   
-  // User
+  async copyFolder(id, parentFolderId = null) {
+    return fetchWithAuth(`${API_URL}/api/folders/${id}/copy`, {
+      method: 'POST',
+      body: JSON.stringify({ parentFolderId }),
+    });
+  },
+  
+  async deleteFolder(id, permanent = false) {
+    return fetchWithAuth(`${API_URL}/api/folders/${id}?permanent=${permanent}`, { 
+      method: 'DELETE' 
+    });
+  },
+  
+  async getFolderTree() {
+    return fetchWithAuth(`${API_URL}/api/folders/tree`);
+  },
+  
+  async getFolders(folderId = null, search = '') {
+    const params = new URLSearchParams();
+    if (folderId) params.set('parentFolderId', folderId);
+    if (search) params.set('search', search);
+    
+    const url = `${API_URL}/api/folders?${params.toString()}`;
+    return fetchWithAuth(url);
+  },
+  
   async getUser() {
     return fetchWithAuth(`${API_URL}/api/auth/me`);
   },
   
-  // Share
   async createShareLink(fileId, expiresIn) {
-    return fetchWithAuth(`${API_URL}/api/share`, {
+    return fetchWithAuth(`${API_URL}/api/shares`, {
       method: 'POST',
       body: JSON.stringify({ fileId, expiresIn }),
     });
-  },
-  
-  async getShareLinks(fileId) {
-    return fetchWithAuth(`${API_URL}/api/share/file/${fileId}`);
-  },
-  
-  async deleteShareLink(linkId) {
-    return fetchWithAuth(`${API_URL}/api/share/${linkId}`, { method: 'DELETE' });
   },
 };

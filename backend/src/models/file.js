@@ -17,7 +17,11 @@ const File = {
     return result.rows[0];
   },
 
-  async findByUser(userId, folderId = null) {
+  async findByUser(userId, folderId = null, sort = 'created_at', order = 'DESC') {
+    const allowedSorts = ['filename', 'created_at', 'size', 'mime_type'];
+    const sortCol = allowedSorts.includes(sort) ? sort : 'created_at';
+    const sortOrder = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    
     let sql = `SELECT * FROM files WHERE user_id = $1 AND deleted_at IS NULL`;
     const params = [userId];
     
@@ -25,10 +29,50 @@ const File = {
       sql += ` AND folder_id = $2`;
       params.push(folderId);
     }
-    sql += ` ORDER BY created_at DESC`;
+    
+    sql += ` ORDER BY ${sortCol} ${sortOrder}`;
     
     const result = await db.query(sql, params);
     return result.rows;
+  },
+
+  async search(userId, query, folderId = null) {
+    const sql = `SELECT * FROM files 
+                 WHERE user_id = $1 AND deleted_at IS NULL AND filename LIKE $2
+                 ${folderId ? 'AND folder_id = $3' : ''}
+                 ORDER BY created_at DESC`;
+    const params = folderId ? [userId, `%${query}%`, folderId] : [userId, `%${query}%`];
+    
+    const result = await db.query(sql, params);
+    return result.rows;
+  },
+
+  async update(id, { filename, storagePath, thumbnailPath, folderId }) {
+    const updates = [];
+    const params = [];
+    let paramIndex = 1;
+
+    if (filename !== undefined) {
+      updates.push(`filename = $${paramIndex++}`);
+      params.push(filename);
+    }
+    if (storagePath !== undefined) {
+      updates.push(`storage_path = $${paramIndex++}`);
+      params.push(storagePath);
+    }
+    if (thumbnailPath !== undefined) {
+      updates.push(`thumbnail_path = $${paramIndex++}`);
+      params.push(thumbnailPath);
+    }
+    if (folderId !== undefined) {
+      updates.push(`folder_id = $${paramIndex++}`);
+      params.push(folderId);
+    }
+
+    if (updates.length === 0) return;
+
+    params.push(id);
+    await db.query(`UPDATE files SET ${updates.join(', ')} WHERE id = $${paramIndex}`, params);
   },
 
   async softDelete(id) {
