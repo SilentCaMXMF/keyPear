@@ -1,0 +1,15 @@
+[Unit]
+Description=SMB Mount for KeyPear
+After=network-online.target
+Wants=network-online.target
+Before=keypear.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/mount -t cifs //192.168.1.254/public /home/pedroocalado/keypear_mount -o credentials=/home/pedroocalado/.smbcredentials,vers=3.0,uid=1000,gid=1000,file_mode=0664,dir_mode=0775
+ExecStop=/usr/bin/umount /home/pedroocalado/keypear_mount
+RemainAfterExit=yes
+TimeoutSec=30
+
+[Install]
+WantedBy=multi-user.target
