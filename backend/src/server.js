@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import fileUpload from 'express-fileupload';
 import passport from 'passport';
+import rateLimit from 'express-rate-limit';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -27,29 +28,52 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   'http://localhost:4321',
   'http://localhost:3000',
-  'https://key-pear.vercel.app',
-  /\.vercel\.app$/,
 ].filter(Boolean);
 
-app.use(cors({
+app.set('trust proxy', 1);
+app.use(helmet());
+app.use(morgan('combined'));
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(fileUpload({ 
+  useTempFiles: true, 
+  tempFileDir: '/tmp/',
+  limits: { fileSize: 100 * 1024 * 1024 },
+  abortOnLimit: true,
+}));
+app.use(passport.initialize());
+
+app.use(globalLimiter);
+
+const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.some(o => 
-      typeof o === 'string' ? o === origin : o.test(origin)
-    )) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-}));
-app.use(helmet());
-app.use(morgan('combined'));
-app.use(express.json());
-app.use(fileUpload({ useTempFiles: true, tempFileDir: '/tmp/' }));
-app.use(passport.initialize());
+};
+app.use(cors(corsOptions));
 
-app.use('/api/auth', authRoutes);
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts, please try again later' },
+});
+
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/files/chunks', chunksRoutes);
 app.use('/api/folders', foldersRoutes);

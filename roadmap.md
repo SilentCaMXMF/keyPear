@@ -15,7 +15,7 @@
 │   └─────────────┘   │         │   └──────┬──────┘   │
 │                     │         │          │          │
 │   Deployed: Vercel │         │   ┌──────▼──────┐   │
-│                     │         │   │  SQLite DB  │   │
+│                     │         │   │ PostgreSQL  │   │
 │                     │         │   └─────────────┘   │
 │                     │         │          │          │
 │                     │         │   ┌──────▼──────┐   │
@@ -24,23 +24,24 @@
 │                     │         │   │ 254/public  │   │
 │                     │         │   └─────────────┘   │
 └─────────────────────┘         └──────────┬──────────┘
-                                           │
-                                   ┌───────┴───────┐
-                                   │  ngrok tunnel │
-                                   │  *.ngrok.io   │
-                                   └───────────────┘
+                                            │
+                                    ┌───────┴───────┐
+                                    │ Cloudflare    │
+                                    │ Tunnel        │
+                                    │ api.keypear   │
+                                    └───────────────┘
 ```
 
 ### Tech Stack
 
 | Layer | Technology | Notes |
 |-------|------------|-------|
-| **Frontend** | Vite + Vanilla JS | Lightweight, ~50KB |
+| **Frontend** | Vite + Vanilla JS | Lightweight SPA |
 | **Backend** | Express.js + TypeScript | Runs on Pi |
-| **Database** | SQLite (better-sqlite3) | Local storage |
+| **Database** | PostgreSQL | Persistent storage |
 | **File Storage** | SMB Mount (NAS) | 192.168.1.254/public |
 | **Auth** | JWT + bcrypt | Local accounts |
-| **Deployment** | Vercel (frontend) + ngrok | For API access |
+| **Deployment** | Vercel (frontend) + Cloudflare Tunnel | For API access |
 
 ---
 
@@ -78,10 +79,21 @@
 - 5.02 ⬜ Share links with expiry
 - 5.03 ⬜ Activity logs and audit trail
 
-### Feature 6: Mobile App (Phase 2)
+### Feature 6: Security Hardening (0/8 complete)
 
-- 6.01 ⬜ Set up React Native or Flutter project
-- 6.02 ⬜ Mobile auth and file browser
+- 6.01 ⬜ **CRITICAL: Rotate SMB password** - Change password since exposed in git history
+- 6.02 ⬜ **CRITICAL: Remove credentials from git history** - Use `git-filter-repo` to purge `.env` files
+- 6.03 ⬜ Add rate limiting (`express-rate-limit`) - Prevent brute force attacks
+- 6.04 ⬜ Enable SSH key-based authentication - Disable password SSH auth
+- 6.05 ⬜ Lock down database file permissions (chmod 600)
+- 6.06 ⬜ Add input validation & sanitization - Prevent path traversal, XSS
+- 6.07 ⬜ Fix CORS configuration - Whitelist specific domains only
+- 6.08 ⬜ Implement refresh token rotation - Invalidate old tokens on refresh
+
+### Feature 7: Mobile App (Phase 2)
+
+- 7.01 ⬜ Set up React Native or Flutter project
+- 7.02 ⬜ Mobile auth and file browser
 
 ---
 
@@ -136,31 +148,25 @@ cd ../frontend && npm install
 ### Environment Setup
 
 1. Copy `.env.example` to `.env`
-2. Update with your SMB credentials
+2. Update with your credentials
 
 ```env
 PORT=3001
-JWT_SECRET=<generate-with-openssl-rand-base64-32>
-DATABASE_PATH=./data/keypear.db
-SMB_HOST=192.168.1.254
-SMB_SHARE=public
-SMB_USERNAME=pedroocalado
-SMB_PASSWORD=your-password
-SMB_MOUNT_PATH=/home/pedroocalado/keypear_mount
+JWT_ACCESS_SECRET=<generate-with-openssl-rand-base64-32>
+JWT_REFRESH_SECRET=<different-generate-with-openssl-rand-base64-32>
+DATABASE_URL=postgresql://localhost:5432/keypear
 FRONTEND_URL=http://localhost:3000
 ```
+
+**⚠️ NEVER commit `.env` files to git!**
 
 ### Running
 
 ```bash
-# 1. Mount SMB storage
-sudo mount -t cifs //192.168.1.254/public ~/keypear_mount \
-  -o user=pedroocalado,pass=REDACTED_PASSWORD,vers=1.0
-
-# 2. Start backend (terminal 1)
+# 1. Start backend (terminal 1)
 cd backend && npm run dev
 
-# 3. Start frontend (terminal 2)
+# 2. Start frontend (terminal 2)
 cd frontend && npm run dev
 ```
 
@@ -218,4 +224,34 @@ NEXT_PUBLIC_API_URL=https://your-ngrok-url.ngrok.io
 
 ---
 
-## Progress: 12/21 tasks complete (57%)
+## Progress: 12/29 tasks complete (41%)
+
+---
+
+## ⚠️ Security Alert
+
+The SMB password (`REDACTED_PASSWORD`) and other credentials were accidentally committed to git history. **IMMEDIATE ACTION REQUIRED:**
+
+1. **Change SMB password** on NAS (192.168.1.254)
+2. **Rotate all credentials** that were in `.env`
+3. Run: `git filter-repo --path .env --invert-paths` to remove from history
+4. Force push: `git push --force`
+
+### Environment Variables for Production
+
+```env
+# Required
+PORT=3001
+JWT_ACCESS_SECRET=<generate-with-openssl-rand-base64-32>
+JWT_REFRESH_SECRET=<different-secret>
+DATABASE_URL=postgresql://user:pass@host:5432/keypear
+FRONTEND_URL=https://your-domain.com
+
+# Optional (for production)
+SMB_HOST=192.168.1.254
+SMB_SHARE=public
+SMB_USERNAME=pedroocalado
+SMB_PASSWORD=<NEW-PASSWORD>  # CHANGE THIS!
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```

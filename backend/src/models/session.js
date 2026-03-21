@@ -23,6 +23,14 @@ const Session = {
   async delete(id) {
     await db.query('DELETE FROM sessions WHERE id = $1', [id]);
   },
+
+  async deleteByUserId(userId) {
+    await db.query('DELETE FROM sessions WHERE user_id = $1', [userId]);
+  },
+
+  async deleteExpired() {
+    await db.query('DELETE FROM sessions WHERE expires_at < datetime("now")');
+  },
 };
 
 export default Session;
