@@ -23,7 +23,26 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:4321' }));
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:4321',
+  'http://localhost:3000',
+  'https://key-pear.vercel.app',
+  /\.vercel\.app$/,
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.some(o => 
+      typeof o === 'string' ? o === origin : o.test(origin)
+    )) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 app.use(helmet());
 app.use(morgan('combined'));
 app.use(express.json());
