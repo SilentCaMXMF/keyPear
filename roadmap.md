@@ -59,12 +59,12 @@
 - 2.02 ✅ JWT-based session management (7-day expiry)
 - 2.03 ⏳ OAuth providers (Google, GitHub) - deferred
 
-### Feature 3: File Management (3/4 complete) ✅
+### Feature 3: File Management (4/4 complete) ✅
 
 - 3.01 ✅ File upload endpoint (multipart, 100MB limit)
 - 3.02 ✅ File download/streaming
 - 3.03 ✅ Folder CRUD operations
-- 3.04 ⏳ File preview thumbnails - deferred
+- 3.04 ✅ File preview thumbnails - Sharp-based image thumbnails
 
 ### Feature 4: Web Frontend (3/4 complete) ✅
 
@@ -79,21 +79,28 @@
 - 5.02 ⬜ Share links with expiry
 - 5.03 ⬜ Activity logs and audit trail
 
-### Feature 6: Security Hardening (0/8 complete)
+### Feature 6: Security Hardening (8/8 complete) ✅
 
-- 6.01 ⬜ **CRITICAL: Rotate SMB password** - Change password since exposed in git history
-- 6.02 ⬜ **CRITICAL: Remove credentials from git history** - Use `git-filter-repo` to purge `.env` files
-- 6.03 ⬜ Add rate limiting (`express-rate-limit`) - Prevent brute force attacks
-- 6.04 ⬜ Enable SSH key-based authentication - Disable password SSH auth
-- 6.05 ⬜ Lock down database file permissions (chmod 600)
-- 6.06 ⬜ Add input validation & sanitization - Prevent path traversal, XSS
-- 6.07 ⬜ Fix CORS configuration - Whitelist specific domains only
-- 6.08 ⬜ Implement refresh token rotation - Invalidate old tokens on refresh
+- 6.01 ✅ **Rotate SMB password** - Change password since exposed in git history
+- 6.02 ✅ **Remove credentials from git history** - Use `git-filter-repo` to purge `.env` files
+- 6.03 ✅ Add rate limiting (`express-rate-limit`) - Prevent brute force attacks
+- 6.04 ✅ Enable SSH key-based authentication - Disable password SSH auth
+- 6.05 ✅ Lock down database file permissions (chmod 600)
+- 6.06 ✅ Add input validation & sanitization - Prevent path traversal, XSS
+- 6.07 ✅ Fix CORS configuration - Whitelist specific domains only
+- 6.08 ✅ Implement refresh token rotation - Invalidate old tokens on refresh
 
-### Feature 7: Mobile App (Phase 2)
+### Feature 7: Storage & Infrastructure (4/4 complete) ✅
 
-- 7.01 ⬜ Set up React Native or Flutter project
-- 7.02 ⬜ Mobile auth and file browser
+- 7.01 ✅ Refactor file storage to preserve original names (with UUID suffix for uniqueness)
+- 7.02 ✅ Implement thumbnail generation (Sharp-based for images)
+- 7.03 ✅ Create SMB auto-mount systemd service
+- 7.04 ✅ Organize SMB share structure with per-user isolation
+
+### Feature 8: Mobile App (Phase 2)
+
+- 8.01 ⬜ Set up React Native or Flutter project
+- 8.02 ⬜ Mobile auth and file browser
 
 ---
 
@@ -224,7 +231,7 @@ NEXT_PUBLIC_API_URL=https://your-ngrok-url.ngrok.io
 
 ---
 
-## Progress: 12/29 tasks complete (41%)
+## Progress: 24/31 tasks complete (77%)
 
 ---
 
