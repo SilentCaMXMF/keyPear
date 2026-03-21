@@ -2,10 +2,9 @@
 const TOKEN_KEY = 'keypear_token';
 const USER_KEY = 'keypear_user';
 
-// Use localhost:3001 for dev, env var for production
-const API_URL = typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL 
-  ? import.meta.env.VITE_API_URL 
-  : 'http://localhost:3001';
+// Use VITE_API_URL env var for production, localhost for dev
+const API_URL = import.meta.env?.VITE_API_URL 
+  || 'http://localhost:3001';
 
 export const auth = {
   isLoggedIn() {
@@ -34,7 +33,7 @@ export const auth = {
     }
     
     const data = await response.json();
-    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(TOKEN_KEY, data.accessToken);
     localStorage.setItem(USER_KEY, JSON.stringify(data.user));
     
     return data;
