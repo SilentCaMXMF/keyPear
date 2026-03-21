@@ -516,6 +516,23 @@ a:hover {
   font-size: 1.25rem;
 }
 
+.file-preview {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-container-low);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.file-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .file-info {
   flex: 1;
   min-width: 0;

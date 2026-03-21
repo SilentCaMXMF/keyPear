@@ -118,16 +118,21 @@ function renderFiles(files) {
     return;
   }
   
-  list.innerHTML = files.map(file => `
-    <li class="file-item" data-id="${file.id}" data-type="${file.type}" data-name="${file.filename || file.name}" data-parent="${file.parent_folder_id || ''}">
-      <div class="file-icon">${file.type === 'folder' ? '📁' : '📄'}</div>
+  list.innerHTML = files.map(file => {
+    const icon = file.icon || (file.type === 'folder' || file.fileType === 'folder' ? '📁' : '📄');
+    const thumbnail = file.hasThumbnail ? `<img src="${API_URL}/api/files/${file.id}/thumbnail" class="file-thumbnail" alt="" loading="lazy">` : '';
+    const displayIcon = thumbnail || `<span class="file-icon">${icon}</span>`;
+    
+    return `
+    <li class="file-item" data-id="${file.id}" data-type="${file.type || file.fileType}" data-name="${file.filename || file.name}" data-parent="${file.parent_folder_id || ''}">
+      <div class="file-preview">${displayIcon}</div>
       <div class="file-info">
         <div class="file-name">${file.filename || file.name}</div>
         <div class="file-meta">${formatSize(file.size)} • ${formatDate(file.created_at || file.createdAt)}</div>
       </div>
-      <button class="file-delete-btn" data-id="${file.id}" data-type="${file.type}" data-name="${file.filename || file.name}" title="Delete">×</button>
+      <button class="file-delete-btn" data-id="${file.id}" data-type="${file.type || file.fileType}" data-name="${file.filename || file.name}" title="Delete">×</button>
     </li>
-  `).join('');
+  `}).join('');
 }
 
 async function loadFiles() {
