@@ -1,0 +1,127 @@
+# KeyPear Design Specification
+
+> UI/UX design documentation for the KeyPear cloud storage application.
+> This document serves as a reference for design improvements and consistency.
+
+---
+
+## 1. Project Overview
+
+**KeyPear** is a self-hosted cloud storage application designed for small teams (10-100 users). It runs on a Raspberry Pi with storage backed by SMB, and is accessed via web interface.
+
+### Tech Stack
+- **Frontend**: Vanilla JS SPA with Vite + Tailwind CSS v4
+- **Backend**: Express.js on Node.js
+- **Storage**: SMB mount (192.168.1.254/public)
+- **Deployment**: Vercel (frontend), Raspberry Pi (backend)
+
+### Design Philosophy
+- Clean, professional aesthetic suitable for business use
+- Material Design 3 inspired with custom emerald/green theme
+- Fast, responsive interactions with minimal visual clutter
+- Accessible by default
+
+---
+
+## 2. Color System
+
+### Primary Palette (Emerald/Green)
+
+```css
+/* Primary Colors */
+--primary: #006b22;           /* Dark green - buttons, links */
+--primary-container: #01872e; /* Bright green - accents, highlights */
+--on-primary: #ffffff;        /* White text on primary */
+--on-primary-container: #f7fff1; /* Light text on primary container */
+
+/* Primary Shades */
+--primary-50: #e8f5e9;
+--primary-100: #c8e6c9;
+--primary-200: #a5d6a7;
+--primary-300: #81c784;
+--primary-400: #66bb6a;
+--primary-500: #01872e;  /* Default container */
+--primary-600: #006b22;  /* Default primary */
+--primary-700: #005c1e;
+--primary-800: #004d19;
+--primary-900: #003e15;
+```
+
+### Surface Colors
+
+```css
+/* Surface Container Scale (Material Design 3 inspired) */
+--surface-container-lowest: #ffffff;   /* Cards, elevated surfaces */
+--surface-container-low: #f0f4fc;      /* Sidebar background */
+--surface-container: #eaeef6;         /* Input backgrounds */
+--surface-container-high: #e4e8f0;     /* Hover states */
+--surface-container-highest: #dee3eb; /* Secondary buttons */
+
+/* Semantic Surfaces */
+--background: #f7f9ff;                /* Page background */
+--on-background: #171c22;              /* Primary text */
+--on-surface: #171c22;                /* Body text */
+--on-surface-variant: #3e4a3d;        /* Secondary text, captions */
+```
+
+### Error/Status Colors
+
+```css
+--error: #ba1a1a;
+--error-container: #ffdad6;
+--on-error: #ffffff;
+--on-error-container: #93000a;
+
+--success: #006e25;
+--success-container: #80f98b;
+```
+
+---
+
+## 3. Typography
+
+### Font Family
+
+```css
+font-family: 'Inter', system-ui, -apple-system, sans-serif;
+```
+
+### Type Scale
+
+| Element | Size | Weight | Line Height |
+|---------|------|--------|-------------|
+| H1 | 2rem (32px) | 800 (ExtraBold) | 1.2 |
+| H2 | 1.125rem (18px) | 700 (Bold) | 1.4 |
+| H3 | 1rem (16px) | 600 (SemiBold) | 1.4 |
+| Body | 0.875rem (14px) | 400 (Regular) | 1.6 |
+| Caption | 0.75rem (12px) | 400 | 1.5 |
+| Label | 0.75rem (12px) | 700 | 1.2 |
+
+### Letter Spacing
+
+- Headlines: `-0.02em` (tight tracking)
+- Labels: `0.05em` (wide tracking, uppercase)
+
+---
+
+## 4. Iconography
+
+### Icon Library
+
+**Material Symbols Outlined** (Google Fonts)
+
+---
+
+## 6. Component Specifications
+
+### 6.1 Top App Bar
+
+**Location**: Fixed at top, full width
+
+### 6.2 Sidebar
+
+**Location**: Fixed left, full height
+
+---
+
+*Last updated: March 2026*

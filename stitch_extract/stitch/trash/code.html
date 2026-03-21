@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#f1f3f9",
+              "primary": "#005017",
+              "surface-tint": "#066e24",
+              "surface-container-high": "#e6e8ee",
+              "secondary-fixed-dim": "#6fdd78",
+              "surface-bright": "#f7f9ff",
+              "surface-variant": "#e0e2e8",
+              "on-tertiary-fixed-variant": "#822144",
+              "error-container": "#ffdad6",
+              "on-surface": "#181c20",
+              "on-background": "#181c20",
+              "on-secondary-fixed-variant": "#005319",
+              "tertiary": "#7e1f42",
+              "secondary-container": "#8bfb92",
+              "on-error-container": "#93000a",
+              "inverse-on-surface": "#eff1f7",
+              "surface": "#f7f9ff",
+              "on-tertiary-fixed": "#3f001a",
+              "primary-fixed-dim": "#80db83",
+              "on-tertiary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "surface-container": "#eceef4",
+              "primary-container": "#006b22",
+              "surface-dim": "#d8dae0",
+              "tertiary-container": "#9d3759",
+              "error": "#ba1a1a",
+              "on-primary-fixed": "#002106",
+              "on-secondary-container": "#007526",
+              "secondary": "#006e24",
+              "outline-variant": "#bfcaba",
+              "on-tertiary-container": "#ffc5d2",
+              "on-primary": "#ffffff",
+              "tertiary-fixed-dim": "#ffb1c4",
+              "on-secondary": "#ffffff",
+              "surface-container-highest": "#e0e2e8",
+              "outline": "#6f7a6c",
+              "tertiary-fixed": "#ffd9e0",
+              "on-primary-container": "#8de990",
+              "inverse-primary": "#80db83",
+              "inverse-surface": "#2d3135",
+              "primary-fixed": "#9bf89c",
+              "on-error": "#ffffff",
+              "secondary-fixed": "#8bfb92",
+              "on-primary-fixed-variant": "#005318",
+              "on-surface-variant": "#3f493d",
+              "background": "#f7f9ff",
+              "on-secondary-fixed": "#002106"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+        }
+        .tonal-separation {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full h-16 z-50 bg-white/80 backdrop-blur-md shadow-sm flex items-center justify-between px-6 w-full max-w-full font-['Inter'] antialiased">
+<div class="flex items-center gap-8">
+<span class="text-xl font-black tracking-tighter text-slate-900">keyPear</span>
+<div class="hidden md:flex items-center gap-6">
+<button class="text-slate-600 hover:bg-slate-100 transition-colors px-3 py-1.5 rounded-lg text-sm font-medium">Drive</button>
+<button class="text-slate-600 hover:bg-slate-100 transition-colors px-3 py-1.5 rounded-lg text-sm font-medium">Photos</button>
+<button class="text-slate-600 hover:bg-slate-100 transition-colors px-3 py-1.5 rounded-lg text-sm font-medium">Backups</button>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="bg-surface-container-low px-4 py-2 rounded-full flex items-center gap-2 w-64">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full" placeholder="Search in Trash" type="text"/>
+</div>
+<button class="p-2 rounded-full hover:bg-slate-100 transition-colors">
+<span class="material-symbols-outlined text-slate-600" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-slate-50 flex flex-col py-6 gap-2">
+<div class="px-6 mb-8">
+<h2 class="text-emerald-800 font-bold text-base font-headline">Cloud Storage</h2>
+<p class="text-slate-500 text-xs">KeyPear Personal</p>
+</div>
+<nav class="flex-1">
+<a class="text-slate-600 px-4 py-3 flex items-center gap-3 hover:bg-emerald-50/50 hover:text-emerald-800 transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="folder">folder</span>
+<span class="text-sm font-regular">My Files</span>
+</a>
+<a class="text-slate-600 px-4 py-3 flex items-center gap-3 hover:bg-emerald-50/50 hover:text-emerald-800 transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-sm font-regular">Shared with Me</span>
+</a>
+<a class="text-slate-600 px-4 py-3 flex items-center gap-3 hover:bg-emerald-50/50 hover:text-emerald-800 transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+<span class="text-sm font-regular">Recent</span>
+</a>
+<!-- Active State: Trash -->
+<a class="bg-emerald-50 text-emerald-700 border-r-2 border-emerald-600 font-semibold px-4 py-3 flex items-center gap-3 scale-98 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="delete" style="font-variation-settings: 'FILL' 1;">delete</span>
+<span class="text-sm">Trash</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<div class="bg-surface-container-high rounded-xl p-4 mb-4">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Storage</span>
+<span class="text-[10px] font-bold text-emerald-700">82%</span>
+</div>
+<div class="h-1 w-full bg-slate-200 rounded-full overflow-hidden">
+<div class="h-full bg-emerald-600 w-[82%]"></div>
+</div>
+</div>
+<button class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-xl font-semibold text-sm shadow-sm active:scale-95 transition-all">
+                Upgrade Storage
+            </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-64 pt-24 px-12 pb-12">
+<!-- Editorial Header Section -->
+<div class="flex justify-between items-end mb-12">
+<div class="space-y-1">
+<h1 class="text-[2rem] font-extrabold tracking-tight text-on-surface font-headline leading-tight">Trash</h1>
+<p class="text-slate-500 body-md">Items in trash are deleted after 30 days</p>
+</div>
+<button class="flex items-center gap-2 px-6 py-2.5 rounded-full text-error font-semibold hover:bg-error-container/30 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-lg" data-icon="delete_sweep">delete_sweep</span>
+<span>Empty Trash</span>
+</button>
+</div>
+<!-- Trash Grid / Bento Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Trash Item Card -->
+<div class="col-span-1 lg:col-span-2 space-y-4">
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm opacity-70 hover:opacity-100 transition-opacity flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-low rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400 text-3xl" data-icon="description">description</span>
+</div>
+<div>
+<h3 class="font-semibold text-on-surface">Annual_Report_2023_Draft.pdf</h3>
+<p class="text-xs text-slate-400">Deleted 2 days ago • 4.2 MB</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors" title="Restore">
+<span class="material-symbols-outlined" data-icon="restore">restore</span>
+</button>
+<button class="p-2 text-error hover:bg-error/10 rounded-full transition-colors" title="Delete Forever">
+<span class="material-symbols-outlined" data-icon="delete_forever">delete_forever</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm opacity-70 hover:opacity-100 transition-opacity flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-low rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400 text-3xl" data-icon="image">image</span>
+</div>
+<div>
+<h3 class="font-semibold text-on-surface">Beach_Vibe_Assets.zip</h3>
+<p class="text-xs text-slate-400">Deleted 5 days ago • 128 MB</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors" title="Restore">
+<span class="material-symbols-outlined" data-icon="restore">restore</span>
+</button>
+<button class="p-2 text-error hover:bg-error/10 rounded-full transition-colors" title="Delete Forever">
+<span class="material-symbols-outlined" data-icon="delete_forever">delete_forever</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm opacity-70 hover:opacity-100 transition-opacity flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-low rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400 text-3xl" data-icon="movie">movie</span>
+</div>
+<div>
+<h3 class="font-semibold text-on-surface">Product_Demo_Final_v2.mp4</h3>
+<p class="text-xs text-slate-400">Deleted 12 days ago • 1.1 GB</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors" title="Restore">
+<span class="material-symbols-outlined" data-icon="restore">restore</span>
+</button>
+<button class="p-2 text-error hover:bg-error/10 rounded-full transition-colors" title="Delete Forever">
+<span class="material-symbols-outlined" data-icon="delete_forever">delete_forever</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm opacity-70 hover:opacity-100 transition-opacity flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-low rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400 text-3xl" data-icon="folder_zip">folder_zip</span>
+</div>
+<div>
+<h3 class="font-semibold text-on-surface">Old_Work_Backups_2022</h3>
+<p class="text-xs text-slate-400">Deleted 28 days ago • 850 MB</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors" title="Restore">
+<span class="material-symbols-outlined" data-icon="restore">restore</span>
+</button>
+<button class="p-2 text-error hover:bg-error/10 rounded-full transition-colors" title="Delete Forever">
+<span class="material-symbols-outlined" data-icon="delete_forever">delete_forever</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Side Info Panel (Editorial Style) -->
+<div class="col-span-1 space-y-6">
+<div class="bg-surface-container-low rounded-2xl p-8 border border-outline-variant/10">
+<span class="text-[10px] font-bold text-tertiary uppercase tracking-[0.2em] mb-4 block">High-Insight</span>
+<h3 class="text-xl font-bold text-on-surface mb-4">Space Recovery</h3>
+<p class="text-sm text-slate-600 leading-relaxed mb-6">Emptying your trash now will free up <span class="font-bold text-primary">2.1 GB</span> of space instantly. This action cannot be undone.</p>
+<div class="relative w-full h-48 rounded-xl overflow-hidden mb-6">
+<img class="w-full h-full object-cover" data-alt="Abstract emerald and slate geometric pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVK8TB4BiOyEXj__WZ5YjyJ-6vIPhimjoqGSIwvZ4gaR3QOlTsEA_1n-Fi-qCWu2YWcfhozZNWTQaYHKmnQ7-9DSFrzWdF9PN68BMCQwLWsv5q3PreW_Vb2p6a6-LDHJD78VzSRmom-BuHrSTJdjIMxYClHpz1kD67DCCaIabgsl-6kXJ7UA15-LU951PyN02sMLVp7U36ZkzweAAcJXMPFYt_8OhF44Eu6z58vtxIryHPxXjWyfod-YZk3ccHgoKJr8HD7RAmiJyI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
+</div>
+<button class="w-full py-3 bg-surface-container-lowest text-on-surface border border-outline-variant/20 rounded-xl font-semibold text-sm hover:bg-white hover:shadow-md transition-all">
+                        Learn about retention
+                    </button>
+</div>
+<div class="bg-white rounded-2xl p-8 shadow-sm">
+<h4 class="font-bold text-sm text-slate-900 mb-4">Auto-Delete Queue</h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between text-xs">
+<span class="text-slate-500">Project_Final.key</span>
+<span class="text-error font-medium">Tomorrow</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<span class="text-slate-500">Invoice_October.pdf</span>
+<span class="text-slate-400">In 3 days</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<span class="text-slate-500">Logo_Exploration.ai</span>
+<span class="text-slate-400">In 5 days</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Suppressed for Trash View per rules, but showing for design completeness if it were home) -->
+<!-- <button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-transform">
+        <span class="material-symbols-outlined" data-icon="add">add</span>
+    </button> -->
+</body></html>

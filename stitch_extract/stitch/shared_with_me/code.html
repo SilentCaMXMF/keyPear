@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-low": "#f1f3f9",
+            "primary": "#005017",
+            "surface-tint": "#066e24",
+            "surface-container-high": "#e6e8ee",
+            "secondary-fixed-dim": "#6fdd78",
+            "surface-bright": "#f7f9ff",
+            "surface-variant": "#e0e2e8",
+            "on-tertiary-fixed-variant": "#822144",
+            "error-container": "#ffdad6",
+            "on-surface": "#181c20",
+            "on-background": "#181c20",
+            "on-secondary-fixed-variant": "#005319",
+            "tertiary": "#7e1f42",
+            "secondary-container": "#8bfb92",
+            "on-error-container": "#93000a",
+            "inverse-on-surface": "#eff1f7",
+            "surface": "#f7f9ff",
+            "on-tertiary-fixed": "#3f001a",
+            "primary-fixed-dim": "#80db83",
+            "on-tertiary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container": "#eceef4",
+            "primary-container": "#006b22",
+            "surface-dim": "#d8dae0",
+            "tertiary-container": "#9d3759",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#002106",
+            "on-secondary-container": "#007526",
+            "secondary": "#006e24",
+            "outline-variant": "#bfcaba",
+            "on-tertiary-container": "#ffc5d2",
+            "on-primary": "#ffffff",
+            "tertiary-fixed-dim": "#ffb1c4",
+            "on-secondary": "#ffffff",
+            "surface-container-highest": "#e0e2e8",
+            "outline": "#6f7a6c",
+            "tertiary-fixed": "#ffd9e0",
+            "on-primary-container": "#8de990",
+            "inverse-primary": "#80db83",
+            "inverse-surface": "#2d3135",
+            "primary-fixed": "#9bf89c",
+            "on-error": "#ffffff",
+            "secondary-fixed": "#8bfb92",
+            "on-primary-fixed-variant": "#005318",
+            "on-surface-variant": "#3f493d",
+            "background": "#f7f9ff",
+            "on-secondary-fixed": "#002106"
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: { "DEFAULT": "0.25rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+    }
+    .tonal-separation {
+      background: rgba(255, 255, 255, 0.8);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full h-16 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none flex items-center justify-between px-6 w-full max-w-full">
+<div class="flex items-center gap-8">
+<div class="text-xl font-black tracking-tighter text-slate-900 dark:text-slate-50">keyPear</div>
+<div class="hidden md:flex items-center bg-surface-container-low px-4 py-2 rounded-lg w-96 gap-3">
+<span class="material-symbols-outlined text-slate-400">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full" placeholder="Search files, folders, and shared content" type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors rounded-full text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-slate-50 dark:bg-slate-950 flex flex-col py-6 gap-2">
+<div class="px-6 mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">cloud</span>
+</div>
+<div>
+<div class="text-emerald-800 dark:text-emerald-300 font-bold text-base Inter">Cloud Storage</div>
+<div class="text-xs text-slate-500">KeyPear Personal</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="text-slate-600 dark:text-slate-400 px-4 py-3 flex items-center gap-3 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 hover:text-emerald-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="folder">folder</span>
+<span class="text-sm font-medium">My Files</span>
+</a>
+<a class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-r-2 border-emerald-600 font-semibold px-4 py-3 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="text-sm">Shared with Me</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 px-4 py-3 flex items-center gap-3 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 hover:text-emerald-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+<span class="text-sm font-medium">Recent</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 px-4 py-3 flex items-center gap-3 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 hover:text-emerald-800 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+<span class="text-sm font-medium">Trash</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<div class="bg-surface-container-high rounded-xl p-4">
+<div class="text-xs font-semibold text-slate-600 mb-2">STORAGE</div>
+<div class="h-1.5 w-full bg-slate-300 rounded-full overflow-hidden mb-2">
+<div class="h-full bg-primary w-[75%] rounded-full"></div>
+</div>
+<div class="text-[10px] text-slate-500 mb-3">15.2 GB of 20 GB used</div>
+<button class="w-full bg-primary text-white text-xs font-bold py-2.5 rounded-lg hover:opacity-90 transition-opacity">
+          Upgrade Storage
+        </button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="p-12 max-w-7xl mx-auto">
+<!-- Page Header -->
+<header class="mb-12">
+<h1 class="font-headline font-extrabold text-4xl tracking-tight text-on-surface mb-2">Shared with Me</h1>
+<p class="text-on-surface-variant body-md">Files shared with your team</p>
+</header>
+<!-- Content Grid / Asymmetric Layout -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Main File List Column -->
+<div class="col-span-12 lg:col-span-9 space-y-6">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 text-[10px] font-bold tracking-widest text-slate-500 uppercase">NAME</th>
+<th class="px-6 py-4 text-[10px] font-bold tracking-widest text-slate-500 uppercase">SHARED BY</th>
+<th class="px-6 py-4 text-[10px] font-bold tracking-widest text-slate-500 uppercase">DATE</th>
+<th class="px-6 py-4 text-[10px] font-bold tracking-widest text-slate-500 text-right uppercase">ACTIONS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<!-- File Row 1 -->
+<tr class="group hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-orange-600">description</span>
+</div>
+<div>
+<div class="font-semibold text-sm text-slate-800">Q4_Marketing_Strategy.pdf</div>
+<div class="text-[10px] text-slate-400">4.2 MB</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<img alt="" class="w-6 h-6 rounded-full" data-alt="Headshot of a smiling professional woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZkXPe31JD8SjLNyDpJGcz9a8VAiPu1RsjH8oyPXNa7qRnYZE2LH8muLieU8TjoV6IYAqeRL1mkPVZg6aloiXH_vKXnPCNegOU03YJXUDXiX8NzgqHUz6iIk_D1rpCjx6EF-2p-IaNV3BYoyq3vcUt8EVYJwBur06CStluEDN6z5jjul8fqFoQo47BoHIUIzfIdD22Tl44tzVVt0JxIfRYQU7ZO4cXA8XJ_8KUsfCEqTfolVhi4fDcGPgRNoT6nCRjLIXUDvUwJFL_"/>
+<span class="text-sm text-slate-600">Sarah Jenkins</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-slate-500">Oct 12, 2023</td>
+<td class="px-6 py-5">
+<div class="flex items-center justify-end gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-primary hover:bg-primary/5 transition-colors text-xs font-semibold">
+<span class="material-symbols-outlined text-lg">visibility</span>
+                        Preview
+                      </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-primary hover:bg-primary/5 transition-colors text-xs font-semibold">
+<span class="material-symbols-outlined text-lg">download</span>
+                        Download
+                      </button>
+</div>
+</td>
+</tr>
+<!-- File Row 2 -->
+<tr class="group hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-600">image</span>
+</div>
+<div>
+<div class="font-semibold text-sm text-slate-800">Brand_Assets_V2.zip</div>
+<div class="text-[10px] text-slate-400">128 MB</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<img alt="" class="w-6 h-6 rounded-full" data-alt="Headshot of a man with glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSTdtSXhG8aGY1LjVYu7-kYVrJ6GSLOLUKdrVkRcDrw05KwDgsUs_SI7LKFU51Tsx8N_pSIiwfHHt8kL96uTgY7zETyqxxzZmaN_FokA0id4GYYR6JiULiy8mm0eh-EPVgdAyWskezJPHVUNVH5sVxEfyj1buMtTQ-RxJF0yISHRjnqxdMXQuASEdnBGulJ-f2zKdi7fM5zqjd9dClM7yheZlJFA071dZZgWKwvV0cN0RR96Soo-81ntNQv9SGXrv2pf_bK2xoG7QD"/>
+<span class="text-sm text-slate-600">Marcus Chen</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-slate-500">Oct 09, 2023</td>
+<td class="px-6 py-5">
+<div class="flex items-center justify-end gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-primary hover:bg-primary/5 transition-colors text-xs font-semibold">
+<span class="material-symbols-outlined text-lg">visibility</span>
+                        Preview
+                      </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-primary hover:bg-primary/5 transition-colors text-xs font-semibold">
+<span class="material-symbols-outlined text-lg">download</span>
+                        Download
+                      </button>
+</div>
+</td>
+</tr>
+<!-- File Row 3 -->
+<tr class="group hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-emerald-600">table_chart</span>
+</div>
+<div>
+<div class="font-semibold text-sm text-slate-800">Budget_2024_Draft.xlsx</div>
+<div class="text-[10px] text-slate-400">842 KB</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<img alt="" class="w-6 h-6 rounded-full" data-alt="Headshot of a young creative professional" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAix9kFUr2a9cn8m-8kEeHVZcwFuKapErA_E-FmbpfrhWpLs6xE-Kg-kj1SXTvqi0MoK3_Uo-oc2gqxXe2TxONFCze7S2DkRdU9kBPpcf8YDyWqIWNa6qCQS5o22Rd3Ydx3oqo-sHf02CbqRLknR7NPGq_ax1683sIiRMiPBH5zvVPvDTHwLI0m0k3Z1IR7mxQY0fMyTZ6V8gaihrFTGJYbeo63Y4Ut12CGiAnmBH7obL45Y5jCvRiQ71bzE8VfnV285OP-6QGbKV3v"/>
+<span class="text-sm text-slate-600">Alex Rivera</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-slate-500">Yesterday</td>
+<td class="px-6 py-5">
+<div class="flex items-center justify-end gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-primary hover:bg-primary/5 transition-colors text-xs font-semibold">
+<span class="material-symbols-outlined text-lg">visibility</span>
+                        Preview
+                      </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-primary hover:bg-primary/5 transition-colors text-xs font-semibold">
+<span class="material-symbols-outlined text-lg">download</span>
+                        Download
+                      </button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Sidebar / Stats Column (Asymmetric) -->
+<div class="col-span-12 lg:col-span-3 space-y-6">
+<div class="bg-primary p-6 rounded-xl text-white shadow-md relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="font-bold text-lg mb-4">Collaboration</h3>
+<p class="text-xs text-white/80 leading-relaxed mb-6">You are currently collaborating with 14 team members across 3 departments.</p>
+<div class="flex -space-x-2">
+<img alt="" class="w-8 h-8 rounded-full border-2 border-primary" data-alt="Team member avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgaLM6P3yPNesc-VaqlxSJnWFnPLRCjPlIaogDa1kv1bQM65ibi_jEFCGkTIciRschsFzvBi6emZtMAqGRfhbqZ8QCbh6l_wUab08_Fxn1E8ZZQj8F_ofq5FXMGwGHuR5VFF_yFH5z7txFpvbtz74f8JvEcGzYgNmQ2vcAXYZSX3mlewAYsVvA9wkG_kRMhkWbfPJs4Oa72iZhb2GIDS0qvZvHsnt51b8cbqHUeUkgNRL7gm4-8GYXOAlED2uZIVuxCxf1LU5ZRgdw"/>
+<img alt="" class="w-8 h-8 rounded-full border-2 border-primary" data-alt="Team member avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADIsXXK5QY-q9p1hzZbgs769i395lXqeNUWhdLKZVZLjZm4TMowjh36hqnGW1S6fahFxQFA9koJnQM5ksijHd-EupZVsKuiCCjwynSN5PzR3xi1UAuHyYVbbVGj31VsqZqwfJLCMLZjQAT7Pflx2ietXigGG4LmxqFLGixM8SkpR_s-s_BkymLHUIwCd8mDOCtcTjgPoMeigUlkisnApMS2e7Ju64ooCK0oKdvv5m7XcwfnmSOmVZbRuLg8O-k2IbDJ_uMj7yxpD9r"/>
+<img alt="" class="w-8 h-8 rounded-full border-2 border-primary" data-alt="Team member avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4T0x0O1FLTuUFzUakYjgeayoe-IqzQirzQHPUJzAl7sFxEAMZxfKSaz39_YXYYU3-Dwsf3b0v7uezZ6eKGPZ5SxsizL3yLI9SF7uxnEXTx-xd5gl9qoik4FTzNUkfkPa8b0PzyaRTEWnoif812AViu1FYkaJL7qOYgOsHY9WsyL6byrk4S2bAsKtGEcQi6dJA-mm0RLX-l59FyPH1LYCWMhPgXsuwmY8Qg5avBcJmE4vzD2HOA6fZGmGxOGLU9OxFLI4KnA8BFOGB"/>
+<div class="w-8 h-8 rounded-full border-2 border-primary bg-secondary-container text-on-secondary-container text-[10px] font-bold flex items-center justify-center">+11</div>
+</div>
+</div>
+<!-- Decorative circle -->
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full"></div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<h3 class="font-bold text-slate-800 text-sm mb-4">Storage Insights</h3>
+<ul class="space-y-4">
+<li class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-slate-400 text-lg">group</span>
+</div>
+<div>
+<div class="text-[10px] text-slate-500 font-bold uppercase">Shared Data</div>
+<div class="text-sm font-semibold">1.8 GB</div>
+</div>
+</li>
+<li class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-slate-400 text-lg">download</span>
+</div>
+<div>
+<div class="text-[10px] text-slate-500 font-bold uppercase">Downloads</div>
+<div class="text-sm font-semibold">42 today</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Optional: Empty State Placeholder (commented out in visual logic but structured for display) -->
+<!--
+      <div class="flex flex-col items-center justify-center py-32 text-center">
+        <div class="w-20 h-20 rounded-full bg-surface-container-low flex items-center justify-center mb-6">
+          <span class="material-symbols-outlined text-slate-300 text-4xl" data-icon="group">group</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-800 mb-2">No shared files found</h2>
+        <p class="text-slate-500 max-w-xs">When teammates share files or folders with you, they will appear here for you to download or preview.</p>
+      </div>
+      -->
+</div>
+</main>
+</body></html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>keyPear | Secure Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#f0f4fc",
+              "on-surface-variant": "#3e4a3d",
+              "on-primary-fixed-variant": "#005319",
+              "background": "#f7f9ff",
+              "secondary-container": "#dee3eb",
+              "secondary-fixed": "#dee3eb",
+              "on-error-container": "#93000a",
+              "surface-tint": "#006e23",
+              "surface-variant": "#dee3eb",
+              "secondary-fixed-dim": "#c2c7cf",
+              "tertiary-fixed-dim": "#adc6ff",
+              "primary-fixed": "#8bfb91",
+              "primary": "#006b22",
+              "outline": "#6e7a6b",
+              "tertiary-container": "#1e71e2",
+              "error-container": "#ffdad6",
+              "tertiary-fixed": "#d8e2ff",
+              "surface-container-lowest": "#ffffff",
+              "tertiary": "#0058bb",
+              "on-secondary": "#ffffff",
+              "on-secondary-container": "#60656c",
+              "on-secondary-fixed": "#171c22",
+              "on-tertiary-fixed": "#001a41",
+              "primary-fixed-dim": "#6fdd78",
+              "surface-container-highest": "#dee3eb",
+              "on-tertiary-fixed-variant": "#004493",
+              "on-primary": "#ffffff",
+              "surface-container-high": "#e4e8f0",
+              "on-surface": "#171c22",
+              "primary-container": "#01872e",
+              "on-primary-fixed": "#002106",
+              "on-background": "#171c22",
+              "surface": "#f7f9ff",
+              "on-tertiary-container": "#fefcff",
+              "error": "#ba1a1a",
+              "on-primary-container": "#f7fff1",
+              "outline-variant": "#becab9",
+              "inverse-on-surface": "#edf1f9",
+              "secondary": "#5a5f66",
+              "surface-bright": "#f7f9ff",
+              "on-tertiary": "#ffffff",
+              "inverse-primary": "#6fdd78",
+              "surface-container": "#eaeef6",
+              "inverse-surface": "#2c3137",
+              "surface-dim": "#d6dae2",
+              "on-secondary-fixed-variant": "#42474e",
+              "on-error": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Inter", "sans-serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-keypear-primary {
+            background-color: #006b22;
+        }
+    </style>
+</head>
+<body class="bg-[#f7f9ff] font-body text-on-surface min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-xl shadow-sm px-6 py-3 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-600 text-2xl" data-icon="shield" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="text-xl font-black text-black tracking-tighter">keyPear</span>
+</div>
+<div class="flex items-center gap-4">
+<a class="text-sm font-medium text-emerald-700 hover:opacity-80 transition-all" href="#">Support</a>
+<div class="h-4 w-[1px] bg-outline-variant/30"></div>
+<span class="material-symbols-outlined text-on-surface-variant text-xl" data-icon="language">language</span>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center px-4 pt-20 pb-12">
+<div class="max-w-[1200px] w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<!-- Left Column: Branding & Trust -->
+<div class="hidden lg:flex lg:col-span-7 flex-col gap-8">
+<div class="space-y-4">
+<h1 class="text-[32px] font-extrabold tracking-tighter text-on-surface leading-tight">
+                        Securing your <br/>
+<span class="text-emerald-600">digital fortress.</span>
+</h1>
+<p class="text-lg text-on-surface-variant max-w-md leading-relaxed">
+                        Experience industrial-grade encryption with keyPear. Your data is housed in an immutable vault, protected by asymmetric security logic.
+                    </p>
+</div>
+<!-- Bento Grid of Security Features -->
+<div class="grid grid-cols-2 gap-4">
+<div class="p-6 rounded-xl bg-surface-container-low border border-outline-variant/10">
+<span class="material-symbols-outlined text-emerald-600 mb-4" data-icon="lock_open">lock_open</span>
+<h3 class="font-bold text-on-surface mb-1 text-sm">Zero-Knowledge</h3>
+<p class="text-xs text-on-surface-variant">Your keys never leave your device.</p>
+</div>
+<div class="p-6 rounded-xl bg-surface-container-low border border-outline-variant/10">
+<span class="material-symbols-outlined text-emerald-600 mb-4" data-icon="security">security</span>
+<h3 class="font-bold text-on-surface mb-1 text-sm">Audit Ready</h3>
+<p class="text-xs text-on-surface-variant">Full transparency for compliance.</p>
+</div>
+</div>
+</div>
+<!-- Right Column: Login Card -->
+<div class="lg:col-span-5">
+<div class="bg-[#ffffff] p-8 lg:p-10 rounded-xl shadow-[0_20px_40px_rgba(23,28,34,0.06)] border border-outline-variant/10">
+<div class="mb-8">
+<h2 class="text-3xl font-extrabold tracking-tighter text-on-surface mb-2">Sign In</h2>
+<p class="text-on-surface-variant text-sm">Enter your vault credentials to continue.</p>
+</div>
+<form class="space-y-6">
+<!-- Identity Field -->
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Identity Identifier</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg group-focus-within:text-emerald-600 transition-colors" data-icon="alternate_email">alternate_email</span>
+<input class="w-full pl-12 pr-4 py-4 bg-slate-100 rounded-lg border-none focus:ring-2 focus:ring-emerald-600/20 text-sm placeholder:text-outline outline-none transition-all" placeholder="email@organization.com" required="" type="email"/>
+</div>
+</div>
+<!-- Passphrase Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-center ml-1">
+<label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Secure Passphrase</label>
+<a class="text-[10px] font-bold text-emerald-700 hover:underline uppercase tracking-tighter" href="#">Forgotten passphrase?</a>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg group-focus-within:text-emerald-600 transition-colors" data-icon="key">key</span>
+<input class="w-full pl-12 pr-12 py-4 bg-slate-100 rounded-lg border-none focus:ring-2 focus:ring-emerald-600/20 text-sm placeholder:text-outline outline-none transition-all" placeholder="••••••••••••••••" required="" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- MFA Quick Toggle -->
+<div class="p-4 rounded-lg bg-emerald-50/50 border border-emerald-100 flex items-start gap-3">
+<span class="material-symbols-outlined text-emerald-600 mt-0.5" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<div class="space-y-1">
+<p class="text-xs font-bold text-emerald-900">Hardware MFA Required</p>
+<p class="text-[11px] text-on-surface-variant leading-relaxed">Ensure your Yubikey is inserted or prepare your biometric authenticator.</p>
+</div>
+</div>
+<!-- Actions -->
+<div class="pt-4 flex flex-col gap-4">
+<button class="w-full bg-keypear-primary text-white font-bold py-4 rounded-lg shadow-md hover:opacity-90 active:scale-[0.99] transition-all flex justify-center items-center gap-2" type="submit">
+                                Unlock Vault
+                                <span class="material-symbols-outlined text-lg" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<div class="relative flex items-center py-2">
+<div class="flex-grow border-t border-outline-variant/20"></div>
+<span class="flex-shrink mx-4 text-[10px] font-bold text-outline uppercase tracking-widest">New Deployment?</span>
+<div class="flex-grow border-t border-outline-variant/20"></div>
+</div>
+<button class="w-full bg-slate-100 text-on-surface font-bold py-4 rounded-lg hover:bg-slate-200 transition-colors text-sm" type="button">
+                                Request Access
+                            </button>
+</div>
+</form>
+</div>
+<!-- Accessibility/Security Footer -->
+<div class="mt-8 flex justify-center gap-6">
+<div class="flex items-center gap-1.5 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all cursor-default">
+<span class="material-symbols-outlined text-sm text-emerald-600" data-icon="gpp_good">gpp_good</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">SOC2 Type II</span>
+</div>
+<div class="flex items-center gap-1.5 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all cursor-default">
+<span class="material-symbols-outlined text-sm text-emerald-600" data-icon="encrypted">encrypted</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">AES-256 GCM</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Global Footer -->
+<footer class="mt-auto py-6 border-t border-outline-variant/10">
+<div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-[11px] text-on-surface-variant font-medium">© 2024 keyPear Security Systems. All rights reserved.</p>
+<nav class="flex gap-6">
+<a class="text-[11px] font-bold text-on-surface-variant hover:text-emerald-700 transition-colors uppercase tracking-widest" href="#">Privacy Protocol</a>
+<a class="text-[11px] font-bold text-on-surface-variant hover:text-emerald-700 transition-colors uppercase tracking-widest" href="#">System Status</a>
+<a class="text-[11px] font-bold text-on-surface-variant hover:text-emerald-700 transition-colors uppercase tracking-widest" href="#">Legal</a>
+</nav>
+</div>
+</footer>
+<!-- Background Decoration -->
+<div class="fixed top-[-10%] right-[-5%] w-[40%] h-[40%] bg-emerald-600/5 blur-[120px] rounded-full -z-10 pointer-events-none"></div>
+<div class="fixed bottom-[-10%] left-[-5%] w-[30%] h-[30%] bg-emerald-800/5 blur-[100px] rounded-full -z-10 pointer-events-none"></div>
+</body></html>

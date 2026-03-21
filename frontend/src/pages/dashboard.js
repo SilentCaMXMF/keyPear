@@ -162,22 +162,106 @@ export function dashboardPage() {
             </div>
           </div>
 
+          <!-- Stats Bento Grid (only show in My Files view) -->
+          <div id="stats-grid" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 ${currentView !== 'files' ? 'hidden' : ''}">
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between h-32">
+              <div class="flex justify-between items-start">
+                <span class="material-symbols-outlined text-emerald-600 text-xl">folder</span>
+                <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">Active</span>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">All Files</p>
+                <p class="text-xl font-bold text-slate-900 dark:text-slate-100" id="stat-total-files">0</p>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between h-32">
+              <div class="flex justify-between items-start">
+                <span class="material-symbols-outlined text-blue-600 text-xl">schedule</span>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">Recently Added</p>
+                <p class="text-xl font-bold text-slate-900 dark:text-slate-100" id="stat-recent-files">0</p>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between h-32">
+              <div class="flex justify-between items-start">
+                <span class="material-symbols-outlined text-purple-600 text-xl">group</span>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">Shared with Me</p>
+                <p class="text-xl font-bold text-slate-900 dark:text-slate-100" id="stat-shared-files">0</p>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between h-32">
+              <div class="flex justify-between items-start">
+                <span class="material-symbols-outlined text-orange-600 text-xl">storage</span>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">Storage Used</p>
+                <p class="text-xl font-bold text-slate-900 dark:text-slate-100" id="stat-storage">0 B</p>
+              </div>
+            </div>
+          </div>
+
           <!-- File List Container -->
-          <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden border border-slate-200/50 dark:border-slate-800/50">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden border border-slate-100 dark:border-slate-800">
             <!-- Dropzone -->
             <div id="dropzone" class="${currentView !== 'files' ? 'hidden' : ''} p-8 border-b border-slate-100 dark:border-slate-800 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
               <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-2">cloud_upload</span>
-              <p class="text-sm text-on-surface-variant">Drag and drop files here or click to upload</p>
+              <p class="text-sm text-slate-500">Drag and drop files here or click to upload</p>
               <input type="file" id="file-input" class="hidden" multiple>
             </div>
 
-            <!-- File List -->
-            <ul class="divide-y divide-slate-100 dark:divide-slate-800" id="file-list">
-              <li class="px-6 py-12 text-center text-on-surface-variant">
+            <!-- File Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500 bg-slate-50 dark:bg-slate-800/50">
+                    <th class="px-6 py-4 w-10">
+                      <input class="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" type="checkbox" id="select-all-checkbox">
+                    </th>
+                    <th class="px-6 py-4">Name</th>
+                    <th class="px-6 py-4">Type</th>
+                    <th class="px-6 py-4">Date Added</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800" id="file-table-body">
+                  <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                      <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-3 block">folder_open</span>
+                      <p>Loading files...</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- File List (fallback for smaller screens) -->
+            <ul class="divide-y divide-slate-100 dark:divide-slate-800 md:hidden" id="file-list-mobile">
+            </ul>
+
+            <!-- File List (for list view / fallback) -->
+            <ul class="divide-y divide-slate-100 dark:divide-slate-800 hidden" id="file-list">
+              <li class="px-6 py-12 text-center text-slate-500">
                 <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-3 block">folder_open</span>
                 <p>Loading files...</p>
               </li>
             </ul>
+
+            <!-- Table Footer -->
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/30 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+              <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest" id="files-count">Showing 0 of 0 files</p>
+              <div class="flex items-center gap-1" id="pagination">
+                <button class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-500 disabled:opacity-30" disabled>
+                  <span class="material-symbols-outlined text-lg">chevron_left</span>
+                </button>
+                <button class="h-8 w-8 bg-primary text-white text-xs font-bold rounded-lg flex items-center justify-center">1</button>
+                <button class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-500">
+                  <span class="material-symbols-outlined text-lg">chevron_right</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </main>
@@ -242,9 +326,11 @@ function updateBreadcrumb() {
   titleEl.textContent = currentFolderName || 'Folder';
 }
 
-function renderFiles(files, folders) {
-  const list = document.getElementById('file-list');
-  if (!list) return;
+function renderFiles(files, folders, storage) {
+  const tableBody = document.getElementById('file-table-body');
+  const listMobile = document.getElementById('file-list-mobile');
+  const statsGrid = document.getElementById('stats-grid');
+  const filesCount = document.getElementById('files-count');
   
   updateBreadcrumb();
   
@@ -253,48 +339,99 @@ function renderFiles(files, folders) {
     ...(files || []).map(f => ({ ...f, type: 'file' }))
   ];
   
+  // Update stats
+  if (statsGrid) {
+    document.getElementById('stat-total-files').textContent = (files?.length || 0) + (folders?.length || 0);
+    document.getElementById('stat-recent-files').textContent = files?.filter(f => {
+      const date = new Date(f.created_at);
+      const now = new Date();
+      const diff = now - date;
+      return diff < 24 * 60 * 60 * 1000; // Last 24 hours
+    }).length || 0;
+    document.getElementById('stat-storage').textContent = storage ? formatSize(storage.used) : '0 B';
+  }
+  
+  if (filesCount) {
+    filesCount.textContent = `Showing ${allItems.length} of ${allItems.length} files`;
+  }
+  
   if (allItems.length === 0) {
-    list.innerHTML = `
-      <li class="empty-state px-6 py-16 text-center">
-        <span class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-600 mb-4 block">folder_open</span>
-        <p class="text-on-surface-variant">${searchQuery ? 'No files match your search' : 'No files yet. Upload something!'}</p>
-        ${currentView === 'files' ? '<p class="text-sm text-on-surface-variant/60 mt-2">Drag and drop files or click Upload</p>' : ''}
-      </li>
+    const emptyHTML = `
+      <tr>
+        <td colspan="5" class="px-6 py-16 text-center text-slate-500">
+          <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-3 block">folder_open</span>
+          <p>${searchQuery ? 'No files match your search' : 'No files yet. Upload something!'}</p>
+          ${currentView === 'files' ? '<p class="text-sm text-slate-400 mt-2">Drag and drop files or click Upload</p>' : ''}
+        </td>
+      </tr>
     `;
+    if (tableBody) tableBody.innerHTML = emptyHTML;
+    if (listMobile) listMobile.innerHTML = emptyHTML.replace(/td/g, 'li').replace(/colspan="5"/g, '');
     return;
   }
   
-  list.innerHTML = allItems.map(item => {
+  const renderRow = (item) => {
     const isFolder = item.type === 'folder';
     const thumbnail = item.hasThumbnail ? `<img src="${API_URL}/api/files/${item.id}/thumbnail" class="h-10 w-10 rounded-lg object-cover" alt="" loading="lazy">` : '';
     const icon = isFolder ? 'folder' : (item.icon?.includes('pdf') ? 'picture_as_pdf' : 
                    item.icon?.includes('image') ? 'image' : 
                    item.icon?.includes('video') ? 'videocam' :
                    item.icon?.includes('audio') ? 'audio_file' : 'description');
-    const displayIcon = thumbnail || `<span class="material-symbols-outlined ${isFolder ? 'text-2xl text-primary' : 'text-2xl text-slate-400'}">${icon}</span>`;
+    const iconBg = isFolder ? 'bg-emerald-50 text-emerald-600' : 
+                   item.icon?.includes('pdf') ? 'bg-red-50 text-red-600' :
+                   item.icon?.includes('image') ? 'bg-orange-50 text-orange-600' :
+                   item.icon?.includes('video') ? 'bg-purple-50 text-purple-600' :
+                   item.icon?.includes('audio') ? 'bg-blue-50 text-blue-600' :
+                   'bg-slate-100 text-slate-500';
+    const displayIcon = thumbnail || `<span class="material-symbols-outlined text-xl ${iconBg}">${icon}</span>`;
     const isSelected = selectedItems.has(item.id);
     const name = item.filename || item.name;
+    const type = isFolder ? 'Folder' : (item.mime_type?.split('/')[0] || 'File').charAt(0).toUpperCase() + (item.mime_type?.split('/')[0] || 'file').slice(1);
     
     return `
-      <li class="file-item flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group ${isSelected ? 'bg-primary/5' : ''}" 
-          data-id="${item.id}" 
-          data-type="${item.type}" 
-          data-name="${name}"
-          data-parent="${item.folder_id || item.parent_folder_id || ''}">
-        <input type="checkbox" class="file-checkbox w-4 h-4 rounded border-slate-300 dark:border-slate-600 ${isSelected ? 'checked' : ''}" ${isSelected ? 'checked' : ''}>
-        <div class="h-10 w-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg">
-          ${displayIcon}
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-on-surface truncate">${name}</p>
-          <p class="text-xs text-on-surface-variant">${formatSize(item.size)}${item.created_at ? ' • ' + formatDate(item.created_at) : ''}</p>
-        </div>
-        <button class="file-delete-btn opacity-0 group-hover:opacity-100 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" data-id="${item.id}" data-type="${item.type}" data-name="${name}">
-          <span class="material-symbols-outlined text-red-500">delete</span>
-        </button>
-      </li>
+      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group" data-id="${item.id}" data-type="${item.type}" data-name="${name}">
+        <td class="px-6 py-4">
+          <input class="file-checkbox rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" type="checkbox" ${isSelected ? 'checked' : ''}>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-3">
+            <div class="h-9 w-9 rounded-lg flex items-center justify-center ${iconBg}">
+              ${displayIcon}
+            </div>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-slate-100">${name}</p>
+              <p class="text-[11px] text-slate-400 font-mono hidden sm:block">${item.id.slice(0, 8)}...</p>
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-4 text-slate-500 font-medium">${type}</td>
+        <td class="px-6 py-4 text-slate-500">${item.created_at ? formatDate(item.created_at) : '-'}</td>
+        <td class="px-6 py-4 text-right">
+          <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            ${isFolder ? `
+              <button class="open-btn p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-500" title="Open">
+                <span class="material-symbols-outlined text-lg">folder_open</span>
+              </button>
+            ` : `
+              <button class="download-btn p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-500" title="Download">
+                <span class="material-symbols-outlined text-lg">download</span>
+              </button>
+            `}
+            <button class="share-btn p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-500" title="Share">
+              <span class="material-symbols-outlined text-lg">ios_share</span>
+            </button>
+            <button class="file-delete-btn p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-red-500" title="Delete">
+              <span class="material-symbols-outlined text-lg">delete</span>
+            </button>
+          </div>
+        </td>
+      </tr>
     `;
-  }).join('');
+  };
+  
+  const tableHTML = allItems.map(renderRow).join('');
+  if (tableBody) tableBody.innerHTML = tableHTML;
+  if (listMobile) listMobile.innerHTML = tableHTML.replace(/<td class="px-6 py-4 text-right">[\s\S]*?<\/td>/g, '').replace(/<th/g, '<td').replace(/<\/th>/g, '</td>');
 }
 
 function renderTrashFiles(files, folders) {
@@ -501,7 +638,7 @@ async function loadNormalFiles() {
   
   updateStorageDisplay(filesData.storage);
   updateBreadcrumb();
-  renderFiles(filesData.files || [], foldersData.folders || []);
+  renderFiles(filesData.files || [], foldersData.folders || [], filesData.storage);
 }
 
 async function loadTrash() {
@@ -937,17 +1074,33 @@ export function initDashboardPage() {
       return;
     }
     
+    // Select all checkbox
+    if (e.target.id === 'select-all-checkbox') {
+      const checkboxes = document.querySelectorAll('#file-table-body .file-checkbox');
+      checkboxes.forEach(cb => {
+        const row = cb.closest('tr');
+        const id = row?.dataset.id;
+        if (e.target.checked) {
+          cb.checked = true;
+          if (id) selectedItems.add(id);
+        } else {
+          cb.checked = false;
+          if (id) selectedItems.delete(id);
+        }
+      });
+      updateBulkActions();
+      return;
+    }
+    
     const checkbox = e.target.closest('.file-checkbox');
-    if (checkbox) {
-      const item = checkbox.closest('.file-item');
-      const id = item.dataset.id;
+    if (checkbox && checkbox.id !== 'select-all-checkbox') {
+      const row = checkbox.closest('tr');
+      const id = row?.dataset.id;
       
       if (checkbox.checked) {
-        selectedItems.add(id);
-        item.classList.add('selected');
+        if (id) selectedItems.add(id);
       } else {
-        selectedItems.delete(id);
-        item.classList.remove('selected');
+        if (id) selectedItems.delete(id);
       }
       updateBulkActions();
       return;
@@ -956,9 +1109,10 @@ export function initDashboardPage() {
     const deleteBtn = e.target.closest('.file-delete-btn');
     if (deleteBtn) {
       e.stopPropagation();
-      const id = deleteBtn.dataset.id;
-      const type = deleteBtn.dataset.type;
-      const name = deleteBtn.dataset.name;
+      const row = deleteBtn.closest('tr');
+      const id = row?.dataset.id;
+      const type = row?.dataset.type;
+      const name = row?.dataset.name;
       if (confirm(`Delete "${name}"?`)) {
         (type === 'folder' || type === 'trash-folder' ? api.deleteFolder(id) : api.deleteFile(id))
           .then(() => loadFiles())
@@ -967,20 +1121,42 @@ export function initDashboardPage() {
       return;
     }
     
-    const fileItem = e.target.closest('.file-item');
-    if (fileItem && !e.target.closest('.file-checkbox') && !e.target.closest('.file-actions')) {
-      const type = fileItem.dataset.type;
-      const name = fileItem.dataset.name;
-      const id = fileItem.dataset.id;
+    const openBtn = e.target.closest('.open-btn');
+    if (openBtn) {
+      e.stopPropagation();
+      const row = openBtn.closest('tr');
+      const id = row?.dataset.id;
+      const name = row?.dataset.name;
+      currentFolderId = id;
+      currentFolderName = name;
+      selectedItems.clear();
+      loadFiles();
+      return;
+    }
+    
+    const fileRow = e.target.closest('tr[data-type="folder"]');
+    if (fileRow && !e.target.closest('.file-checkbox') && !e.target.closest('button')) {
+      const type = fileRow.dataset.type;
+      const name = fileRow.dataset.name;
+      const id = fileRow.dataset.id;
       
       if (type === 'folder') {
         currentFolderId = id;
         currentFolderName = name;
         selectedItems.clear();
         loadFiles();
-      } else if (type !== 'trash-file' && type !== 'trash-folder' && type !== 'shared-file') {
-        api.downloadFile(id, name);
       }
+      return;
+    }
+    
+    const downloadBtn = e.target.closest('.download-btn');
+    if (downloadBtn) {
+      e.stopPropagation();
+      const row = downloadBtn.closest('tr');
+      const id = row?.dataset.id;
+      const name = row?.dataset.name;
+      api.downloadFile(id, name);
+      return;
     }
     
     const restoreBtn = e.target.closest('.restore-btn');
@@ -996,15 +1172,6 @@ export function initDashboardPage() {
       Promise.resolve(restoreApi)
         .then(() => loadFiles())
         .catch(err => alert('Failed to restore: ' + err.message));
-      return;
-    }
-    
-    const downloadBtn = e.target.closest('.download-btn');
-    if (downloadBtn) {
-      e.stopPropagation();
-      const id = downloadBtn.dataset.id;
-      const name = downloadBtn.dataset.name;
-      api.downloadFile(id, name);
       return;
     }
   });
