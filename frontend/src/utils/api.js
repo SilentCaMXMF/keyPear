@@ -181,14 +181,38 @@ export const api = {
     return fetchWithAuth(url);
   },
   
+  async getTrashFolders() {
+    return fetchWithAuth(`${API_URL}/api/folders/trash`);
+  },
+  
+  async restoreFolder(id) {
+    return fetchWithAuth(`${API_URL}/api/folders/${id}/restore`, { method: 'POST' });
+  },
+  
   async getUser() {
     return fetchWithAuth(`${API_URL}/api/auth/me`);
   },
   
-  async createShareLink(fileId, expiresIn) {
+  async createShareLink(fileId, expiresIn, sharedWithEmail = null) {
     return fetchWithAuth(`${API_URL}/api/shares`, {
       method: 'POST',
-      body: JSON.stringify({ fileId, expiresIn }),
+      body: JSON.stringify({ fileId, expiresIn, sharedWithEmail }),
     });
+  },
+  
+  async getTrash() {
+    return fetchWithAuth(`${API_URL}/api/files/trash`);
+  },
+  
+  async getRecentFiles(limit = 50) {
+    return fetchWithAuth(`${API_URL}/api/files/recent?limit=${limit}`);
+  },
+  
+  async getSharedLinks() {
+    return fetchWithAuth(`${API_URL}/api/shares`);
+  },
+  
+  async getSharedWithMe() {
+    return fetchWithAuth(`${API_URL}/api/shares/shared-with-me`);
   },
 };

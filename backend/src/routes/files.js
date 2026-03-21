@@ -343,10 +343,42 @@ router.post('/:id/restore', authenticate, async (req, res) => {
     }
 
     await File.restore(req.params.id);
+    await ActivityLog.create({ userId: req.userId, action: 'file_restore', fileId: file.id, metadata: { filename: file.filename } });
     res.json({ message: 'File restored' });
   } catch (error) {
     console.error('Restore error:', error);
     res.status(500).json({ error: 'Failed to restore file' });
+  }
+});
+
+router.get('/trash', authenticate, async (req, res) => {
+  try {
+    const files = await File.findTrashed(req.userId);
+    const filesWithMeta = files.map(f => ({
+      ...f,
+      ...getFileMeta(f.mime_type, f.filename),
+      hasThumbnail: !!f.thumbnail_path,
+    }));
+    res.json({ files: filesWithMeta });
+  } catch (error) {
+    console.error('Trash error:', error);
+    res.status(500).json({ error: 'Failed to list trash' });
+  }
+});
+
+router.get('/recent', authenticate, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const files = await File.findRecent(req.userId, limit);
+    const filesWithMeta = files.map(f => ({
+      ...f,
+      ...getFileMeta(f.mime_type, f.filename),
+      hasThumbnail: !!f.thumbnail_path,
+    }));
+    res.json({ files: filesWithMeta });
+  } catch (error) {
+    console.error('Recent error:', error);
+    res.status(500).json({ error: 'Failed to list recent files' });
   }
 });
 

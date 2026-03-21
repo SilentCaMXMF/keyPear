@@ -135,4 +135,31 @@ router.delete('/:id', authenticate, async (req, res) => {
   }
 });
 
+router.post('/:id/restore', authenticate, async (req, res) => {
+  try {
+    const folder = await Folder.findById(req.params.id);
+    
+    if (!folder || folder.user_id !== req.userId) {
+      return res.status(404).json({ error: 'Folder not found' });
+    }
+
+    await Folder.restore(req.params.id);
+    await ActivityLog.create({ userId: req.userId, action: 'folder_restore', fileId: req.params.id, metadata: { name: folder.name } });
+    res.json({ message: 'Folder restored' });
+  } catch (error) {
+    console.error('Restore folder error:', error);
+    res.status(500).json({ error: 'Failed to restore folder' });
+  }
+});
+
+router.get('/trash', authenticate, async (req, res) => {
+  try {
+    const folders = await Folder.findTrashed(req.userId);
+    res.json({ folders });
+  } catch (error) {
+    console.error('List trash error:', error);
+    res.status(500).json({ error: 'Failed to list trashed folders' });
+  }
+});
+
 export default router;

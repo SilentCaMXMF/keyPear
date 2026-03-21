@@ -3,6 +3,7 @@ import { api } from '../utils/api.js';
 
 const API_URL = import.meta.env?.VITE_API_URL || 'http://localhost:3001';
 let currentFolderId = null;
+let currentView = 'files';
 let searchQuery = '';
 let sortBy = 'created_at';
 let sortOrder = 'DESC';
@@ -55,7 +56,7 @@ export function dashboardPage() {
       <main class="main-content">
         <div class="file-browser">
           <div class="toolbar">
-            <div class="toolbar-left">
+            <div class="toolbar-left" id="files-toolbar">
               <button class="btn btn-primary" id="upload-btn">
                 <span>+</span> Upload
               </button>
@@ -70,7 +71,11 @@ export function dashboardPage() {
               </div>
             </div>
             
-            <div class="toolbar-right">
+            <div class="toolbar-left" id="trash-toolbar" style="display: none;">
+              <button class="btn btn-sm btn-tertiary" id="empty-trash-btn" disabled>Empty Trash</button>
+            </div>
+            
+            <div class="toolbar-right" id="files-search">
               <div class="search-box">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="search-input" placeholder="Search files..." value="${searchQuery}">
@@ -85,6 +90,10 @@ export function dashboardPage() {
                 <option value="size:ASC" ${sortBy === 'size' && sortOrder === 'ASC' ? 'selected' : ''}>Size ↑</option>
               </select>
             </div>
+          </div>
+          
+          <div id="breadcrumb-container" class="breadcrumb-container">
+            <span id="breadcrumb">My Files</span>
           </div>
           
           <div id="bulk-actions" class="bulk-actions" style="display: none;">
@@ -214,6 +223,121 @@ function renderFiles(files, folders) {
   }).join('');
 }
 
+function renderTrashFiles(files, folders) {
+  const list = document.getElementById('file-list');
+  
+  const allItems = [
+    ...(folders || []).map(f => ({ ...f, type: 'folder', name: f.name })),
+    ...(files || []).map(f => ({ ...f, type: 'file', name: f.filename }))
+  ];
+  
+  if (allItems.length === 0) {
+    list.innerHTML = `
+      <li class="empty-state">
+        <div style="font-size: 3rem; margin-bottom: var(--space-4);">🗑️</div>
+        <p>Trash is empty</p>
+      </li>
+    `;
+    return;
+  }
+  
+  list.innerHTML = allItems.map(item => `
+    <li class="file-item" 
+        data-id="${item.id}" 
+        data-type="${item.type === 'folder' ? 'trash-folder' : 'trash-file'}" 
+        data-name="${item.name}">
+      <input type="checkbox" class="file-checkbox">
+      <div class="file-preview">
+        ${item.type === 'folder' 
+          ? '<span class="file-icon">📁</span>'
+          : (item.thumbnail_path 
+            ? `<img src="${API_URL}/api/files/${item.id}/thumbnail" class="file-thumbnail" alt="">`
+            : `<span class="file-icon">${item.icon || '📄'}</span>`)
+        }
+      </div>
+      <div class="file-info">
+        <div class="file-name">${item.name}</div>
+        <div class="file-meta">${item.type === 'folder' ? 'Folder' : formatSize(item.size)} • Deleted ${formatDate(item.deleted_at)}</div>
+      </div>
+      <div class="file-actions">
+        <button class="restore-btn" data-id="${item.id}" data-type="${item.type}">↩️ Restore</button>
+        <button class="file-delete-btn danger" data-id="${item.id}" data-type="${item.type === 'folder' ? 'trash-folder' : 'trash-file'}" data-name="${item.name}" title="Delete permanently">×</button>
+      </div>
+    </li>
+  `).join('');
+}
+
+function renderRecentFiles(files) {
+  const list = document.getElementById('file-list');
+  
+  if (files.length === 0) {
+    list.innerHTML = `
+      <li class="empty-state">
+        <div style="font-size: 3rem; margin-bottom: var(--space-4);">🕐</div>
+        <p>No recent files</p>
+      </li>
+    `;
+    return;
+  }
+  
+  list.innerHTML = files.map(file => `
+    <li class="file-item" 
+        data-id="${file.id}" 
+        data-type="recent-file" 
+        data-name="${file.filename}">
+      <input type="checkbox" class="file-checkbox">
+      <div class="file-preview">
+        ${file.thumbnail_path 
+          ? `<img src="${API_URL}/api/files/${file.id}/thumbnail" class="file-thumbnail" alt="">`
+          : `<span class="file-icon">${file.icon || '📄'}</span>`
+        }
+      </div>
+      <div class="file-info">
+        <div class="file-name">${file.filename}</div>
+        <div class="file-meta">${formatSize(file.size)} • ${formatDate(file.created_at)}</div>
+      </div>
+      <button class="file-delete-btn" data-id="${file.id}" data-type="recent-file" data-name="${file.filename}" title="Delete">×</button>
+    </li>
+  `).join('');
+}
+
+function renderSharedFiles(shares) {
+  const list = document.getElementById('file-list');
+  
+  if (shares.length === 0) {
+    list.innerHTML = `
+      <li class="empty-state">
+        <div style="font-size: 3rem; margin-bottom: var(--space-4);">🔗</div>
+        <p>No files shared with you</p>
+      </li>
+    `;
+    return;
+  }
+  
+  list.innerHTML = shares.map(share => `
+    <li class="file-item shared-item" 
+        data-id="${share.file_id}" 
+        data-type="shared-file" 
+        data-name="${share.filename}"
+        data-token="${share.token}">
+      <input type="checkbox" class="file-checkbox">
+      <div class="file-preview">
+        ${share.thumbnail_path 
+          ? `<img src="${API_URL}/api/files/${share.file_id}/thumbnail" class="file-thumbnail" alt="">`
+          : `<span class="file-icon">📄</span>`
+        }
+      </div>
+      <div class="file-info">
+        <div class="file-name">${share.filename}</div>
+        <div class="file-meta">${formatSize(share.size)} • Shared by ${share.shared_by_name || 'Unknown'}</div>
+      </div>
+      <div class="file-actions">
+        <button class="btn btn-sm btn-primary download-btn" data-id="${share.file_id}" data-name="${share.filename}" title="Download">⬇️ Download</button>
+      </div>
+    </li>
+  `).join('');
+}
+
 function updateBulkActions() {
   const bulkActions = document.getElementById('bulk-actions');
   const countEl = document.getElementById('selected-count');
@@ -226,26 +350,102 @@ function updateBulkActions() {
   }
 }
 
-async function loadFiles() {
-  try {
-    const [filesData, foldersData] = await Promise.all([
-      api.getFiles(currentFolderId, { search: searchQuery, sort: sortBy, order: sortOrder }),
-      api.getFolders(currentFolderId, searchQuery)
-    ]);
-    
-    updateStorageDisplay(filesData.storage);
-    renderFiles(filesData.files || [], foldersData.folders || []);
-  } catch (err) {
-    console.error('Load files error:', err);
-    const list = document.getElementById('file-list');
-    if (list) {
-      list.innerHTML = `
-        <li style="text-align: center; padding: var(--space-8); color: var(--error);">
-          ${err.message}
-        </li>
-      `;
+function switchView(view) {
+  currentView = view;
+  currentFolderId = null;
+  selectedItems.clear();
+  updateBulkActions();
+  
+  const filesToolbar = document.getElementById('files-toolbar');
+  const trashToolbar = document.getElementById('trash-toolbar');
+  const filesSearch = document.getElementById('files-search');
+  const breadcrumbContainer = document.getElementById('breadcrumb-container');
+  const dropzone = document.getElementById('dropzone');
+  
+  filesToolbar.style.display = view === 'files' ? 'flex' : 'none';
+  trashToolbar.style.display = view === 'trash' ? 'flex' : 'none';
+  filesSearch.style.display = (view === 'files' || view === 'shared') ? 'flex' : 'none';
+  breadcrumbContainer.style.display = view === 'files' ? 'block' : 'none';
+  dropzone.style.display = view === 'files' ? 'block' : 'none';
+  
+  const breadcrumb = document.getElementById('breadcrumb');
+  if (breadcrumb) {
+    switch (view) {
+      case 'trash':
+        breadcrumb.textContent = 'Trash';
+        break;
+      case 'recent':
+        breadcrumb.textContent = 'Recent Files';
+        break;
+      case 'shared':
+        breadcrumb.textContent = 'Shared with Me';
+        break;
+      default:
+        breadcrumb.textContent = 'My Files';
     }
   }
+  
+  loadFiles();
+}
+
+async function loadFiles() {
+  const list = document.getElementById('file-list');
+  list.innerHTML = `
+    <li style="text-align: center; padding: var(--space-8); color: var(--on-surface-variant);">
+      Loading...
+    </li>
+  `;
+  
+  try {
+    switch (currentView) {
+      case 'trash':
+        await loadTrash();
+        break;
+      case 'recent':
+        await loadRecent();
+        break;
+      case 'shared':
+        await loadShared();
+        break;
+      default:
+        await loadNormalFiles();
+    }
+  } catch (err) {
+    console.error('Load files error:', err);
+    list.innerHTML = `
+      <li style="text-align: center; padding: var(--space-8); color: var(--error);">
+        ${err.message}
+      </li>
+    `;
+  }
+}
+
+async function loadNormalFiles() {
+  const [filesData, foldersData] = await Promise.all([
+    api.getFiles(currentFolderId, { search: searchQuery, sort: sortBy, order: sortOrder }),
+    api.getFolders(currentFolderId, searchQuery)
+  ]);
+  
+  updateStorageDisplay(filesData.storage);
+  renderFiles(filesData.files || [], foldersData.folders || []);
+}
+
+async function loadTrash() {
+  const [{ files = [] }, { folders = [] }] = await Promise.all([
+    api.getTrash().catch(() => ({ files: [] })),
+    api.getTrashFolders().catch(() => ({ folders: [] }))
+  ]);
+  renderTrashFiles(files, folders);
+}
+
+async function loadRecent() {
+  const { files } = await api.getRecentFiles();
+  renderRecentFiles(files || []);
+}
+
+async function loadShared() {
+  const { shares } = await api.getSharedWithMe();
+  renderSharedFiles(shares || []);
 }
 
 async function handleFiles(e) {
@@ -345,15 +545,36 @@ function showContextMenu(e, item) {
   e.preventDefault();
   const menu = document.getElementById('context-menu');
   
-  menu.innerHTML = `
-    <div class="context-menu-item" data-action="open">📂 Open</div>
-    ${item.type !== 'folder' ? '<div class="context-menu-item" data-action="download">⬇️ Download</div>' : ''}
-    <div class="context-menu-item" data-action="copy">📋 Copy</div>
-    <div class="context-menu-item" data-action="rename">✏️ Rename</div>
-    <div class="context-menu-item" data-action="move">📦 Move</div>
-    <div class="context-menu-divider"></div>
-    <div class="context-menu-item danger" data-action="delete">🗑️ Delete</div>
-  `;
+  let menuItems = '';
+  
+  if (currentView === 'trash') {
+    menuItems = `
+      <div class="context-menu-item" data-action="restore">↩️ Restore</div>
+      <div class="context-menu-item danger" data-action="deletePermanent">🗑️ Delete Permanently</div>
+    `;
+  } else if (currentView === 'recent') {
+    menuItems = `
+      <div class="context-menu-item" data-action="download">⬇️ Download</div>
+      <div class="context-menu-divider"></div>
+      <div class="context-menu-item danger" data-action="delete">🗑️ Delete</div>
+    `;
+  } else if (currentView === 'shared') {
+    menuItems = `
+      <div class="context-menu-item" data-action="download">⬇️ Download</div>
+    `;
+  } else {
+    menuItems = `
+      <div class="context-menu-item" data-action="open">📂 Open</div>
+      ${item.type !== 'folder' ? '<div class="context-menu-item" data-action="download">⬇️ Download</div>' : ''}
+      <div class="context-menu-item" data-action="copy">📋 Copy</div>
+      <div class="context-menu-item" data-action="rename">✏️ Rename</div>
+      <div class="context-menu-item" data-action="move">📦 Move</div>
+      <div class="context-menu-divider"></div>
+      <div class="context-menu-item danger" data-action="delete">🗑️ Delete</div>
+    `;
+  }
+  
+  menu.innerHTML = menuItems;
   
   menu.style.display = 'block';
   menu.style.left = Math.min(e.pageX, window.innerWidth - 180) + 'px';
@@ -361,6 +582,9 @@ function showContextMenu(e, item) {
   menu.dataset.itemId = item.id;
   menu.dataset.itemType = item.type;
   menu.dataset.itemName = item.name;
+  if (item.token) {
+    menu.dataset.itemToken = item.token;
+  }
 }
 
 function hideContextMenu() {
@@ -416,7 +640,7 @@ async function handleContextAction(action, itemId, itemType, itemName) {
       showMoveModal(itemId, itemType);
       break;
       
-    case 'delete':
+      case 'delete':
       if (confirm(`Delete "${itemName}"?`)) {
         try {
           if (itemType === 'folder') {
@@ -425,6 +649,40 @@ async function handleContextAction(action, itemId, itemType, itemName) {
             await api.deleteFile(itemId);
           }
           selectedItems.delete(itemId);
+          loadFiles();
+        } catch (err) {
+          alert('Failed to delete: ' + err.message);
+        }
+      }
+      break;
+      
+    case 'restore':
+      try {
+        if (itemType === 'folder' || itemType === 'trash-folder') {
+          await api.restoreFolder(itemId);
+        } else {
+          await fetch(`${API_URL}/api/files/${itemId}/restore`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+          });
+        }
+        loadFiles();
+      } catch (err) {
+        alert('Failed to restore: ' + err.message);
+      }
+      break;
+      
+    case 'deletePermanent':
+      if (confirm(`Permanently delete "${itemName}"? This cannot be undone.`)) {
+        try {
+          if (itemType === 'folder' || itemType === 'trash-folder') {
+            await api.deleteFolder(itemId, true);
+          } else {
+            await fetch(`${API_URL}/api/files/${itemId}?permanent=true`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+            });
+          }
           loadFiles();
         } catch (err) {
           alert('Failed to delete: ' + err.message);
@@ -452,6 +710,9 @@ export function initDashboardPage() {
       e.preventDefault();
       document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
       item.classList.add('active');
+      
+      const page = item.dataset.page;
+      switchView(page);
     });
   });
   
@@ -607,6 +868,60 @@ export function initDashboardPage() {
         api.downloadFile(id, name);
       }
     }
+    
+    const restoreBtn = e.target.closest('.restore-btn');
+    if (restoreBtn) {
+      e.stopPropagation();
+      const id = restoreBtn.dataset.id;
+      const type = restoreBtn.dataset.type;
+      const restoreApi = type === 'folder' ? api.restoreFolder(id) : 
+        fetch(`${API_URL}/api/files/${id}/restore`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+        });
+      Promise.resolve(restoreApi)
+        .then(() => loadFiles())
+        .catch(err => alert('Failed to restore: ' + err.message));
+      return;
+    }
+    
+    const downloadBtn = e.target.closest('.download-btn');
+    if (downloadBtn) {
+      e.stopPropagation();
+      const id = downloadBtn.dataset.id;
+      const name = downloadBtn.dataset.name;
+      api.downloadFile(id, name);
+      return;
+    }
+  });
+  
+  document.getElementById('empty-trash-btn')?.addEventListener('click', async () => {
+    const [{ files = [] }, { folders = [] }] = await Promise.all([
+      api.getTrash().catch(() => ({ files: [] })),
+      api.getTrashFolders().catch(() => ({ folders: [] }))
+    ]);
+    
+    const total = files.length + folders.length;
+    if (total === 0) {
+      alert('Trash is already empty');
+      return;
+    }
+    if (confirm(`Permanently delete ${total} item(s)? This cannot be undone.`)) {
+      try {
+        for (const file of files) {
+          await fetch(`${API_URL}/api/files/${file.id}?permanent=true`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+          });
+        }
+        for (const folder of folders) {
+          await api.deleteFolder(folder.id, true);
+        }
+        loadFiles();
+      } catch (err) {
+        alert('Failed to empty trash: ' + err.message);
+      }
+    }
   });
   
   document.addEventListener('contextmenu', (e) => {
@@ -615,7 +930,8 @@ export function initDashboardPage() {
       showContextMenu(e, {
         id: fileItem.dataset.id,
         type: fileItem.dataset.type,
-        name: fileItem.dataset.name
+        name: fileItem.dataset.name,
+        token: fileItem.dataset.token
       });
     }
   });

@@ -105,7 +105,7 @@
 - 8.01 ⬜ Set up React Native or Flutter project
 - 8.02 ⬜ Mobile auth and file browser
 
-### Feature 9: UI/UX Improvements (6/6 complete) ✅
+### Feature 9: UI/UX Improvements (9/9 complete) ✅
 
 - 9.01 ✅ Search bar - Filter files by name
 - 9.02 ✅ Sort options - By name, date, size (asc/desc)
@@ -113,6 +113,13 @@
 - 9.04 ✅ Storage quota display - Progress bar in sidebar
 - 9.05 ✅ Upload progress - Real-time upload progress indicator
 - 9.06 ✅ Context menu - Right-click menu with all file operations
+- 9.07 ✅ Trash view - View deleted files, restore, permanent delete
+- 9.08 ✅ Recent files view - Show recently uploaded files
+- 9.09 ✅ Shared with me view - Show files shared by others
+
+### Feature 10: Backend Services (1/1 complete) ✅
+
+- 10.01 ✅ Backend systemd service - Auto-start on boot via systemd
 
 ---
 
@@ -216,9 +223,9 @@ ssh pedroocalado@192.168.1.67
 # Start backend
 cd keypear/backend && npm run dev
 
-# Enable SMB auto-mount (after reboot)
-sudo systemctl enable keypear-smb
-sudo systemctl start keypear-smb
+# Enable services (after reboot)
+sudo systemctl enable keypear-smb keypear-api
+sudo systemctl start keypear-smb keypear-api
 ```
 
 #### Local Development
@@ -274,7 +281,7 @@ cd backend && npm install && npm run dev
 
 ---
 
-## Progress: 30/34 tasks complete (88%)
+## Progress: 35/37 tasks complete (95%)
 
 ---
 
@@ -295,6 +302,18 @@ cd backend && npm install && npm run dev
 - SSH key-based auth enabled on Pi
 - Rate limiting active on all endpoints
 - Refresh token rotation enabled
+
+### Database Migrations
+
+Run the following SQL after pulling updates to enable new features:
+
+```bash
+# SSH to Pi
+ssh pedroocalado@192.168.1.67
+
+# Run migration for sharing features
+psql -d keypear -f ~/keypear/database/migrations/002_sharing_schema.sql
+```
 
 ### Environment Variables for Production
 

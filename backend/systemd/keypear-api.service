@@ -1,0 +1,21 @@
+[Unit]
+Description=KeyPear API Backend
+After=network-online.target keypear-smb.service
+Wants=network-online.target
+Requires=keypear-smb.service
+
+[Service]
+Type=simple
+User=pedroocalado
+WorkingDirectory=/home/pedroocalado/keypear/backend
+ExecStart=/usr/bin/node /home/pedroocalado/keypear/backend/src/server.js
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+Environment=NODE_ENV=production
+Environment=PORT=3001
+
+[Install]
+WantedBy=multi-user.target

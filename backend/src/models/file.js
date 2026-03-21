@@ -86,6 +86,22 @@ const File = {
   async delete(id) {
     await db.query('DELETE FROM files WHERE id = $1', [id]);
   },
+
+  async findTrashed(userId) {
+    const result = await db.query(
+      `SELECT * FROM files WHERE user_id = $1 AND deleted_at IS NOT NULL ORDER BY deleted_at DESC`,
+      [userId]
+    );
+    return result.rows;
+  },
+
+  async findRecent(userId, limit = 50) {
+    const result = await db.query(
+      `SELECT * FROM files WHERE user_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT $2`,
+      [userId, limit]
+    );
+    return result.rows;
+  },
 };
 
 export default File;

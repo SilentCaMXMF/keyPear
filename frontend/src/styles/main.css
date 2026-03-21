@@ -576,6 +576,59 @@ a:hover {
   background: var(--error-container);
 }
 
+.file-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.file-actions .btn {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.file-item:hover .file-actions .btn {
+  opacity: 1;
+}
+
+.restore-btn {
+  background: transparent;
+  border: 1px solid var(--outline);
+  color: var(--on-surface);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.restore-btn:hover {
+  background: var(--secondary-container);
+  border-color: var(--secondary);
+}
+
+.download-btn {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+}
+
+.download-btn:hover {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.breadcrumb-container {
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-2);
+  font-weight: 500;
+}
+
 /* ============================================
    Dropzone
    ============================================ */

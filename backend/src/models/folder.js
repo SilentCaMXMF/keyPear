@@ -96,6 +96,18 @@ const Folder = {
     
     await db.query('DELETE FROM folders WHERE id = $1', [folderId]);
   },
+
+  async restore(id) {
+    await db.query(`UPDATE folders SET deleted_at = NULL WHERE id = $1`, [id]);
+  },
+
+  async findTrashed(userId) {
+    const result = await db.query(
+      `SELECT * FROM folders WHERE user_id = $1 AND deleted_at IS NOT NULL ORDER BY deleted_at DESC`,
+      [userId]
+    );
+    return result.rows;
+  },
 };
 
 export default Folder;
