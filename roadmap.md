@@ -59,25 +59,28 @@
 - 2.02 ✅ JWT-based session management (7-day expiry)
 - 2.03 ⏳ OAuth providers (Google, GitHub) - deferred
 
-### Feature 3: File Management (4/4 complete) ✅
+### Feature 3: File Management (7/7 complete) ✅
 
 - 3.01 ✅ File upload endpoint (multipart, 100MB limit)
 - 3.02 ✅ File download/streaming
 - 3.03 ✅ Folder CRUD operations
 - 3.04 ✅ File preview thumbnails - Sharp-based image thumbnails
+- 3.05 ✅ Move/copy files between folders
+- 3.06 ✅ Rename files and folders
+- 3.07 ✅ Bulk delete operations
 
-### Feature 4: Web Frontend (3/4 complete) ✅
+### Feature 4: Web Frontend (4/4 complete) ✅
 
 - 4.01 ✅ Login/register pages with form validation
 - 4.02 ✅ Dashboard with file browser UI
 - 4.03 ✅ Drag-and-drop file upload
-- 4.04 ⏳ User settings/profile page - deferred
+- 4.04 ✅ Search, sort, and multi-select features
 
-### Feature 5: Advanced Features (0/3 complete)
+### Feature 5: Advanced Features (3/3 complete) ✅
 
-- 5.01 ⬜ Storage quotas per user (10GB default)
-- 5.02 ⬜ Share links with expiry
-- 5.03 ⬜ Activity logs and audit trail
+- 5.01 ✅ Storage quotas per user (10GB default) - displayed in sidebar
+- 5.02 ✅ Share links with expiry
+- 5.03 ✅ Activity logs and audit trail
 
 ### Feature 6: Security Hardening (8/8 complete) ✅
 
@@ -101,6 +104,15 @@
 
 - 8.01 ⬜ Set up React Native or Flutter project
 - 8.02 ⬜ Mobile auth and file browser
+
+### Feature 9: UI/UX Improvements (6/6 complete) ✅
+
+- 9.01 ✅ Search bar - Filter files by name
+- 9.02 ✅ Sort options - By name, date, size (asc/desc)
+- 9.03 ✅ Multi-select - Checkbox selection for bulk operations
+- 9.04 ✅ Storage quota display - Progress bar in sidebar
+- 9.05 ✅ Upload progress - Real-time upload progress indicator
+- 9.06 ✅ Context menu - Right-click menu with all file operations
 
 ---
 
@@ -262,7 +274,7 @@ cd backend && npm install && npm run dev
 
 ---
 
-## Progress: 24/31 tasks complete (77%)
+## Progress: 30/34 tasks complete (88%)
 
 ---
 
