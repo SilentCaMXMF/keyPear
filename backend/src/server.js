@@ -28,6 +28,9 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   'http://localhost:4321',
   'http://localhost:3000',
+  'https://key-pear.vercel.app',
+  /\.vercel\.app$/,
+  'https://key-pear-eta.vercel.app',
 ].filter(Boolean);
 
 const globalLimiter = rateLimit({
