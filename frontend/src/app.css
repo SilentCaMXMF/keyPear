@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+:root {
+  --on-surface: #1e293b;
+  --on-surface-variant: #64748b;
+  --error-container: #fef2f2;
+  --on-error-container: #dc2626;
+  --primary-container: #01872e;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--on-surface);
+  background: #f8f9fb;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.on-surface { color: var(--on-surface); }
+.on-surface-variant { color: var(--on-surface-variant); }
+.bg-error-container { background-color: var(--error-container); }
+.text-on-error-container { color: var(--on-error-container); }
+.bg-primary-container { background-color: var(--primary-container); }

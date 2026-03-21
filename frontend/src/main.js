@@ -1,4 +1,5 @@
 // KeyPear - Main Entry Point
+import './app.css';
 import { router } from './router.js';
 import { auth } from './utils/auth.js';
 
