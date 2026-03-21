@@ -30,33 +30,6 @@ const allowedOrigins = [
   'http://localhost:3000',
 ].filter(Boolean);
 
-app.set('trust proxy', 1);
-app.use(helmet());
-app.use(morgan('combined'));
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-app.use(fileUpload({ 
-  useTempFiles: true, 
-  tempFileDir: '/tmp/',
-  limits: { fileSize: 100 * 1024 * 1024 },
-  abortOnLimit: true,
-}));
-app.use(passport.initialize());
-
-app.use(globalLimiter);
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-};
-app.use(cors(corsOptions));
-
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
@@ -72,6 +45,32 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Too many login attempts, please try again later' },
 });
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
+app.set('trust proxy', 1);
+app.use(helmet());
+app.use(morgan('combined'));
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(fileUpload({ 
+  useTempFiles: true, 
+  tempFileDir: '/tmp/',
+  limits: { fileSize: 100 * 1024 * 1024 },
+  abortOnLimit: true,
+}));
+app.use(passport.initialize());
+app.use(cors(corsOptions));
+app.use(globalLimiter);
 
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/files', filesRoutes);
