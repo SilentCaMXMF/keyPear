@@ -177,19 +177,50 @@ cd backend && npm run dev
 cd frontend && npm run dev
 ```
 
-### Tunnel (for Vercel/remote access)
+### Deployment
+
+#### Vercel (Frontend)
+The frontend is deployed on Vercel at: **https://key-pear.vercel.app**
 
 ```bash
-# Install ngrok
-brew install ngrok  # or download from ngrok.com
+# Connect GitHub repo to Vercel
+# Vercel auto-builds from vercel.json config
 
-# Start tunnel to backend
-ngrok http 3001
+# Environment variables on Vercel:
+VITE_API_URL=https://backend-api.pedroocalado.eu
 ```
 
-Update `.env` with the ngrok URL:
+#### Cloudflare Tunnel (Backend API)
+The backend API is exposed via Cloudflare Tunnel at: **https://backend-api.pedroocalado.eu**
+
+The tunnel runs on the Pi and routes traffic to the Express backend.
+
+#### Pi Setup
+
+```bash
+# SSH to Pi
+ssh pedroocalado@192.168.1.67
+
+# Start backend
+cd keypear/backend && npm run dev
+
+# Enable SMB auto-mount (after reboot)
+sudo systemctl enable keypear-smb
+sudo systemctl start keypear-smb
 ```
-NEXT_PUBLIC_API_URL=https://your-ngrok-url.ngrok.io
+
+#### Local Development
+
+```bash
+# Clone repository
+git clone https://github.com/SilentCaMXMF/keyPear.git
+cd keyPear
+
+# Frontend
+cd frontend && npm install && npm run dev
+
+# Backend
+cd backend && npm install && npm run dev
 ```
 
 ---
@@ -235,14 +266,23 @@ NEXT_PUBLIC_API_URL=https://your-ngrok-url.ngrok.io
 
 ---
 
-## ⚠️ Security Alert
+## Live URLs
 
-The SMB password (`REDACTED_PASSWORD`) and other credentials were accidentally committed to git history. **IMMEDIATE ACTION REQUIRED:**
+| Service | URL |
+|---------|-----|
+| **Frontend** | https://key-pear.vercel.app |
+| **Backend API** | https://backend-api.pedroocalado.eu |
+| **Backend (local)** | http://192.168.1.67:3001 |
 
-1. **Change SMB password** on NAS (192.168.1.254)
-2. **Rotate all credentials** that were in `.env`
-3. Run: `git filter-repo --path .env --invert-paths` to remove from history
-4. Force push: `git push --force`
+---
+
+## ⚠️ Security Notes
+
+- `.env` files are gitignored - never commit secrets
+- SMB credentials stored in `~/.smbcredentials` (mode 600)
+- SSH key-based auth enabled on Pi
+- Rate limiting active on all endpoints
+- Refresh token rotation enabled
 
 ### Environment Variables for Production
 
