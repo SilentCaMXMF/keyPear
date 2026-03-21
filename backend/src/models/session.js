@@ -1,37 +1,27 @@
-import { dbWrapper } from '../services/database.js';
+import { db } from '../services/database.js';
 
-export const Session = {
+const Session = {
   async create({ userId, refreshToken, expiresAt }) {
-    const id = crypto.randomUUID();
-    await dbWrapper.run(
-      'INSERT INTO sessions (id, userId, refreshToken, expiresAt) VALUES (?, ?, ?, ?)',
-      [id, userId, refreshToken, expiresAt]
+    const result = await db.query(
+      `INSERT INTO sessions (id, user_id, refresh_token, expires_at)
+       VALUES (uuid_generate_v4(), $1, $2, $3)
+       RETURNING *`,
+      [userId, refreshToken, expiresAt]
     );
-    return { id, userId, expiresAt };
-  },
-
-  async findById(id) {
-    const result = await dbWrapper.query('SELECT * FROM sessions WHERE id = ?', [id]);
     return result.rows[0];
   },
 
   async findByRefreshToken(refreshToken) {
-    const result = await dbWrapper.query(
-      'SELECT * FROM sessions WHERE refreshToken = ? AND expiresAt > ?',
-      [refreshToken, new Date().toISOString()]
+    const result = await db.query(
+      'SELECT * FROM sessions WHERE refresh_token = $1 AND expires_at > NOW()',
+      [refreshToken]
     );
     return result.rows[0];
   },
 
   async delete(id) {
-    await dbWrapper.run('DELETE FROM sessions WHERE id = ?', [id]);
-  },
-
-  async deleteByUserId(userId) {
-    await dbWrapper.run('DELETE FROM sessions WHERE userId = ?', [userId]);
-  },
-
-  async deleteExpired() {
-    await dbWrapper.run('DELETE FROM sessions WHERE expiresAt < ?', [new Date().toISOString()]);
+    await db.query('DELETE FROM sessions WHERE id = $1', [id]);
   },
 };
+
+export default Session;

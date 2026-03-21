@@ -1,29 +1,50 @@
-import { dbWrapper } from '../services/database.js';
+import { db } from '../services/database.js';
 
-export const File = {
+const File = {
   async create({ userId, folderId, filename, storagePath, thumbnailPath, size, mimeType, checksum }) {
-    const id = crypto.randomUUID();
-    await dbWrapper.run(
-      'INSERT INTO files (id, userId, name, path, storagePath, size, mimeType, parentId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [id, userId, filename, '', storagePath, size, mimeType, folderId]
+    const result = await db.query(
+      `INSERT INTO files (id, user_id, folder_id, filename, storage_path, thumbnail_path, size, mime_type, checksum)
+       VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING *`,
+      [userId, folderId, filename, storagePath, thumbnailPath, size, mimeType, checksum]
     );
-    return { id, userId, folderId, filename, storagePath, size, mimeType };
-  },
-
-  async findById(id) {
-    const result = await dbWrapper.query('SELECT * FROM files WHERE id = ?', [id]);
     return result.rows[0];
   },
 
-  async findByUser(userId, folderId = null) {
-    const result = await dbWrapper.query(
-      'SELECT * FROM files WHERE userId = ? AND parentId = ? ORDER BY createdAt DESC',
-      [userId, folderId]
-    );
+  async findById(id) {
+    const result = await db.query('SELECT * FROM files WHERE id = $1', [id]);
+    return result.rows[0];
+  },
+
+  async findByUser(userId, folderId = null, includeDeleted = false) {
+    let query = `SELECT * FROM files WHERE user_id = $1 AND folder_id = $2`;
+    if (!includeDeleted) {
+      query += ` AND deleted_at IS NULL`;
+    }
+    query += ` ORDER BY created_at DESC`;
+    const result = await db.query(query, [userId, folderId]);
     return result.rows;
   },
 
+  async softDelete(id) {
+    const result = await db.query(
+      `UPDATE files SET deleted_at = NOW() WHERE id = $1 RETURNING *`,
+      [id]
+    );
+    return result.rows[0];
+  },
+
+  async restore(id) {
+    const result = await db.query(
+      `UPDATE files SET deleted_at = NULL WHERE id = $1 RETURNING *`,
+      [id]
+    );
+    return result.rows[0];
+  },
+
   async delete(id) {
-    await dbWrapper.run('DELETE FROM files WHERE id = ?', [id]);
+    await db.query('DELETE FROM files WHERE id = $1', [id]);
   },
 };
+
+export default File;

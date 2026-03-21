@@ -1,20 +1,28 @@
-import { dbWrapper } from '../services/database.js';
+import { db } from '../services/database.js';
 
-export const ActivityLog = {
+const ActivityLog = {
   async create({ userId, action, fileId, metadata }) {
-    const id = crypto.randomUUID();
-    await dbWrapper.run(
-      'INSERT INTO activityLog (id, userId, action, fileId, details) VALUES (?, ?, ?, ?, ?)',
-      [id, userId, action, fileId, JSON.stringify(metadata)]
+    const result = await db.query(
+      `INSERT INTO activity_logs (id, user_id, action, file_id, metadata)
+       VALUES (uuid_generate_v4(), $1, $2, $3, $4)
+       RETURNING *`,
+      [userId, action, fileId, JSON.stringify(metadata)]
     );
-    return { id, userId, action, fileId };
+    return result.rows[0];
   },
 
   async findByUser(userId, limit = 50) {
-    const result = await dbWrapper.query(
-      'SELECT a.*, f.name as filename FROM activityLog a LEFT JOIN files f ON a.fileId = f.id WHERE a.userId = ? ORDER BY a.createdAt DESC LIMIT ?',
+    const result = await db.query(
+      `SELECT al.*, f.filename 
+       FROM activity_logs al 
+       LEFT JOIN files f ON al.file_id = f.id 
+       WHERE al.user_id = $1 
+       ORDER BY al.timestamp DESC 
+       LIMIT $2`,
       [userId, limit]
     );
     return result.rows;
   },
 };
+
+export default ActivityLog;

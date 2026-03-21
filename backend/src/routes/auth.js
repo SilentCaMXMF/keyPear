@@ -1,8 +1,7 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { User, Session, ActivityLog } = require('../models');
-const { validate, registerSchema, loginSchema, refreshSchema } = require('../utils/validation');
+import express from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { User, Session, ActivityLog } from '../models/index.js';
 
 const router = express.Router();
 
@@ -11,19 +10,23 @@ const REFRESH_TOKEN_EXPIRES_IN = '7d';
 
 const getAccessToken = (userId) => jwt.sign(
   { userId },
-  process.env.JWT_ACCESS_SECRET,
+  process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET,
   { expiresIn: JWT_EXPIRES_IN }
 );
 
 const getRefreshToken = (userId) => jwt.sign(
   { userId },
-  process.env.JWT_REFRESH_SECRET,
+  process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
   { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
 );
 
-router.post('/register', validate(registerSchema), async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
 
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
@@ -38,7 +41,6 @@ router.post('/register', validate(registerSchema), async (req, res) => {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await Session.create({ userId: user.id, refreshToken, expiresAt });
-
     await ActivityLog.create({ userId: user.id, action: 'register', metadata: { email } });
 
     res.status(201).json({
@@ -52,7 +54,7 @@ router.post('/register', validate(registerSchema), async (req, res) => {
   }
 });
 
-router.post('/login', validate(loginSchema), async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -71,7 +73,6 @@ router.post('/login', validate(loginSchema), async (req, res) => {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await Session.create({ userId: user.id, refreshToken, expiresAt });
-
     await ActivityLog.create({ userId: user.id, action: 'login', metadata: { email } });
 
     res.json({
@@ -93,14 +94,12 @@ router.post('/logout', async (req, res) => {
       return res.status(400).json({ error: 'Refresh token required' });
     }
 
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET);
     const session = await Session.findByRefreshToken(refreshToken);
 
-    if (session && session.user_id === decoded.userId) {
+    if (session) {
       await Session.delete(session.id);
     }
-
-    await ActivityLog.create({ userId: decoded.userId, action: 'logout', metadata: {} });
 
     res.json({ message: 'Logged out successfully' });
   } catch (error) {
@@ -108,24 +107,18 @@ router.post('/logout', async (req, res) => {
   }
 });
 
-router.post('/refresh', validate(refreshSchema), async (req, res) => {
+router.post('/refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET);
     const session = await Session.findByRefreshToken(refreshToken);
 
-    if (!session || session.user_id !== decoded.userId) {
+    if (!session) {
       return res.status(401).json({ error: 'Invalid or expired refresh token' });
     }
 
-    const user = await User.findById(decoded.userId);
-    if (!user) {
-      return res.status(401).json({ error: 'User not found' });
-    }
-
-    const accessToken = getAccessToken(user.id);
-
+    const accessToken = getAccessToken(decoded.userId);
     res.json({ accessToken });
   } catch (error) {
     console.error('Refresh error:', error);
@@ -133,4 +126,4 @@ router.post('/refresh', validate(refreshSchema), async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
