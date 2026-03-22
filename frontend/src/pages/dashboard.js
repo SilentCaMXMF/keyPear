@@ -43,7 +43,7 @@ export function dashboardPage() {
 
     <div class="flex pt-16">
       <!-- Sidebar -->
-      <aside class="bg-slate-50 dark:bg-slate-950 h-screen w-64 fixed left-0 top-0 z-40 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col pt-20">
+      <aside class="bg-slate-50 dark:bg-slate-950 h-screen w-64 fixed left-0 top-16 z-40 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col">
         <div class="px-4 mb-6">
           <div class="flex items-center gap-3 mb-4">
             <div class="h-10 w-10 rounded-lg bg-primary-container flex items-center justify-center text-white">
@@ -93,28 +93,6 @@ export function dashboardPage() {
           </a>
         </div>
       </aside>
-
-      <!-- Mobile Bottom Navigation -->
-      <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 z-50 md:hidden">
-        <div class="flex justify-around items-center py-2">
-          <a href="#" class="mobile-nav-item flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${currentView === 'files' ? 'text-primary' : 'text-slate-500'}" data-page="files">
-            <span class="material-symbols-outlined text-xl">folder</span>
-            <span class="text-[10px] font-medium">Files</span>
-          </a>
-          <a href="#" class="mobile-nav-item flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${currentView === 'shared' ? 'text-primary' : 'text-slate-500'}" data-page="shared">
-            <span class="material-symbols-outlined text-xl">group</span>
-            <span class="text-[10px] font-medium">Shared</span>
-          </a>
-          <a href="#" class="mobile-nav-item flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${currentView === 'recent' ? 'text-primary' : 'text-slate-500'}" data-page="recent">
-            <span class="material-symbols-outlined text-xl">schedule</span>
-            <span class="text-[10px] font-medium">Recent</span>
-          </a>
-          <a href="#" class="mobile-nav-item flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${currentView === 'trash' ? 'text-primary' : 'text-slate-500'}" data-page="trash">
-            <span class="material-symbols-outlined text-xl">delete</span>
-            <span class="text-[10px] font-medium">Trash</span>
-          </a>
-        </div>
-      </nav>
 
       <!-- Main Content -->
       <main class="flex-1 ml-64 p-8">
@@ -980,14 +958,6 @@ export function initDashboardPage() {
   });
   
   document.querySelectorAll('.nav-link[data-page]').forEach(item => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      const page = item.dataset.page;
-      switchView(page);
-    });
-  });
-  
-  document.querySelectorAll('.mobile-nav-item').forEach(item => {
     item.addEventListener('click', (e) => {
       e.preventDefault();
       const page = item.dataset.page;

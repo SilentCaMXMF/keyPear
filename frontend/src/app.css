@@ -106,7 +106,7 @@ body {
     margin-top: 1.5rem;
   }
 
-  /* Dashboard - Sidebar */
+  /* Dashboard - Sidebar becomes bottom nav */
   .w-64 {
     width: 100%;
     height: auto;
@@ -120,9 +120,11 @@ body {
     padding: 0.5rem 1rem;
     border-t: 1px solid;
     border-r: none;
+    border-bottom: none;
+    border-left: none;
   }
 
-  .sidebar-nav {
+  .w-64 nav {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -130,15 +132,30 @@ body {
     gap: 0.25rem;
   }
 
-  .sidebar-nav a {
+  .w-64 nav a {
     flex-direction: column;
     padding: 0.5rem;
     gap: 0.25rem;
     font-size: 0.625rem;
+    border-r: none;
+    border-right: none;
   }
 
-  .sidebar-nav a span:first-child {
+  .w-64 nav a span:first-child {
     font-size: 1.25rem;
+  }
+
+  .w-64 .p-4 {
+    padding: 0;
+  }
+
+  .w-64 .px-4 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .w-64 .mb-6 {
+    display: none;
   }
 
   /* Dashboard - Main Content */
