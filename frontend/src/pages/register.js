@@ -63,7 +63,7 @@ export function registerPage(props = {}) {
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-emerald-600 transition-colors">badge</span>
                     <input 
                       class="w-full pl-12 pr-4 py-4 bg-slate-100 rounded-lg border-none focus:ring-2 focus:ring-emerald-600/20 text-sm placeholder:text-slate-400 outline-none transition-all" 
-                      placeholder="John Doe" 
+                      placeholder="Name" 
                       type="text" 
                       id="name" 
                       name="name" 
@@ -80,7 +80,7 @@ export function registerPage(props = {}) {
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-emerald-600 transition-colors">alternate_email</span>
                     <input 
                       class="w-full pl-12 pr-4 py-4 bg-slate-100 rounded-lg border-none focus:ring-2 focus:ring-emerald-600/20 text-sm placeholder:text-slate-400 outline-none transition-all" 
-                      placeholder="you@company.com" 
+                      placeholder="Email" 
                       type="email" 
                       id="email" 
                       name="email" 
@@ -97,7 +97,7 @@ export function registerPage(props = {}) {
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-emerald-600 transition-colors">lock</span>
                     <input 
                       class="w-full pl-12 pr-12 py-4 bg-slate-100 rounded-lg border-none focus:ring-2 focus:ring-emerald-600/20 text-sm placeholder:text-slate-400 outline-none transition-all" 
-                      placeholder="Minimum 8 characters" 
+                      placeholder="Password" 
                       type="password" 
                       id="password" 
                       name="password" 
@@ -109,7 +109,7 @@ export function registerPage(props = {}) {
                       <span class="material-symbols-outlined text-lg">visibility</span>
                     </button>
                   </div>
-                  <p class="text-[10px] text-slate-400 ml-1">Use 8+ characters with a mix of letters, numbers & symbols</p>
+                  <p class="text-[10px] text-slate-400 ml-1">At least 8 characters</p>
                 </div>
                 
                 <!-- Terms -->

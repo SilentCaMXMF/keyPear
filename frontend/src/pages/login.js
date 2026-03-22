@@ -68,7 +68,7 @@ export function loginPage(props = {}) {
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-emerald-600 transition-colors">alternate_email</span>
                     <input 
                       class="w-full pl-12 pr-4 py-4 bg-slate-100 rounded-lg border-none focus:ring-2 focus:ring-emerald-600/20 text-sm placeholder:text-slate-400 outline-none transition-all" 
-                      placeholder="email@organization.com" 
+                      placeholder="Email" 
                       type="email" 
                       id="email" 
                       name="email" 
@@ -88,7 +88,7 @@ export function loginPage(props = {}) {
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-emerald-600 transition-colors">key</span>
                     <input 
                       class="w-full pl-12 pr-12 py-4 bg-slate-100 rounded-lg border-none focus:ring-2 focus:ring-emerald-600/20 text-sm placeholder:text-slate-400 outline-none transition-all" 
-                      placeholder="••••••••••••••••" 
+                      placeholder="Password" 
                       type="password" 
                       id="password" 
                       name="password" 
