@@ -29,9 +29,13 @@ const allowedOrigins = [
   'http://localhost:4321',
   'http://localhost:3000',
   'https://key-pear.vercel.app',
-  /\.vercel\.app$/,
   'https://key-pear-eta.vercel.app',
 ].filter(Boolean);
+
+const allowedOriginPatterns = [
+  /\.vercel\.app$/,
+  /\.keypear\.pedroocalado\.eu$/,
+];
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -51,11 +55,24 @@ const authLimiter = rateLimit({
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) {
+      return callback(null, true);
     }
+    
+    // Check exact match
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Check regex patterns
+    for (const pattern of allowedOriginPatterns) {
+      if (pattern.test(origin)) {
+        return callback(null, true);
+      }
+    }
+    
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
 };
@@ -84,6 +101,14 @@ app.use('/api/logs', logsRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// CORS error handler
+app.use((err, req, res, next) => {
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'CORS policy violation' });
+  }
+  next(err);
 });
 
 app.listen(PORT, () => {
