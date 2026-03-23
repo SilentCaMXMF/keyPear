@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>keyPear - Storage &amp; Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-tint": "#005bc0",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-background": "#191c1e",
+                        "background": "#f8f9fb",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary-fixed": "#002106",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#00531a",
+                        "on-surface-variant": "#424753",
+                        "outline-variant": "#c2c6d6",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary-container": "#007327",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#e7ebf3",
+                        "surface-container": "#eceef0",
+                        "secondary": "#006e25",
+                        "on-surface": "#191c1e",
+                        "secondary-fixed-dim": "#66df75",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#004fa8",
+                        "primary-fixed-dim": "#adc6ff",
+                        "tertiary": "#4d5259",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#727785",
+                        "secondary-container": "#80f98b",
+                        "tertiary-container": "#656a71",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2d3133",
+                        "tertiary-fixed": "#dee3eb",
+                        "on-primary-container": "#e5ebff",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#d8e2ff",
+                        "surface-bright": "#f8f9fb",
+                        "secondary-fixed": "#83fc8e",
+                        "on-primary-fixed-variant": "#004493",
+                        "tertiary-fixed-dim": "#c2c7cf",
+                        "surface": "#f8f9fb",
+                        "surface-dim": "#d8dadc",
+                        "on-tertiary-fixed-variant": "#42474e",
+                        "primary-container": "#0366d6",
+                        "inverse-primary": "#adc6ff",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-fixed": "#171c22",
+                        "on-primary-fixed": "#001a41"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased overflow-x-hidden">
+<!-- SideNavBar (Shared Component Blueprint) -->
+<aside class="flex flex-col fixed left-0 top-0 h-full py-8 px-4 border-r-0 bg-[#f8f9fb] dark:bg-[#191c1e] h-screen w-64 z-40">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="dns">dns</span>
+</div>
+<div>
+<h2 class="text-lg font-black text-[#0366D6] leading-none">RPi Storage</h2>
+<p class="text-[10px] text-tertiary uppercase tracking-widest mt-1">Connected via SMB</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-[#444746] dark:text-[#c4c7c5] hover:bg-[#f2f4f6] dark:hover:bg-[#2c2f33] hover:translate-x-1 transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="folder">folder</span>
+<span class="font-medium text-sm">Folders</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#444746] dark:text-[#c4c7c5] hover:bg-[#f2f4f6] dark:hover:bg-[#2c2f33] hover:translate-x-1 transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-medium text-sm">Recent</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#444746] dark:text-[#c4c7c5] hover:bg-[#f2f4f6] dark:hover:bg-[#2c2f33] hover:translate-x-1 transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="star">star</span>
+<span class="font-medium text-sm">Starred</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#444746] dark:text-[#c4c7c5] hover:bg-[#f2f4f6] dark:hover:bg-[#2c2f33] hover:translate-x-1 transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+<span class="font-medium text-sm">Trash</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#ffffff] dark:bg-[#ffffff]/10 text-[#0366D6] dark:text-[#4dabf7] rounded-lg shadow-sm" href="#">
+<span class="material-symbols-outlined" data-icon="cloud">cloud</span>
+<span class="font-medium text-sm">Storage</span>
+</a>
+</nav>
+<div class="mt-auto space-y-4">
+<div class="bg-surface-container-low p-4 rounded-xl">
+<p class="text-xs font-bold text-on-surface mb-2">Upgrade Storage</p>
+<div class="w-full bg-outline-variant/30 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[85%]"></div>
+</div>
+<p class="text-[10px] text-tertiary mt-2">1.8 TB of 2 TB used</p>
+</div>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-[#444746] dark:text-[#c4c7c5] hover:bg-[#f2f4f6] rounded-lg text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span>Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#444746] dark:text-[#c4c7c5] hover:bg-[#f2f4f6] rounded-lg text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Sign Out</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen p-8 lg:p-12 max-w-[1400px]">
+<!-- Header Section -->
+<header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h1 class="text-4xl font-extrabold tracking-tight text-on-background mb-2">Storage &amp; Settings</h1>
+<p class="text-tertiary max-w-lg">Manage your connected RPi Instance, monitor resource allocation, and update your personal security credentials.</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-2 px-3 py-1.5 bg-secondary-container text-on-secondary-container rounded-full text-xs font-semibold">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                    NAS Online
+                </span>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 active:scale-95 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="refresh">refresh</span>
+                    Re-mount SMB Storage
+                </button>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Storage Breakdown Column -->
+<div class="lg:col-span-7 space-y-8">
+<!-- Main Breakdown Card -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_32px_48px_rgba(0,79,168,0.04)]">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="pie_chart">pie_chart</span>
+                        Space Utilization
+                    </h3>
+<div class="flex items-end gap-1 h-8 mb-8 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[45%] transition-all" title="Images"></div>
+<div class="h-full bg-primary-container w-[30%] transition-all" title="Documents"></div>
+<div class="h-full bg-outline-variant w-[10%] transition-all" title="Others"></div>
+<div class="h-full bg-surface-container-high w-[15%] transition-all" title="Free"></div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+<div class="p-4 rounded-lg bg-surface-container-low transition-colors hover:bg-surface-container-high">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-xs font-semibold text-tertiary">Images</span>
+</div>
+<p class="text-xl font-bold">842.5 GB</p>
+<p class="text-[10px] text-outline mt-1">12,402 files</p>
+</div>
+<div class="p-4 rounded-lg bg-surface-container-low transition-colors hover:bg-surface-container-high">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-3 h-3 rounded-full bg-primary-container"></span>
+<span class="text-xs font-semibold text-tertiary">Documents</span>
+</div>
+<p class="text-xl font-bold">590.2 GB</p>
+<p class="text-[10px] text-outline mt-1">3,120 files</p>
+</div>
+<div class="p-4 rounded-lg bg-surface-container-low transition-colors hover:bg-surface-container-high">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-3 h-3 rounded-full bg-outline-variant"></span>
+<span class="text-xs font-semibold text-tertiary">Others</span>
+</div>
+<p class="text-xl font-bold">198.8 GB</p>
+<p class="text-[10px] text-outline mt-1">854 files</p>
+</div>
+</div>
+</section>
+<!-- Connection Details -->
+<section class="bg-surface-container-low p-8 rounded-xl">
+<div class="flex justify-between items-start mb-6">
+<h3 class="text-lg font-bold">Instance Info</h3>
+<span class="text-[10px] font-mono bg-surface-container-highest px-2 py-1 rounded">ID: RPI-4B-5592</span>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between py-3 border-b border-outline-variant/10">
+<span class="text-sm text-tertiary">Local IP Address</span>
+<span class="text-sm font-medium">192.168.1.142</span>
+</div>
+<div class="flex items-center justify-between py-3 border-b border-outline-variant/10">
+<span class="text-sm text-tertiary">SMB Protocol</span>
+<span class="text-sm font-medium">v3.1.1 (Encrypted)</span>
+</div>
+<div class="flex items-center justify-between py-3 border-b border-outline-variant/10">
+<span class="text-sm text-tertiary">Last Backup Sync</span>
+<span class="text-sm font-medium">2 hours ago</span>
+</div>
+<div class="flex items-center justify-between py-3">
+<span class="text-sm text-tertiary">Uptime</span>
+<span class="text-sm font-medium">14 days, 6 hours</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Profile & Security Column -->
+<div class="lg:col-span-5 space-y-8">
+<!-- Account Form -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_32px_48px_rgba(0,79,168,0.04)]">
+<h3 class="text-lg font-bold mb-8">Personal Details</h3>
+<form class="space-y-6">
+<div>
+<label class="block text-xs font-bold text-tertiary uppercase mb-2 tracking-wide">Full Name</label>
+<input class="w-full bg-surface-container-highest border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all" type="text" value="Julian Etherington"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-tertiary uppercase mb-2 tracking-wide">Email Address</label>
+<input class="w-full bg-surface-container-highest border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all" type="email" value="julian@ethercloud.io"/>
+</div>
+<div class="pt-4">
+<button class="w-full py-3 bg-surface-container-high text-on-surface font-semibold rounded-lg text-sm hover:bg-outline-variant transition-colors" type="button">
+                                Update Information
+                            </button>
+</div>
+</form>
+</section>
+<!-- Security Section -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_32px_48px_rgba(0,79,168,0.04)]">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-lg font-bold">Security</h3>
+<span class="material-symbols-outlined text-primary" data-icon="verified_user">verified_user</span>
+</div>
+<div class="space-y-6">
+<div class="p-4 rounded-xl border-2 border-primary/5 bg-primary/5">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary mt-1" data-icon="lock_reset">lock_reset</span>
+<div>
+<p class="text-sm font-bold mb-1">Password Change</p>
+<p class="text-xs text-tertiary mb-4 leading-relaxed">It's been 94 days since your last update. We recommend rotating keys every 90 days.</p>
+<button class="text-primary text-xs font-bold flex items-center gap-1 hover:underline">
+                                        Update Password
+                                        <span class="material-symbols-outlined text-[14px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-tertiary" data-icon="vibration">vibration</span>
+<div>
+<p class="text-sm font-bold">Two-Factor Auth</p>
+<p class="text-xs text-outline">Enabled via Authenticator App</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 transition-opacity" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-tertiary" data-icon="devices">devices</span>
+<div>
+<p class="text-sm font-bold">Active Sessions</p>
+<p class="text-xs text-outline">3 devices currently logged in</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Footer Visual Decor -->
+<footer class="mt-20 pt-10 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-6">
+<div class="flex -space-x-3">
+<img alt="" class="w-10 h-10 rounded-full border-2 border-background" data-alt="Corporate headshot of a team member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC01lDmoz4dLA5owmKUe_aqiohsjBfbUNEfUKI09DJIAHhYwk-rJCjIKjjBLCRPl2rRZUH011vcIV0zcaMoFS_9nPeCPBYwopz0im31UNPsRpvYVj3SCPKNAEkN4n5DU6wN6msgcj0sQqkb5YiSfg0mynxErKPReZ_AQnP-7gvTCp1melh4A2rNfFfsCiXT9CKRTX5uuZsKJSxcBmRDX3_8ynvokn2EDl3wcfUxhmL8Vo3D5_oUP1JkRjcPwMBsBTUGe4fEkdosinI"/>
+<img alt="" class="w-10 h-10 rounded-full border-2 border-background" data-alt="Headshot of a smiling professional woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqbamYh1xPPLzJY8BYCBm9k7UxLOa2UqxT7iwUaWYmbHJPjv68AEm-E5GAz0IQ0EbY6f9sQP3AurnMBrLBU1hcJeIyBGRU1nbHYo-teZlqLYrsQ5cb_jSq6v8RX4S5DjElkKifR8fw_7MVITD2u_QR0PnjsnNSmdqb8zSSeTIlsbwml4SZ0G94xIplb8uQ5kHfQlEe3gFVSXMTTZdZlpzAeTFDsUpu4wawTEGldM5_llUtQIbNsgPeZIuPM6ng63tcvGaURd6icCQ"/>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-bold border-2 border-background">+8</div>
+</div>
+<p class="text-xs text-outline">Shared storage access with the <b>Engineering Team</b></p>
+</div>
+<div class="text-[10px] font-mono text-outline tracking-widest uppercase">
+                © 2024 keyPear Cloud Architecture. v2.4.0-stable
+            </div>
+</footer>
+</main>
+<!-- Global Floating Action (Not on Settings, as per suppression rules, but provided here as visual anchor for context of the brand system if needed elsewhere) -->
+<!-- The prompt asks for a 'Re-mount SMB' button which I've placed in the header for focused accessibility -->
+</body></html>

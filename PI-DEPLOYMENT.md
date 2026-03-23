@@ -90,29 +90,47 @@ sudo mount -a
 
 ```bash
 cd backend
-cp ../.env.example .env
+cp .env.example .env
 nano .env
 ```
 
-Edit `.env`:
+Edit `backend/.env`:
 ```env
 PORT=3001
+NODE_ENV=production
 DATABASE_PATH=/mnt/nas/keypear-storage/data/keypear.db
 STORAGE_PATH=/mnt/nas/keypear-storage/user-files
 THUMBNAIL_DIR=/mnt/nas/keypear-storage/thumbnails
-JWT_ACCESS_SECRET=your-secure-access-secret
-JWT_REFRESH_SECRET=your-secure-refresh-secret
+JWT_ACCESS_SECRET=your-secure-access-secret-min-32-chars
+JWT_REFRESH_SECRET=your-secure-refresh-secret-min-32-chars
 FRONTEND_URL=http://your-pi-ip:4321
 ```
 
-### 6. Create Directories
+### 6. Configure Frontend
+
+```bash
+cd frontend
+cp .env.example .env
+nano .env
+```
+
+Edit `frontend/.env`:
+```env
+# Direct backend connection (for development/local)
+VITE_API_URL=http://localhost:3001
+
+# OR for production with nginx proxy (recommended)
+# VITE_API_URL=/api
+```
+
+### 7. Create Directories
 
 ```bash
 sudo mkdir -p /mnt/nas/keypear-storage/{data,user-files,thumbnails,chunks}
 sudo chown -R $USER:$USER /mnt/nas/keypear-storage
 ```
 
-### 7. Start Backend
+### 8. Start Backend
 
 ```bash
 cd backend
@@ -121,11 +139,13 @@ npm run dev  # Development
 pm2 start src/server.ts --name keypear-backend
 ```
 
-### 8. Start Frontend
+### 9. Start Frontend
 
 ```bash
 cd frontend
-npm run dev
+npm run dev  # Development
+# Or for production build:
+npm run build && npm run preview
 ```
 
 ## Option 2: Docker Deployment
