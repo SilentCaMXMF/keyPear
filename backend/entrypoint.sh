@@ -1,13 +1,6 @@
 #!/bin/bash
 # backend/entrypoint.sh
 
-# Wait for PostgreSQL to be ready
-echo "Waiting for PostgreSQL to be ready..."
-until pg_isready -h ${POSTGRES_HOST:-localhost} -p ${POSTGRES_PORT:-5432} -U ${POSTGRES_USER:-keypear} > /dev/null 2>&1; do
-  sleep 1
-done
-echo "PostgreSQL is ready!"
-
 # If SMB configuration is set, attempt to mount the share
 if [ -n "$SMB_SERVER" ] && [ -n "$SMB_SHARE" ]; then
     SMB_MOUNT_PATH=${SMB_MOUNT_PATH:-/app/storage}

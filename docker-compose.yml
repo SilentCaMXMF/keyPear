@@ -1,45 +1,6 @@
 version: "3.8"
 
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:16-alpine
-    container_name: keypear-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: keypear
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-in-production}
-      POSTGRES_DB: keypear
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/migrations:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keypear"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - keypear-network
-
-  # MinIO Object Storage (S3-compatible)
-  minio:
-    image: minio/minio:latest
-    container_name: keypear-minio
-    restart: unless-stopped
-    environment:
-      MINIO_ROOT_USER: ${MINIO_USER:-keypear}
-      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-change-me-in-production}
-    volumes:
-      - minio_data:/data
-    command: server /data --console-address ":9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-    networks:
-      - keypear-network
-
   # Backend API
   backend:
     build:
@@ -49,30 +10,22 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      PORT: 3001
-      DATABASE_URL: postgres://keypear:${POSTGRES_PASSWORD:-change-me-in-production}@postgres:5432/keypear
+      PORT: 3002
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       STORAGE_PATH: /app/storage/user-files
       THUMBNAIL_DIR: /app/storage/thumbnails
       CHUNK_TEMP_DIR: /app/storage/chunks
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4321}
-      MINIO_ENDPOINT: minio
-      MINIO_PORT: 9000
-      MINIO_ACCESS_KEY: ${MINIO_USER:-keypear}
-      MINIO_SECRET_KEY: ${MINIO_PASSWORD:-change-me-in-production}
-      MINIO_BUCKET: keypear-files
+      FRONTEND_URL: ${FRONTEND_URL}
     volumes:
+      - sqlite_data:/app/data
       - user_files:/app/storage/user-files
       - thumbnails:/app/storage/thumbnails
       - chunk_temp:/app/storage/chunks
-    depends_on:
-      postgres:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
     networks:
       - keypear-network
+    ports:
+      - "3002:3002"
 
   # Frontend
   frontend:
@@ -146,8 +99,7 @@ services:
       - keypear-network
 
 volumes:
-  postgres_data:
-  minio_data:
+  sqlite_data:
   user_files:
   thumbnails:
   chunk_temp:

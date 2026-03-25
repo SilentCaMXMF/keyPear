@@ -41,10 +41,8 @@ clean:
 
 # Database commands
 db-reset:
-	docker-compose down -v
-	docker-compose up -d postgres
-	sleep 5
-	docker-compose up -d
+	rm -f backend/data/keypear.db
+	@echo "SQLite database reset complete"
 
 # Development
 dev:

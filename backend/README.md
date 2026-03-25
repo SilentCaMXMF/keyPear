@@ -420,10 +420,8 @@ nano .env  # Set JWT secrets, database path, etc.
 
 ### 3. Run Migrations
 ```bash
-# SQLite (sql.js auto-creates tables)
-# For PostgreSQL, run migrations:
-psql -d keypear -f ../database/migrations/001_initial_schema.sql
-psql -d keypear -f ../database/migrations/002_sharing_schema.sql
+# SQLite (sql.js auto-creates tables on first run)
+# No migration steps needed - database is created automatically
 ```
 
 ### 4. Install Systemd Services

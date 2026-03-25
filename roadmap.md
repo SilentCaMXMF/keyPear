@@ -15,14 +15,12 @@
 │   └─────────────┘   │         │   └──────┬──────┘   │
 │                     │         │          │          │
 │   Deployed: Vercel │         │   ┌──────▼──────┐   │
-│                     │         │   │ PostgreSQL  │   │
+│                     │         │   │ SQLite      │   │
+│                     │         │   │ (sql.js)    │   │
 │                     │         │   └─────────────┘   │
 │                     │         │          │          │
 │                     │         │   ┌──────▼──────┐   │
 │                     │         │   │ SMB Mount   │   │
-│                     │         │   │ 192.168.1. │   │
-│                     │         │   │ 254/public  │   │
-│                     │         │   └─────────────┘   │
 └─────────────────────┘         └──────────┬──────────┘
                                             │
                                     ┌───────┴───────┐
@@ -38,7 +36,7 @@
 |-------|------------|-------|
 | **Frontend** | Vite + Vanilla JS | Lightweight SPA |
 | **Backend** | Express.js + TypeScript | Runs on Pi |
-| **Database** | PostgreSQL | Persistent storage |
+| **Database** | SQLite (sql.js) | File-based |
 | **File Storage** | SMB Mount (NAS) | 192.168.1.254/public |
 | **Auth** | JWT + bcrypt | Local accounts |
 | **Deployment** | Vercel (frontend) + Cloudflare Tunnel | For API access |
@@ -180,8 +178,8 @@ cd ../frontend && npm install
 PORT=3001
 JWT_ACCESS_SECRET=<generate-with-openssl-rand-base64-32>
 JWT_REFRESH_SECRET=<different-generate-with-openssl-rand-base64-32>
-DATABASE_URL=postgresql://localhost:5432/keypear
 FRONTEND_URL=http://localhost:3000
+# SQLite database auto-created at backend/data/keypear.db
 ```
 
 **⚠️ NEVER commit `.env` files to git!**
@@ -322,8 +320,9 @@ psql -d keypear -f ~/keypear/database/migrations/002_sharing_schema.sql
 PORT=3001
 JWT_ACCESS_SECRET=<generate-with-openssl-rand-base64-32>
 JWT_REFRESH_SECRET=<different-secret>
-DATABASE_URL=postgresql://user:pass@host:5432/keypear
 FRONTEND_URL=https://your-domain.com
+
+# SQLite database auto-created at backend/data/keypear.db
 
 # Optional (for production)
 SMB_HOST=192.168.1.254

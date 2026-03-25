@@ -241,7 +241,7 @@ The `src/lib/api.ts` provides:
 ### Models
 | Model | Purpose |
 |-------|---------|
-| `db.js` | PostgreSQL connection pool |
+| `db.js` | SQLite (sql.js) database |
 | `user.js` | User CRUD |
 | `file.js` | File metadata |
 | `folder.js` | Folder operations |
@@ -266,7 +266,6 @@ The `src/lib/api.ts` provides:
 ### Required
 ```
 PORT=3001
-DATABASE_URL=postgresql://localhost:5432/keypear
 JWT_ACCESS_SECRET=...
 JWT_REFRESH_SECRET=...
 ```
@@ -308,7 +307,7 @@ cd frontend && npm install vitest
 |---------|------|
 | Frontend | 4321 |
 | Backend API | 3001 |
-| PostgreSQL | 5432 |
+| SQLite DB |  |
 | MinIO | 9000 |
 | MinIO Console | 9001 |
 | Nginx | 80 |
