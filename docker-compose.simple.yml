@@ -1,0 +1,32 @@
+# KeyPear Backend - Simplified Docker Compose
+# Option 1: Backend only with SQLite and SMB mount
+# Usage: docker-compose -f docker-compose.simple.yml up -d
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: keypear-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-${JWT_SECRET}}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-${JWT_SECRET}}
+      - FRONTEND_URL=${FRONTEND_URL:-https://key-pear.vercel.app}
+      # SMB Mount - mount host folder to this path
+      - SMB_MOUNT_PATH=/app/storage
+    volumes:
+      # Database persistence
+      - ./backend/data:/app/data
+      # SMB storage from host (bind mount)
+      - /home/pi/keypear_mount:/app/storage:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

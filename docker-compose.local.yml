@@ -1,0 +1,28 @@
+# KeyPear Backend - Docker Compose for Local Testing
+# Usage: docker-compose -f docker-compose.local.yml up -d
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: keypear-backend-test
+    restart: unless-stopped
+    ports:
+      - "3002:3001"  # Map container port 3001 to host port 3002
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - JWT_SECRET=GrI3CQvHP070Hz9i2o0LqirtPrUIjhpJgVfeE9pEeeA=
+      - JWT_ACCESS_SECRET=GrI3CQvHP070Hz9i2o0LqirtPrUIjhpJgVfeE9pEeeA=
+      - JWT_REFRESH_SECRET=GrI3CQvHP070Hz9i2o0LqirtPrUIjhpJgVfeE9pEeeA=
+      - FRONTEND_URL=http://localhost:4321
+      - SMB_MOUNT_PATH=/app/storage
+    volumes:
+      - ./backend/data:/app/data
+      - /home/pedroocalado/keypear_mount:/app/storage:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

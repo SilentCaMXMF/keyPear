@@ -1,0 +1,16 @@
+# Docker ignore
+node_modules
+*.log
+.env
+.env.local
+.git
+.gitignore
+README.md
+*.md
+.DS_Store
+*.db
+*.db-journal
+dist
+coverage
+.vscode
+.idea
