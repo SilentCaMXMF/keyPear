@@ -78,18 +78,21 @@ const corsOptions = {
 };
 
 app.set('trust proxy', 1);
-app.use(helmet());
+app.use(cors(corsOptions));
+app.use(helmet({
+  crossOriginOpenerPolicy: false,
+  crossOriginResourcePolicy: false,
+}));
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-app.use(fileUpload({ 
-  useTempFiles: true, 
+app.use(fileUpload({
+  useTempFiles: true,
   tempFileDir: '/tmp/',
   limits: { fileSize: 100 * 1024 * 1024 },
   abortOnLimit: true,
 }));
 app.use(passport.initialize());
-app.use(cors(corsOptions));
 app.use(globalLimiter);
 
 app.use('/api/auth', authLimiter, authRoutes);
