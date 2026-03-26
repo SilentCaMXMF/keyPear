@@ -30,6 +30,11 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
+      zIndex: {
+        '60': '60',
+        '70': '70',
+        '80': '80',
+      },
     },
   },
   plugins: [

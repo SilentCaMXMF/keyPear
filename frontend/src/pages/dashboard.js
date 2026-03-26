@@ -18,7 +18,7 @@ export function dashboardPage() {
   
   return `
     <!-- Top App Bar -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 px-6 py-3">
+    <header class="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 px-6 py-3">
       <div class="flex items-center justify-between max-w-full">
         <div class="flex items-center gap-8">
           <span class="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">keyPear</span>
@@ -43,7 +43,7 @@ export function dashboardPage() {
 
     <div class="flex pt-16">
       <!-- Sidebar -->
-      <aside class="bg-slate-50 dark:bg-slate-950 h-screen w-64 fixed left-0 top-16 z-40 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col">
+      <aside id="dashboard-sidebar" class="bg-slate-50 dark:bg-slate-950 h-[calc(100vh-4rem)] w-64 fixed left-0 top-16 z-30 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col">
         <div class="px-4 mb-6">
           <div class="flex items-center gap-3 mb-4">
             <div class="h-10 w-10 rounded-lg bg-primary-container flex items-center justify-center text-white">
@@ -95,7 +95,7 @@ export function dashboardPage() {
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-1 ml-64 p-8">
+      <main id="dashboard-main" class="flex-1 ml-64 p-8">
         <div class="max-w-6xl mx-auto">
           <!-- Header -->
           <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
@@ -268,11 +268,11 @@ export function dashboardPage() {
     </div>
 
     <!-- Context Menu -->
-    <div id="context-menu" class="fixed bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-2 min-w-48 z-50 hidden">
+    <div id="context-menu" class="fixed bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-2 min-w-48 z-60 hidden">
     </div>
 
     <!-- Move Modal -->
-    <div id="move-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div id="move-modal" class="fixed inset-0 bg-black/50 z-70 hidden flex items-center justify-center p-4">
       <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full p-6">
         <h3 class="text-lg font-bold text-on-surface mb-4">Move to...</h3>
         <div id="folder-tree" class="max-h-64 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-lg p-2 mb-4"></div>
@@ -818,8 +818,13 @@ function showContextMenu(e, item) {
   menu.innerHTML = menuItems;
   
   menu.style.display = 'block';
-  menu.style.left = Math.min(e.pageX, window.innerWidth - 200) + 'px';
-  menu.style.top = Math.min(e.pageY, window.innerHeight - 250) + 'px';
+  const menuWidth = 200;
+  const menuHeight = 300;
+  const sidebarWidth = window.innerWidth >= 768 ? 256 : 0;
+  const x = Math.min(e.clientX, window.innerWidth - menuWidth);
+  const y = Math.min(e.clientY, window.innerHeight - menuHeight);
+  menu.style.left = Math.max(sidebarWidth, x) + 'px';
+  menu.style.top = Math.max(0, y) + 'px';
   menu.dataset.itemId = item.id;
   menu.dataset.itemType = item.type;
   menu.dataset.itemName = item.name;

@@ -9,7 +9,7 @@ export function loginPage(props = {}) {
   return `
     <div class="min-h-screen flex flex-col bg-[#f7f9ff]">
       <!-- Top Navigation Bar -->
-      <header class="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-xl shadow-sm px-6 py-3 flex justify-between items-center">
+      <header class="fixed top-0 left-0 right-0 z-40 bg-white/60 backdrop-blur-xl shadow-sm px-6 py-3 flex justify-between items-center">
         <div class="flex items-center gap-2">
           <span class="material-symbols-outlined text-emerald-600 text-2xl" style="font-variation-settings: 'FILL' 1;">shield</span>
           <span class="text-xl font-black text-black tracking-tighter">keyPear</span>
@@ -22,7 +22,7 @@ export function loginPage(props = {}) {
       </header>
       
       <main class="flex-grow flex items-center justify-center px-4 pt-20 pb-12">
-        <div class="max-w-[1200px] w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div id="auth-layout" class="max-w-[1200px] w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <!-- Left Column: Branding & Trust -->
           <div class="hidden lg:flex lg:col-span-7 flex-col gap-8">
             <div class="space-y-4">
