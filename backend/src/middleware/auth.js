@@ -9,8 +9,12 @@ const authenticate = (req, res, next) => {
 
   const token = authHeader.split(' ')[1];
 
+  if (!process.env.JWT_ACCESS_SECRET) {
+    return res.status(500).json({ error: 'Server misconfigured: JWT_ACCESS_SECRET not set' });
+  }
+
   try {
-    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     req.userId = decoded.userId;
     next();
   } catch (error) {

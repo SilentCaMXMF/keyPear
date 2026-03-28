@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { db } from './index.js';
+import fs from 'fs';
 
 const Folder = {
   async create({ userId, parentFolderId, name }) {
@@ -76,10 +77,10 @@ const Folder = {
     
     for (const file of filesResult.rows) {
       if (file.storage_path) {
-        try { require('fs').unlinkSync(file.storage_path); } catch (e) {}
+        try { fs.unlinkSync(file.storage_path); } catch (e) {}
       }
       if (file.thumbnail_path) {
-        try { require('fs').unlinkSync(file.thumbnail_path); } catch (e) {}
+        try { fs.unlinkSync(file.thumbnail_path); } catch (e) {}
       }
     }
     

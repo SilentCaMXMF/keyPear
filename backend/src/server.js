@@ -11,12 +11,21 @@ import { dirname, join } from 'path';
 
 dotenv.config();
 
+// Validate required environment variables at startup
+if (!process.env.JWT_ACCESS_SECRET) {
+  throw new Error('JWT_ACCESS_SECRET is required. Copy .env.example to .env and configure.');
+}
+if (!process.env.JWT_REFRESH_SECRET) {
+  throw new Error('JWT_REFRESH_SECRET is required. Copy .env.example to .env and configure.');
+}
+
 import authRoutes from './routes/auth.js';
 import filesRoutes from './routes/files.js';
 import foldersRoutes from './routes/folders.js';
 import sharesRoutes from './routes/shares.js';
 import chunksRoutes from './routes/chunks.js';
 import logsRoutes from './routes/logs.js';
+import { ChunkUpload } from './models/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -113,6 +122,18 @@ app.use((err, req, res, next) => {
   }
   next(err);
 });
+
+// Cleanup expired chunks every hour
+setInterval(async () => {
+  try {
+    const deleted = await ChunkUpload.deleteExpired();
+    if (deleted > 0) {
+      console.log(`Cleaned up ${deleted} expired chunk uploads`);
+    }
+  } catch (err) {
+    console.error('Chunk cleanup error:', err);
+  }
+}, 60 * 60 * 1000);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

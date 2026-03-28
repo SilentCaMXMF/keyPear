@@ -29,8 +29,21 @@ const ensureStorageDir = (userId) => {
   return userDir;
 };
 
+const assertInsideStorage = (filePath) => {
+  const storageRoot = getStoragePath();
+  const resolved = path.resolve(filePath);
+  if (!resolved.startsWith(storageRoot + path.sep) && resolved !== storageRoot) {
+    throw new Error('Path traversal detected');
+  }
+};
+
 const sanitizeFilename = (filename) => {
   return filename
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
     .replace(/[/\\?%*:|"<>]/g, '-')
     .replace(/\s+/g, '_')
     .substring(0, 200);
@@ -51,6 +64,11 @@ router.post('/upload', authenticate, async (req, res) => {
     const uploadedFile = req.files.file;
     const originalFilename = sanitizeFilename(uploadedFile.name);
     const size = uploadedFile.size;
+    const user = await User.findById(req.userId);
+    const quota = user.storage_quota || 10 * 1024 * 1024 * 1024;
+    if ((user.storage_used || 0) + size > quota) {
+      return res.status(400).json({ error: 'Storage quota exceeded' });
+    }
     const mimeType = uploadedFile.mimeType || 'application/octet-stream';
 
     const userDir = ensureStorageDir(req.userId);
@@ -59,6 +77,7 @@ router.post('/upload', authenticate, async (req, res) => {
     const baseName = path.basename(originalFilename, ext);
     const storageFilename = `${baseName}_${fileId}${ext}`;
     const storagePath = path.join(userDir, storageFilename);
+    assertInsideStorage(storagePath);
 
     await uploadedFile.mv(storagePath);
     const checksum = crypto.createHash('sha256').update(fs.readFileSync(storagePath)).digest('hex');
@@ -67,7 +86,7 @@ router.post('/upload', authenticate, async (req, res) => {
     try {
       thumbnailPath = await generateThumbnail(storagePath, fileId);
     } catch (thumbErr) {
-      console.log('Thumbnail generation skipped:', thumbErr.message);
+      // Thumbnail generation is optional, skip silently
     }
 
     const file = await File.create({
@@ -276,6 +295,8 @@ router.get('/:id/thumbnail', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'Thumbnail not found' });
     }
 
+    assertInsideStorage(file.thumbnail_path);
+
     res.setHeader('Content-Type', 'image/jpeg');
     const stream = fs.createReadStream(file.thumbnail_path);
     stream.pipe(res);
@@ -291,6 +312,8 @@ router.get('/:id/download', authenticate, async (req, res) => {
     if (!file || file.user_id !== req.userId) {
       return res.status(404).json({ error: 'File not found' });
     }
+
+    assertInsideStorage(file.storage_path);
 
     if (!fs.existsSync(file.storage_path)) {
       return res.status(404).json({ error: 'File not found on disk' });

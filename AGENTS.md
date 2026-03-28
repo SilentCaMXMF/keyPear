@@ -2,43 +2,35 @@
 
 ## Project Overview
 
-keyPear is a cloud storage application with an Astro frontend (React + Tailwind CSS + TypeScript) and an Express.js backend. Target: small teams (10-100 users).
+keyPear is a self-hosted cloud storage application for small teams (10-100 users). Vanilla JS SPA frontend with Vite + Tailwind CSS, Express.js backend with SQLite (sql.js). Deployed on Raspberry Pi via Cloudflare Tunnel.
 
 ## Project Structure
 
 ```
 keyPear/
-├── frontend/                 # Astro + React frontend
+├── frontend/
 │   ├── src/
-│   │   ├── components/      # React components (UI, FileBrowser, AuthForms, Settings)
-│   │   ├── contexts/        # Auth, Query providers
-│   │   ├── hooks/           # TanStack Query hooks (useFiles, useChunkedUpload)
-│   │   ├── layouts/         # Astro layouts
-│   │   ├── lib/             # Utilities, API client
-│   │   └── pages/           # Astro pages (index, login, register, dashboard)
-│   └── public/
+│   │   ├── components/      # UI components (AuthForms.tsx, FileBrowser.tsx, SettingsPage.tsx)
+│   │   ├── contexts/        # Auth context
+│   │   ├── hooks/           # useFiles.ts, useChunkedUpload.ts
+│   │   ├── lib/             # api.ts (API client), utils.ts
+│   │   ├── pages/           # Page renderers (login.js, register.js, dashboard.js, settings.js)
+│   │   ├── router.js        # Client-side SPA router
+│   │   └── main.js          # Entry point
+│   └── vite.config.js
 │
-├── backend/                  # Express.js API
+├── backend/
 │   └── src/
-│       ├── controllers/     # (reserved)
-│       ├── middleware/      # Auth middleware
-│       ├── models/         # DB models (db, user, file, folder, session, share, activityLog, chunkUpload)
-│       ├── routes/         # API routes (auth, files, folders, shares, chunks, logs, oauth)
-│       ├── services/       # Business logic (passport, thumbnail)
-│       └── server.js       # Express app
+│       ├── middleware/      # auth.js (JWT verification)
+│       ├── models/          # DB models (user, file, folder, session, share, activityLog, chunkUpload)
+│       ├── routes/          # API routes (auth, files, folders, shares, chunks, logs, oauth)
+│       ├── services/        # passport.js (OAuth), thumbnail.js (image processing)
+│       └── server.js        # Express app entry
 │
-├── database/
-│   └── migrations/         # SQL migrations
-│
-├── storage/                 # File storage (gitignored)
-│   ├── user-files/
-│   ├── thumbnails/
-│   └── chunks/
-│
-├── docker-compose.yml        # All services
-├── nginx.conf               # Nginx config
-├── Makefile                # Docker commands
-└── .env.example            # Environment template
+├── database/migrations/     # SQL schema (PostgreSQL syntax, used with sql.js at runtime)
+├── docker-compose.yml       # Backend, frontend, nginx, prometheus, grafana
+├── Makefile                 # Docker shortcuts
+└── storage/                 # user-files, thumbnails, chunks (gitignored)
 ```
 
 ## Commands
@@ -46,420 +38,135 @@ keyPear/
 ### Development
 
 ```bash
-# Run both frontend and backend concurrently
-npm run dev
-
-# Run only frontend (Astro dev server on port 4321)
-npm run dev:frontend
-
-# Run only backend (Express on port 3001)
-npm run dev:backend
+npm run dev              # Run both frontend + backend concurrently
+npm run dev:frontend     # Frontend only (Vite, port 3000)
+npm run dev:backend      # Backend only (Express, port 3001)
 ```
 
 ### Frontend
 
 ```bash
 cd frontend
-
-npm run dev              # Start Astro dev server (port 4321)
-npm run build           # Build for production
-npm run preview         # Preview production build
-npm run lint           # TypeScript validation
+npm run dev              # Start Vite dev server (port 3000)
+npm run build            # Build for production
+npm run preview          # Preview production build
 ```
 
 ### Backend
 
 ```bash
 cd backend
-
-npm start               # Production server
-npm run dev            # Development with nodemon
+npm run dev              # Development with node --watch
+npm start                # Production server
 ```
 
 ### Docker
 
 ```bash
-make up               # Start all services
-make up-monitor      # Start with monitoring
-make down            # Stop services
-make logs            # View logs
-make clean           # Remove containers and volumes
+make up                  # Start all services
+make down                # Stop services
+make logs                # View logs
+make clean               # Remove containers and volumes
 ```
+
+### Database
+
+Database auto-creates at `backend/data/keypear.db` (SQLite via sql.js). Reset with `make db-reset`.
 
 ## API Endpoints
 
-### Authentication
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login user |
-| POST | `/api/auth/logout` | Logout user |
-| POST | `/api/auth/refresh` | Refresh access token |
-| GET | `/api/auth/oauth/google` | Google OAuth |
-| GET | `/api/auth/oauth/github` | GitHub OAuth |
-
-### Files
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/files` | List user files |
-| POST | `/api/files/upload` | Upload single file |
+| POST | `/api/auth/register` | Register |
+| POST | `/api/auth/login` | Login |
+| POST | `/api/auth/logout` | Logout |
+| POST | `/api/auth/refresh` | Refresh JWT |
+| GET | `/api/files` | List files |
+| POST | `/api/files/upload` | Upload file |
 | POST | `/api/files/chunks/upload/chunk` | Upload chunk |
 | POST | `/api/files/chunks/upload/complete` | Complete chunked upload |
 | GET | `/api/files/:id/download` | Download file |
 | GET | `/api/files/:id/thumbnail` | Get thumbnail |
-| DELETE | `/api/files/:id` | Delete file (soft) |
+| DELETE | `/api/files/:id` | Soft delete file |
 | POST | `/api/files/:id/restore` | Restore file |
+| GET/POST/PATCH/DELETE | `/api/folders` | Folder CRUD |
+| POST/GET/DELETE | `/api/shares` | Share links |
+| GET | `/api/logs` | Activity logs |
 
-### Folders
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/folders` | List folders |
-| POST | `/api/folders` | Create folder |
-| PATCH | `/api/folders/:id` | Rename folder |
-| DELETE | `/api/folders/:id` | Delete folder |
-
-### Shares
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/shares` | Create share link |
-| GET | `/api/shares/:token` | Get share info |
-| DELETE | `/api/shares/:id` | Delete share |
-
-### Activity
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/logs` | Get activity logs |
-
-## Code Style Guidelines
+## Code Style
 
 ### General
-- Use **2 spaces** for indentation
-- Use **double quotes** for JSX, **single quotes** elsewhere
-- Add **trailing commas** in multi-line objects/arrays
-- Maximum line length: **100 characters** (soft limit)
+- **2 spaces** indentation
+- **Single quotes** in JS, **double quotes** in JSX/TSX
+- **Trailing commas** in multi-line objects/arrays
+- **100 char** soft line limit
 
-### TypeScript
-- **Strict mode** enabled in tsconfig.json
-- Use **explicit types** for function params and returns
-- Avoid `any` - use `unknown` when type is unknown
+### JavaScript/TypeScript
+- ES Modules (`"type": "module"` in package.json)
+- Use `import`/`export`, not `require`
+- Backend: mix of `.js` and `.ts` files (transitional state)
+- Frontend: `.js` for pages/router, `.tsx` for UI components, `.ts` for hooks/lib
+- Avoid `any` — use `unknown` when type is uncertain
 - Use **interfaces** for object shapes, **types** for unions
-
-```typescript
-// Good
-interface User {
-  id: string;
-  email: string;
-  name?: string;
-}
-
-function getUser(id: string): Promise<User | null> {
-  // ...
-}
-```
 
 ### Naming Conventions
 | Element | Convention | Example |
 |---------|------------|---------|
-| Files | kebab-case | `login-form.astro` |
+| Files | kebab-case | `auth-forms.tsx` |
 | Components | PascalCase | `FileBrowser.tsx` |
 | Functions | camelCase | `getUserById()` |
 | Variables | camelCase | `isLoading` |
 | Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
-| Interfaces | PascalCase | `ApiResponse` |
+| DB columns | snake_case | `created_at`, `user_id` |
 
 ### Imports Order
-1. External (React, Astro, etc.)
-2. Internal components/utils
-3. Type imports
-4. CSS/assets
-
-### React/Astro Patterns
-- Use **functional components** with hooks
-- Destructure props with defaults
-- Use **early returns**
-
-```tsx
-interface Props {
-  title?: string;
-}
-
-export default function Component({ title = "Default" }: Props) {
-  if (!title) return null;
-  return <h1>{title}</h1>;
-}
-```
+1. Node built-ins (`fs`, `path`, `crypto`)
+2. External packages (`express`, `uuid`, `sharp`)
+3. Internal modules (`../models/index.js`, `../middleware/auth.js`)
+4. Types (last)
 
 ### Error Handling
 - Use **try/catch** with async/await
-- Return **consistent error responses**
-- Log errors with context
+- Return consistent JSON: `{ error: 'message' }` for errors, `{ data }` for success
+- Log errors with `console.error` (never `console.log` in production)
+- HTTP 400 for validation/quota, 401 for auth, 403 for forbidden, 404 for not found, 500 for server
 
-```javascript
-app.get('/api/resource', async (req, res) => {
-  try {
-    const data = await fetchResource();
-    res.json({ success: true, data });
-  } catch (error) {
-    console.error('Fetch resource failed:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch' });
-  }
-});
-```
+### Security
+- Filenames must be sanitized via `sanitizeFilename()` (HTML entity escaping + char replacement)
+- File paths must be validated with `assertInsideStorage()` before disk access
+- Storage quota checked before upload writes to disk
+- No `console.log` in production code (use `console.error` for errors only)
 
-## Frontend Architecture
+### Backend Patterns
+- Express Router per resource (`routes/files.js`, `routes/folders.js`)
+- Auth middleware via `authenticate` from `middleware/auth.js`
+- Models export plain functions (not classes): `User.findById(id)`, `File.create(data)`
+- Routes: `router.get('/', authenticate, async (req, res) => { ... })`
+- Use `req.user.id` after auth middleware for user-scoped queries
 
-### TanStack Query
-Use hooks from `src/hooks/useFiles.ts`:
-
-```typescript
-import { useFiles, useFolders, useUploadFile, useActivityLogs } from './hooks/useFiles';
-
-// Fetch files in folder
-const { data, isLoading, refetch } = useFiles(folderId);
-
-// Upload file
-const upload = useUploadFile();
-await upload.mutateAsync({ file, folderId });
-```
-
-### API Client
-The `src/lib/api.ts` provides:
-- Auto-refresh JWT tokens
-- Cookie-based auth
-- Consistent error handling
-
-### Components
-| Component | Purpose |
-|-----------|---------|
-| `FileBrowser.tsx` | Google Drive-style file manager |
-| `AuthForms.tsx` | Login/register forms |
-| `SettingsPage.tsx` | User settings |
-| `ui/*` | shadcn/ui components |
-
-## Backend Architecture
-
-### Models
-| Model | Purpose |
-|-------|---------|
-| `db.js` | SQLite (sql.js) database |
-| `user.js` | User CRUD |
-| `file.js` | File metadata |
-| `folder.js` | Folder operations |
-| `session.js` | JWT refresh tokens |
-| `share.js` | Share links |
-| `activityLog.js` | Audit trail |
-| `chunkUpload.js` | Chunked upload tracking |
-
-### Services
-| Service | Purpose |
-|---------|---------|
-| `passport.js` | OAuth strategies |
-| `thumbnail.js` | Image thumbnail generation |
-
-### Middleware
-| Middleware | Purpose |
-|------------|---------|
-| `auth.js` | JWT authentication |
-
-## Environment Variables
-
-### Required
-```
-PORT=3001
-JWT_ACCESS_SECRET=...
-JWT_REFRESH_SECRET=...
-```
-
-### Optional
-```
-FRONTEND_URL=http://localhost:4321
-STORAGE_PATH=./storage/user-files
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-GITHUB_CLIENT_ID=...
-GITHUB_CLIENT_SECRET=...
-```
-
-## Database Schema
-
-### Core Tables
-- **users**: id, email, password_hash, oauth_provider, oauth_id, name, storage_used, storage_quota, created_at
-- **folders**: id, user_id, parent_folder_id, name, created_at, deleted_at
-- **files**: id, user_id, folder_id, filename, storage_path, thumbnail_path, size, mime_type, checksum, created_at, deleted_at
-- **sessions**: id, user_id, refresh_token, expires_at
-- **shares**: id, file_id, token, expires_at
-- **activity_logs**: id, user_id, action, file_id, timestamp, metadata
-- **chunk_uploads**: id, user_id, filename, total_chunks, total_size, upload_path, expires_at
-
-## Testing
-
-```bash
-# Backend - add Jest
-cd backend && npm install jest @types/jest
-
-# Frontend - add Vitest
-cd frontend && npm install vitest
-```
+### Frontend Patterns
+- SPA with manual client-side routing (`router.js`)
+- Pages export render function + init function: `export function dashboardPage() { return html; }`
+- Use `api` utility from `lib/api.ts` for all API calls (handles JWT refresh)
+- Tailwind CSS classes for styling (v4)
+- No React/Vue — vanilla JS DOM manipulation
 
 ## Ports
 
 | Service | Port |
 |---------|------|
-| Frontend | 4321 |
+| Frontend (Vite) | 3000 |
 | Backend API | 3001 |
-| SQLite DB |  |
-| MinIO | 9000 |
-| MinIO Console | 9001 |
 | Nginx | 80 |
 | Grafana | 3000 |
 | Prometheus | 9090 |
 
-## Additional Notes
+## Environment
 
-- Frontend runs on **port 4321** (Astro default)
-- Backend runs on **port 3001**
-- API endpoints: `http://localhost:3001/api/*`
-- Storage: `storage/user-files/` (gitignored)
-- Thumbnails: `storage/thumbnails/`
-- Chunk uploads: `storage/chunks/` (temp)
+Required: copy `.env.example` to `.env`. Key vars: `PORT`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `STORAGE_PATH`, `FRONTEND_URL`.
 
-<!-- Added: 2026-03-15 -->
-## Cloudflare Tunnel Multi-Backend Setup for KeyPear
+## Environment Requirements
 
-Cloudflare Tunnel can serve multiple backend applications through hostname-based routing using a single tunnel connection.
-
-### Architecture
-```
-Client → Cloudflare Edge → Tunnel → Local cloudflared → Backend Services
-                    ↑                    ↑                    ↑
-              (DNS Lookup)     (Ingress Rules)     (Local Ports)
-```
-
-### Configuration File (~/.cloudflared/config.yml)
-```yaml
-tunnel: <tunnel-id>
-credentials-file: /path/to/credentials.json
-
-ingress:
-  - hostname: api.keypear.pedroocalado.eu
-    service: http://127.0.0.1:3001
-    originRequest:
-      noTLSVerify: true
-  - hostname: homelab-backendpi.pedroocalado.eu
-    service: http://127.0.0.1:3000
-    originRequest:
-      noTLSVerify: true
-  - service: http_status:404  # Catch-all
-```
-
-### Setup Steps
-1. Ensure backends running locally:
-   - KeyPear API: port 3001
-   - Other services: designated ports
-
-2. Create tunnel:
-   ```bash
-   cloudflared tunnel create <tunnel-name>
-   ```
-
-3. Configure ingress rules in config.yml or Dashboard
-
-4. Create DNS CNAME records:
-   ```bash
-   cloudflared tunnel route dns <tunnel-name> api.keypear.pedroocalado.eu
-   cloudflared tunnel route dns <tunnel-name> homelab-backendpi.pedroocalado.eu
-   ```
-
-5. Start tunnel:
-   ```bash
-   cloudflared tunnel run <tunnel-name>
-   ```
-
-6. Cloudflare Settings:
-   - SSL/TLS → Encryption Mode: Flexible
-   - DNS records: Proxy status = Proxied
-
-### Verification
-- Tunnel info: `cloudflared tunnel info <tunnel-name>`
-- DNS check: `dig <hostname> CNAME`
-- Config sync: `curl http://127.0.0.1:20241/metrics | grep config_version`
-- Endpoint test: `curl -I https://<hostname>/`
-
-### Troubleshooting
-If endpoints timeout:
-1. Verify local backends: `curl http://127.0.0.1:<port>/`
-2. Check tunnel running: `ps aux | grep cloudflared`
-3. Verify DNS: `dig <hostname>`
-4. Check config version in metrics
-5. Look for "Updated to new configuration" in tunnel logs
-6. Test HTTP to bypass SSL: `curl -v http://<hostname>/`
-
-### Best Practices
-- Keep ingress rules in version-controlled config.yml
-- Use noTLSVerify: true only for local HTTP services
-- Always include catch-all rule
-- Monitor tunnel metrics and logs
-- Test with HTTP first during debugging
-
-<!-- Added: 2026-03-19 -->
-## Cloudflare Tunnel Setup for KeyPear API
-
-To expose the KeyPear API running on Raspberry Pi (port 3001) via Cloudflare Tunnel:
-
-### Prerequisites
-- Domain managed by Cloudflare (pedroocalado.eu)
-- Existing wildcard SSL certificate: *.pedroocalado.eu (covers subdomains like api.pedroocalado.eu)
-- KeyPear backend running locally on port 3001
-- cloudflared installed
-
-### Steps
-
-1. **Create Tunnel**
-   ```bash
-   cloudflared tunnel create keyPear-api
-   # Save the generated tunnel ID and credentials file path
-   ```
-
-2. **Configure Tunnel** (~/.cloudflared/config.yml)
-   ```yaml
-   tunnel: <tunnel-id-from-step-1>
-   credentials-file: /path/to/credentials.json
-
-   ingress:
-     - hostname: api.pedroocalado.eu  # Must match existing wildcard cert
-       service: http://127.0.0.1:3001
-       originRequest:
-         noTLSVerify: true  # For local HTTP service
-     - service: http_status:404  # Catch-all
-   ```
-
-3. **Route DNS**
-   ```bash
-   cloudflared tunnel route dns keyPear-api api.pedroocalado.eu
-   ```
-
-4. **Start Tunnel**
-   ```bash
-   cloudflared tunnel run keyPear-api
-   # Or run as service:
-   # sudo systemctl start cloudflared-keyPear-api
-   ```
-
-5. **Verify Setup**
-   - Check tunnel status: `cloudflared tunnel list`
-   - Verify DNS: `dig api.pedroocalado.eu CNAME`
-   - Test endpoint: `curl https://api.pedroocalado.eu/api/auth/me`
-   - Check config version: `curl http://127.0.0.1:20241/metrics | grep config_version`
-
-### Troubleshooting
-
-- **SSL Handshake Failure**: Ensure hostname in config.yml matches a domain covered by your Cloudflare SSL certificate
-- **502 Errors**: Verify backend is running on configured port (3001)
-- **Config Version 0**: Tunnel is managed via Dashboard, not local config. Delete tunnel from Dashboard first, then recreate with local config
-- **Connection Refused**: Check cloudflared logs: `journalctl -u cloudflared -f` or check /tmp/cloudflared.log
-
-### Notes
-- Universal SSL certificates for new subdomains can take 5-30 minutes to provision
-- Use subdomains covered by existing certificates (like *.pedroocalado.eu) for immediate availability
-- Keep tunnel process running for continued access
-- For production, consider running cloudflared as a systemd service
+The following env vars **must** be set (server refuses to start auth routes without them):
+- `JWT_ACCESS_SECRET` — separate secret for access tokens
+- `JWT_REFRESH_SECRET` — separate secret for refresh tokens (must differ from access)

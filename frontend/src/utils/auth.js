@@ -1,5 +1,6 @@
 // Auth Utilities
 const TOKEN_KEY = 'keypear_token';
+const REFRESH_KEY = 'keypear_refresh_token';
 const USER_KEY = 'keypear_user';
 
 // API URL - use environment variable or fallback
@@ -15,7 +16,6 @@ const getApiUrl = () => {
 };
 
 const API_URL = getApiUrl();
-console.log('API URL:', API_URL);
 
 export const auth = {
   isLoggedIn() {
@@ -26,6 +26,10 @@ export const auth = {
     return localStorage.getItem(TOKEN_KEY);
   },
   
+  getRefreshToken() {
+    return localStorage.getItem(REFRESH_KEY);
+  },
+  
   getUser() {
     const user = localStorage.getItem(USER_KEY);
     return user ? JSON.parse(user) : null;
@@ -33,7 +37,6 @@ export const auth = {
   
   async login(email, password) {
     const url = `${API_URL}/api/auth/login`;
-    console.log('Login URL:', url);
     
     const response = await fetch(url, {
       method: 'POST',
@@ -42,7 +45,6 @@ export const auth = {
     });
     
     const text = await response.text();
-    console.log('Login response:', text.substring(0, 200));
     
     let data;
     try {
@@ -57,13 +59,15 @@ export const auth = {
     
     localStorage.setItem(TOKEN_KEY, data.accessToken);
     localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-    
+    if (data.refreshToken) {
+      localStorage.setItem(REFRESH_KEY, data.refreshToken);
+    }
+
     return data;
   },
   
   async register(name, email, password) {
     const url = `${API_URL}/api/auth/register`;
-    console.log('Register URL:', url);
     
     const response = await fetch(url, {
       method: 'POST',
@@ -89,6 +93,7 @@ export const auth = {
   
   logout() {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(USER_KEY);
     window.location.href = '/login';
   }

@@ -27,6 +27,27 @@ async function fetchWithAuth(url, options = {}) {
   });
   
   if (response.status === 401) {
+    const refreshToken = auth.getRefreshToken();
+    if (refreshToken) {
+      try {
+        const refreshResponse = await fetch(`${API_URL}/api/auth/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken }),
+        });
+        if (refreshResponse.ok) {
+          const data = await refreshResponse.json();
+          localStorage.setItem('keypear_token', data.accessToken);
+          if (data.refreshToken) {
+            localStorage.setItem('keypear_refresh_token', data.refreshToken);
+          }
+          // Retry original request
+          return fetchWithAuth(url, options);
+        }
+      } catch (e) {
+        // Fall through to logout
+      }
+    }
     auth.logout();
     throw new Error('Session expired');
   }

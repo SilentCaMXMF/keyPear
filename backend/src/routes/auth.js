@@ -17,17 +17,17 @@ const sanitize = (str) => {
   return str.trim().replace(/[<>]/g, '');
 };
 
-const getAccessToken = (userId) => jwt.sign(
-  { userId },
-  process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET,
-  { expiresIn: JWT_EXPIRES_IN }
-);
+const getAccessToken = (userId) => {
+  const secret = process.env.JWT_ACCESS_SECRET;
+  if (!secret) throw new Error('JWT_ACCESS_SECRET not configured');
+  return jwt.sign({ userId }, secret, { expiresIn: JWT_EXPIRES_IN });
+};
 
-const getRefreshToken = (userId) => jwt.sign(
-  { userId },
-  process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
-  { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
-);
+const getRefreshToken = (userId) => {
+  const secret = process.env.JWT_REFRESH_SECRET;
+  if (!secret) throw new Error('JWT_REFRESH_SECRET not configured');
+  return jwt.sign({ userId }, secret, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
+};
 
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
@@ -133,7 +133,11 @@ router.post('/logout', async (req, res) => {
       return res.status(400).json({ error: 'Refresh token required' });
     }
 
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET);
+    if (!process.env.JWT_REFRESH_SECRET) {
+      return res.status(500).json({ error: 'Server misconfigured: JWT_REFRESH_SECRET not set' });
+    }
+
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const session = await Session.findByRefreshToken(refreshToken);
 
     if (session) {
@@ -154,7 +158,11 @@ router.post('/refresh', async (req, res) => {
       return res.status(400).json({ error: 'Refresh token required' });
     }
 
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET);
+    if (!process.env.JWT_REFRESH_SECRET) {
+      return res.status(500).json({ error: 'Server misconfigured: JWT_REFRESH_SECRET not set' });
+    }
+
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const session = await Session.findByRefreshToken(refreshToken);
 
     if (!session) {

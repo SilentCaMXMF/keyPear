@@ -97,7 +97,36 @@ async function initDb() {
       timestamp TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
-  
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS chunk_uploads (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      filename TEXT NOT NULL,
+      total_chunks INTEGER NOT NULL,
+      total_size INTEGER NOT NULL,
+      mime_type TEXT,
+      folder_id TEXT,
+      upload_path TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Add missing columns to shares table (safe if already exist)
+  try { db.run(`ALTER TABLE shares ADD COLUMN shared_with_email TEXT`); } catch (e) {}
+  try { db.run(`ALTER TABLE shares ADD COLUMN shared_with_user_id TEXT`); } catch (e) {}
+
+  db.run('CREATE INDEX IF NOT EXISTS idx_files_user_id ON files(user_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_files_folder_id ON files(folder_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_files_deleted ON files(deleted_at)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_folders_user_id ON folders(user_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_folders_parent ON folders(parent_folder_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_chunk_uploads_user ON chunk_uploads(user_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_chunk_uploads_expires ON chunk_uploads(expires_at)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_shares_token ON shares(token)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON activity_logs(user_id)');
   saveDb();
 }
 
@@ -136,6 +165,13 @@ const dbWrapper = {
         results.push(stmt.getAsObject());
       }
       stmt.free();
+
+      // Save to disk after write operations
+      const sqlType = normalizedSql.trim().toUpperCase();
+      if (sqlType.startsWith('INSERT') || sqlType.startsWith('UPDATE') || sqlType.startsWith('DELETE')) {
+        saveDb();
+      }
+
       return { rows: results };
     } catch (err) {
       console.error('SQL Error:', err.message);

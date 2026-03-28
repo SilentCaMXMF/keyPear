@@ -1,4 +1,4 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email format'),
@@ -27,7 +27,7 @@ const validate = (schema) => (req, res, next) => {
   }
 };
 
-module.exports = {
+export {
   registerSchema,
   loginSchema,
   refreshSchema,

@@ -11,7 +11,7 @@ router.post('/', authenticate, async (req, res) => {
     const { name, parentFolderId } = req.body;
     
     if (!name) {
-      return res.status(400).json({ message: 'Folder name is required' });
+      return res.status(400).json({ error: 'Folder name is required' });
     }
     
     const folder = await Folder.create({
@@ -25,7 +25,7 @@ router.post('/', authenticate, async (req, res) => {
     res.status(201).json(folder);
   } catch (error) {
     console.error('Create folder error:', error);
-    res.status(500).json({ message: 'Failed to create folder' });
+    res.status(500).json({ error: 'Failed to create folder' });
   }
 });
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { dbWrapper } from '../services/database.js';
 import { authMiddleware, generateToken, AuthRequest } from '../middleware/auth.js';

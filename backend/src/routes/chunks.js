@@ -59,6 +59,14 @@ router.post('/upload/complete', authenticate, async (req, res) => {
     if (!chunkUpload) {
       return res.status(404).json({ error: 'Upload session not found' });
     }
+    if (chunkUpload.user_id !== req.userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    const user = await User.findById(req.userId);
+    const quota = user.storage_quota || 10 * 1024 * 1024 * 1024;
+    if ((user.storage_used || 0) + chunkUpload.total_size > quota) {
+      return res.status(400).json({ error: 'Storage quota exceeded' });
+    }
 
     const userDir = path.join(UPLOAD_DIR, req.userId);
     if (!fs.existsSync(userDir)) {
@@ -68,6 +76,11 @@ router.post('/upload/complete', authenticate, async (req, res) => {
     const fileId = uuidv4();
     const ext = path.extname(chunkUpload.filename);
     const storagePath = path.join(userDir, `${fileId}${ext}`);
+
+    const UPLOAD_ROOT = path.resolve(UPLOAD_DIR);
+    if (!path.resolve(storagePath).startsWith(UPLOAD_ROOT + path.sep)) {
+      throw new Error('Path traversal detected');
+    }
 
     const chunks = [];
     for (let i = 0; i < chunkUpload.total_chunks; i++) {
