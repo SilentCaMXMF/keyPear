@@ -13,6 +13,36 @@ let selectedItems = new Set();
 let uploadProgress = null;
 let pendingMoveItem = null;
 
+function showToast(message, type = 'error') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const colors = {
+    error: 'bg-red-50 border-red-200 text-red-700',
+    success: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+    warning: 'bg-amber-50 border-amber-200 text-amber-700',
+    info: 'bg-blue-50 border-blue-200 text-blue-700',
+  };
+  const icons = {
+    error: 'error',
+    success: 'check_circle',
+    warning: 'warning',
+    info: 'info',
+  };
+
+  const toast = document.createElement('div');
+  toast.className = `pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-lg border text-sm font-medium shadow-lg ${colors[type] || colors.error}`;
+  toast.innerHTML = `<span class="material-symbols-outlined text-lg">${icons[type] || icons.error}</span> ${message}`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
 export function dashboardPage() {
   const user = auth.getUser();
   
@@ -161,6 +191,9 @@ export function dashboardPage() {
               <div class="h-full bg-blue-500 rounded-full transition-all" id="progress-fill" style="width: 0%"></div>
             </div>
           </div>
+
+          <!-- Toast Notification -->
+          <div id="toast-container" class="fixed top-20 right-6 z-[80] flex flex-col gap-2 pointer-events-none"></div>
 
           <!-- Stats Bento Grid (only show in My Files view) -->
           <div id="stats-grid" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 ${currentView !== 'files' ? 'hidden' : ''}">
@@ -755,7 +788,7 @@ async function handleMoveConfirm(itemId, itemType) {
     hideMoveModal();
     loadFiles();
   } catch (err) {
-    alert('Failed to move: ' + err.message);
+    showToast('Failed to move: ' + err.message);
   }
 }
 
@@ -862,7 +895,7 @@ async function handleContextAction(action, itemId, itemType, itemName) {
         }
         loadFiles();
       } catch (err) {
-        alert('Failed to copy: ' + err.message);
+        showToast('Failed to copy: ' + err.message);
       }
       break;
       
@@ -877,7 +910,7 @@ async function handleContextAction(action, itemId, itemType, itemName) {
           }
           loadFiles();
         } catch (err) {
-          alert('Failed to rename: ' + err.message);
+          showToast('Failed to rename: ' + err.message);
         }
       }
       break;
@@ -897,7 +930,7 @@ async function handleContextAction(action, itemId, itemType, itemName) {
           selectedItems.delete(itemId);
           loadFiles();
         } catch (err) {
-          alert('Failed to delete: ' + err.message);
+          showToast('Failed to delete: ' + err.message);
         }
       }
       break;
@@ -914,7 +947,7 @@ async function handleContextAction(action, itemId, itemType, itemName) {
         }
         loadFiles();
       } catch (err) {
-        alert('Failed to restore: ' + err.message);
+        showToast('Failed to restore: ' + err.message);
       }
       break;
       
@@ -931,7 +964,7 @@ async function handleContextAction(action, itemId, itemType, itemName) {
           }
           loadFiles();
         } catch (err) {
-          alert('Failed to delete: ' + err.message);
+          showToast('Failed to delete: ' + err.message);
         }
       }
       break;
@@ -1019,7 +1052,7 @@ export function initDashboardPage() {
         document.getElementById('folder-input-container').style.display = 'none';
         loadFiles();
       } catch (err) {
-        alert('Failed to create folder: ' + err.message);
+        showToast('Failed to create folder: ' + err.message);
       }
     }
   });
@@ -1037,7 +1070,7 @@ export function initDashboardPage() {
         updateBulkActions();
         loadFiles();
       } catch (err) {
-        alert('Failed to delete: ' + err.message);
+        showToast('Failed to delete: ' + err.message);
       }
     }
   });
@@ -1049,7 +1082,7 @@ export function initDashboardPage() {
       const itemType = itemEl?.dataset.type || 'file';
       showMoveModal(itemId, itemType);
     } else {
-      alert('Select one item to move');
+      showToast('Select one item to move');
     }
   });
   
@@ -1121,7 +1154,7 @@ export function initDashboardPage() {
       if (confirm(`Delete "${name}"?`)) {
         (type === 'folder' || type === 'trash-folder' ? api.deleteFolder(id) : api.deleteFile(id))
           .then(() => loadFiles())
-          .catch(err => alert('Failed: ' + err.message));
+          .catch(err => showToast('Failed: ' + err.message));
       }
       return;
     }
@@ -1176,7 +1209,7 @@ export function initDashboardPage() {
         });
       Promise.resolve(restoreApi)
         .then(() => loadFiles())
-        .catch(err => alert('Failed to restore: ' + err.message));
+        .catch(err => showToast('Failed to restore: ' + err.message));
       return;
     }
   });
@@ -1189,7 +1222,7 @@ export function initDashboardPage() {
     
     const total = files.length + folders.length;
     if (total === 0) {
-      alert('Trash is already empty');
+      showToast('Trash is already empty');
       return;
     }
     if (confirm(`Permanently delete ${total} item(s)? This cannot be undone.`)) {
@@ -1205,7 +1238,7 @@ export function initDashboardPage() {
         }
         loadFiles();
       } catch (err) {
-        alert('Failed to empty trash: ' + err.message);
+        showToast('Failed to empty trash: ' + err.message);
       }
     }
   });
