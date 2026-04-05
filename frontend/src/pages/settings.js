@@ -81,7 +81,7 @@ export function settingsPage() {
                 <div class="relative group mt-2">
                   <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-emerald-600 transition-colors">person</span>
                   <input
-                    class="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-slate-800/50 rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-sm placeholder:text-slate-400 outline-none transition-all"
+                    class="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-slate-800/50 rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none transition-all"
                     type="text"
                     id="name"
                     name="name"
@@ -96,7 +96,7 @@ export function settingsPage() {
                 <div class="relative group mt-2">
                   <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">account_balance_wallet</span>
                   <input
-                    class="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-slate-800/50 rounded-lg border-none text-sm text-slate-500 outline-none cursor-not-allowed"
+                    class="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-slate-800/50 rounded-lg border-none text-sm text-slate-500 dark:text-slate-400 outline-none cursor-not-allowed"
                     type="text"
                     id="wallet-address"
                     value="${user?.walletAddress || 'Not connected'}"

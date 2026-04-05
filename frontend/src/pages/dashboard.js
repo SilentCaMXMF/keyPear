@@ -57,7 +57,7 @@ export function dashboardPage() {
             <input 
               type="text" 
               id="search-input"
-              class="bg-slate-100 dark:bg-slate-800/50 border-none rounded-lg pl-10 pr-4 py-2 text-sm w-80 focus:ring-2 focus:ring-primary/20 transition-all outline-none" 
+              class="bg-slate-100 dark:bg-slate-800/50 border-none rounded-lg pl-10 pr-4 py-2 text-sm text-slate-900 dark:text-slate-100 w-80 focus:ring-2 focus:ring-primary/20 transition-all outline-none" 
               placeholder="Search files..."
               value="${searchQuery}"
             >
@@ -137,7 +137,7 @@ export function dashboardPage() {
             </div>
             <div class="flex items-center gap-3">
               <div id="files-search" class="${currentView !== 'files' ? 'hidden' : ''}">
-                <select id="sort-select" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+                <select id="sort-select" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 outline-none">
                   <option value="created_at:DESC" ${sortBy === 'created_at' && sortOrder === 'DESC' ? 'selected' : ''}>Newest</option>
                   <option value="created_at:ASC" ${sortBy === 'created_at' && sortOrder === 'ASC' ? 'selected' : ''}>Oldest</option>
                   <option value="filename:ASC" ${sortBy === 'filename' && sortOrder === 'ASC' ? 'selected' : ''}>Name A-Z</option>
@@ -167,7 +167,7 @@ export function dashboardPage() {
           <div id="folder-input-container" class="hidden mb-4 bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
             <div class="flex items-center gap-3">
               <span class="material-symbols-outlined text-primary">create_new_folder</span>
-              <input type="text" id="folder-name-input" class="flex-1 bg-slate-100 dark:bg-slate-900 border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none" placeholder="Folder name">
+              <input type="text" id="folder-name-input" class="flex-1 bg-slate-100 dark:bg-slate-900 border-none rounded-lg px-4 py-2 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 outline-none" placeholder="Folder name">
               <button id="create-folder-btn" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90">Create</button>
               <button id="cancel-folder-btn" class="bg-slate-100 dark:bg-slate-700 text-on-surface px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600">Cancel</button>
             </div>
