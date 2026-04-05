@@ -13,6 +13,11 @@ let selectedItems = new Set();
 let uploadProgress = null;
 let pendingMoveItem = null;
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+}
+
 function showToast(message, type = 'error') {
   const container = document.getElementById('toast-container');
   if (!container) return;
@@ -418,7 +423,7 @@ function renderFiles(files, folders, storage) {
                    'bg-slate-100 text-slate-500';
     const displayIcon = thumbnail || `<span class="material-symbols-outlined text-xl ${iconBg}">${icon}</span>`;
     const isSelected = selectedItems.has(item.id);
-    const name = item.filename || item.name;
+    const name = escapeHtml(item.filename || item.name);
     const type = isFolder ? 'Folder' : (item.mime_type?.split('/')[0] || 'File').charAt(0).toUpperCase() + (item.mime_type?.split('/')[0] || 'file').slice(1);
     
     return `
@@ -489,19 +494,19 @@ function renderTrashFiles(files, folders) {
     <li class="file-item flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group" 
         data-id="${item.id}" 
         data-type="${item.type === 'folder' ? 'trash-folder' : 'trash-file'}" 
-        data-name="${item.name}">
+        data-name="${escapeHtml(item.name)}">
       <div class="h-10 w-10 flex items-center justify-center bg-red-50 dark:bg-red-900/20 rounded-lg">
         <span class="material-symbols-outlined text-2xl text-red-500">${item.type === 'folder' ? 'folder' : 'description'}</span>
       </div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-on-surface truncate">${item.name}</p>
+        <p class="text-sm font-medium text-on-surface truncate">${escapeHtml(item.name)}</p>
         <p class="text-xs text-on-surface-variant">${item.type === 'folder' ? 'Folder' : formatSize(item.size)} • Deleted ${formatDate(item.deleted_at)}</p>
       </div>
       <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button class="restore-btn px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100">
           Restore
         </button>
-        <button class="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" data-id="${item.id}" data-type="${item.type === 'folder' ? 'trash-folder' : 'trash-file'}" data-name="${item.name}">
+        <button class="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" data-id="${item.id}" data-type="${item.type === 'folder' ? 'trash-folder' : 'trash-file'}" data-name="${escapeHtml(item.name)}">
           <span class="material-symbols-outlined text-red-500">delete_forever</span>
         </button>
       </div>
@@ -534,15 +539,15 @@ function renderRecentFiles(files) {
       <li class="file-item flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group" 
           data-id="${file.id}" 
           data-type="recent-file" 
-          data-name="${file.filename}">
+          data-name="${escapeHtml(file.filename)}">
         <div class="h-10 w-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg">
           ${displayIcon}
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-on-surface truncate">${file.filename}</p>
+          <p class="text-sm font-medium text-on-surface truncate">${escapeHtml(file.filename)}</p>
           <p class="text-xs text-on-surface-variant">${formatSize(file.size)} • ${formatDate(file.created_at)}</p>
         </div>
-        <button class="file-delete-btn opacity-0 group-hover:opacity-100 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" data-id="${file.id}" data-type="recent-file" data-name="${file.filename}">
+        <button class="file-delete-btn opacity-0 group-hover:opacity-100 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" data-id="${file.id}" data-type="recent-file" data-name="${escapeHtml(file.filename)}">
           <span class="material-symbols-outlined text-red-500">delete</span>
         </button>
       </li>
@@ -575,16 +580,16 @@ function renderSharedFiles(shares) {
       <li class="file-item flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group" 
           data-id="${share.file_id}" 
           data-type="shared-file" 
-          data-name="${share.filename}"
+          data-name="${escapeHtml(share.filename)}"
           data-token="${share.token}">
         <div class="h-10 w-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg">
           ${displayIcon}
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-on-surface truncate">${share.filename}</p>
+          <p class="text-sm font-medium text-on-surface truncate">${escapeHtml(share.filename)}</p>
           <p class="text-xs text-on-surface-variant">${formatSize(share.size)} • Shared by ${share.shared_by_name || 'Unknown'}</p>
         </div>
-        <button class="download-btn bg-gradient-to-br from-primary to-primary-container text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all" data-id="${share.file_id}" data-name="${share.filename}">
+        <button class="download-btn bg-gradient-to-br from-primary to-primary-container text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all" data-id="${share.file_id}" data-name="${escapeHtml(share.filename)}">
           <span class="material-symbols-outlined text-base">download</span>
           Download
         </button>
@@ -737,7 +742,7 @@ async function showMoveModal(itemId, itemType) {
         .map(f => `
           <div class="tree-item cursor-pointer px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-id="${f.id}" style="padding-left: ${level * 16 + 12}px">
             <span class="material-symbols-outlined text-primary mr-2 align-middle">folder</span>
-            <span class="text-sm text-slate-700 dark:text-slate-300">${f.name}</span>
+            <span class="text-sm text-slate-700 dark:text-slate-300">${escapeHtml(f.name)}</span>
             ${buildTree(f.id, level + 1)}
           </div>
         `).join('');

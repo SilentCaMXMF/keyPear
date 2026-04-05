@@ -39,13 +39,7 @@ const assertInsideStorage = (filePath) => {
 
 const sanitizeFilename = (filename) => {
   return filename
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
     .replace(/[/\\?%*:|"<>]/g, '-')
-    .replace(/\s+/g, '_')
     .substring(0, 200);
 };
 
