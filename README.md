@@ -5,7 +5,7 @@ A lightweight, self-hosted file storage application designed for Raspberry Pi wi
 ## Features
 
 - 📁 **File Management** - Upload, download, organize files in folders
-- 🔐 **Secure Auth** - Local accounts with JWT tokens
+- 🔐 **Web3 Auth** - Sign-In With Ethereum (SIWE) via MetaMask — no passwords, no emails
 - 💾 **SMB Storage** - Uses your existing NAS as backend storage
 - 🌐 **Remote Access** - Access from anywhere via Cloudflare Tunnel
 - 📱 **Lightweight** - Built with Vanilla JS + Vite (~50KB frontend)
@@ -19,7 +19,7 @@ A lightweight, self-hosted file storage application designed for Raspberry Pi wi
 - **Backend**: Express.js + Node.js ESM modules
 - **Database**: SQLite (sql.js)
 - **Storage**: SMB mount to NAS
-- **Auth**: JWT (15min access, 7d refresh) + bcrypt
+- **Auth**: SIWE (EIP-4361) + JWT (15min access, 7d refresh)
 - **Remote Access**: Cloudflare Tunnel
 
 ## Architecture
@@ -128,7 +128,9 @@ npm run dev  # For local development
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `PORT` | Backend port | 3001 |
-| `JWT_SECRET` | JWT signing secret | (required) |
+| `JWT_ACCESS_SECRET` | JWT access token signing secret | (required) |
+| `JWT_REFRESH_SECRET` | JWT refresh token signing secret | (required) |
+| `SIWE_CHAIN_ID` | Expected Ethereum chain ID | `1` (mainnet) |
 | `SMB_MOUNT_PATH` | SMB mount path | `/home/pi/keypear_mount` |
 | `FRONTEND_URL` | CORS origin | `http://localhost:4321` |
 

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-keyPear is a self-hosted cloud storage application for small teams (10-100 users). Vanilla JS SPA frontend with Vite + Tailwind CSS, Express.js backend with SQLite (sql.js). Deployed on Raspberry Pi via Cloudflare Tunnel.
+keyPear is a self-hosted cloud storage application for small teams (10-100 users). Vanilla JS SPA frontend with Vite + Tailwind CSS, Express.js backend with SQLite (sql.js). Deployed on Raspberry Pi via Cloudflare Tunnel. Authentication uses Sign-In With Ethereum (SIWE, EIP-4361) via MetaMask — no passwords, no emails.
 
 ## Project Structure
 
@@ -10,11 +10,8 @@ keyPear is a self-hosted cloud storage application for small teams (10-100 users
 keyPear/
 ├── frontend/
 │   ├── src/
-│   │   ├── components/      # UI components (AuthForms.tsx, FileBrowser.tsx, SettingsPage.tsx)
-│   │   ├── contexts/        # Auth context
-│   │   ├── hooks/           # useFiles.ts, useChunkedUpload.ts
-│   │   ├── lib/             # api.ts (API client), utils.ts
-│   │   ├── pages/           # Page renderers (login.js, register.js, dashboard.js, settings.js)
+│   │   ├── lib/             # api.ts (API client), web3.js (SIWE helpers), utils.ts
+│   │   ├── pages/           # Page renderers (web3-login.js, dashboard.js, settings.js)
 │   │   ├── router.js        # Client-side SPA router
 │   │   └── main.js          # Entry point
 │   └── vite.config.js
@@ -23,8 +20,8 @@ keyPear/
 │   └── src/
 │       ├── middleware/      # auth.js (JWT verification)
 │       ├── models/          # DB models (user, file, folder, session, share, activityLog, chunkUpload)
-│       ├── routes/          # API routes (auth, files, folders, shares, chunks, logs, oauth)
-│       ├── services/        # passport.js (OAuth), thumbnail.js (image processing)
+│       ├── routes/          # API routes (auth, auth/web3, files, folders, shares, chunks, logs)
+│       ├── services/        # nonceStore.js (SIWE nonces), thumbnail.js (image processing)
 │       └── server.js        # Express app entry
 │
 ├── database/migrations/     # SQL schema (PostgreSQL syntax, used with sql.js at runtime)
@@ -77,8 +74,8 @@ Database auto-creates at `backend/data/keypear.db` (SQLite via sql.js). Reset wi
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/auth/register` | Register |
-| POST | `/api/auth/login` | Login |
+| POST | `/api/auth/web3/nonce` | Get nonce for SIWE challenge |
+| POST | `/api/auth/web3/verify` | Verify SIWE signature, authenticate |
 | POST | `/api/auth/logout` | Logout |
 | POST | `/api/auth/refresh` | Refresh JWT |
 | GET | `/api/files` | List files |
@@ -148,6 +145,7 @@ Database auto-creates at `backend/data/keypear.db` (SQLite via sql.js). Reset wi
 - SPA with manual client-side routing (`router.js`)
 - Pages export render function + init function: `export function dashboardPage() { return html; }`
 - Use `api` utility from `lib/api.ts` for all API calls (handles JWT refresh)
+- Use `web3.js` for MetaMask integration (SIWE message building, signing)
 - Tailwind CSS classes for styling (v4)
 - No React/Vue — vanilla JS DOM manipulation
 
@@ -163,7 +161,7 @@ Database auto-creates at `backend/data/keypear.db` (SQLite via sql.js). Reset wi
 
 ## Environment
 
-Required: copy `.env.example` to `.env`. Key vars: `PORT`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `STORAGE_PATH`, `FRONTEND_URL`.
+Required: copy `.env.example` to `.env`. Key vars: `PORT`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `STORAGE_PATH`, `FRONTEND_URL`, `SIWE_CHAIN_ID`.
 
 ## Environment Requirements
 

@@ -29,11 +29,13 @@ async function initDb() {
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
-      email TEXT UNIQUE NOT NULL,
+      email TEXT UNIQUE,
       password_hash TEXT,
       oauth_provider TEXT,
       oauth_id TEXT,
       name TEXT,
+      wallet_address TEXT UNIQUE,
+      ens_name TEXT,
       storage_quota INTEGER DEFAULT 10737418240,
       storage_used INTEGER DEFAULT 0,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -112,6 +114,11 @@ async function initDb() {
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Add wallet columns for Web3 auth (safe if already exist)
+  try { db.run(`ALTER TABLE users ADD COLUMN wallet_address TEXT`); } catch (e) {}
+  try { db.run(`ALTER TABLE users ADD COLUMN ens_name TEXT`); } catch (e) {}
+  db.run('CREATE INDEX IF NOT EXISTS idx_users_wallet_address ON users(wallet_address)');
 
   // Add missing columns to shares table (safe if already exist)
   try { db.run(`ALTER TABLE shares ADD COLUMN shared_with_email TEXT`); } catch (e) {}

@@ -1,13 +1,10 @@
-// Simple Router
-import { loginPage, initLoginPage } from './pages/login.js';
-import { registerPage, initRegisterPage } from './pages/register.js';
+import { web3LoginPage, initWeb3LoginPage } from './pages/web3-login.js';
 import { dashboardPage, initDashboardPage } from './pages/dashboard.js';
 import { settingsPage } from './pages/settings.js';
 
 const routes = {
-  '/': { render: loginPage, init: initLoginPage },
-  '/login': { render: loginPage, init: initLoginPage },
-  '/register': { render: registerPage, init: initRegisterPage },
+  '/': { render: web3LoginPage, init: initWeb3LoginPage },
+  '/login': { render: web3LoginPage, init: initWeb3LoginPage },
   '/dashboard': { render: dashboardPage, init: initDashboardPage },
   '/settings': { render: settingsPage, init: null },
 };
@@ -16,7 +13,7 @@ export const router = {
   navigate(pathWithParams, { app, isAuthenticated }) {
     const [path, query] = pathWithParams.split('?');
     const queryString = query ? `?${query}` : '';
-    
+
     if ((path === '/dashboard' || path === '/settings') && !isAuthenticated) {
       window.history.pushState({}, '', '/login');
       const { render, init } = routes['/'];
@@ -25,7 +22,7 @@ export const router = {
       return;
     }
 
-    if ((path === '/login' || path === '/register') && isAuthenticated) {
+    if (path === '/login' && isAuthenticated) {
       window.history.pushState({}, '', '/dashboard');
       app.innerHTML = routes['/dashboard'].render();
       routes['/dashboard'].init?.();
@@ -35,7 +32,7 @@ export const router = {
     const route = routes[path] || routes['/'];
     app.innerHTML = route.render();
     if (route.init) route.init();
-    
+
     window.history.pushState({}, '', path + queryString);
   }
 };

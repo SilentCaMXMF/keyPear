@@ -11,11 +11,12 @@ A Node.js/Express REST API for the KeyPear cloud storage application. Designed t
 │  Routes          │  Models      │  Services    │ Middleware │
 │  ─────────────  │  ──────────  │  ──────────  │ ───────── │
 │  auth           │  User        │  database    │ authenticate│
-│  files          │  File        │  thumbnail   │ rateLimit  │
-│  folders        │  Folder      │  passport    │            │
-│  shares         │  Session     │              │            │
-│  chunks         │  Share       │              │            │
-│  logs           │  ActivityLog │              │            │
+│  auth/web3      │  File        │  nonceStore  │ rateLimit  │
+│  files          │  Folder      │  thumbnail   │            │
+│  folders        │  Session     │              │            │
+│  shares         │  Share       │              │            │
+│  chunks         │  ActivityLog │              │            │
+│  logs           │  ChunkUpload │              │            │
 │                 │  ChunkUpload │              │            │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -41,7 +42,7 @@ A Node.js/Express REST API for the KeyPear cloud storage application. Designed t
 | Framework | Express.js | REST API framework |
 | Database | SQLite (sql.js) | Lightweight database |
 | File Storage | SMB Mount | NAS storage for files |
-| Auth | JWT + bcrypt | Stateless authentication |
+| Auth | SIWE (EIP-4361) + JWT | Wallet-based authentication |
 | Image Processing | Sharp | Thumbnail generation |
 | Security | Helmet, CORS, Rate Limiting | Security hardening |
 
@@ -88,8 +89,11 @@ DATABASE_PATH=./data/keypear.db
 JWT_ACCESS_SECRET=your-access-secret
 JWT_REFRESH_SECRET=your-refresh-secret
 
-# Frontend URL (for CORS)
+# Frontend URL (for CORS & SIWE domain validation)
 FRONTEND_URL=https://key-pear.vercel.app
+
+# SIWE Configuration
+SIWE_CHAIN_ID=1
 
 # Storage
 SMB_MOUNT_PATH=/home/pedroocalado/keypear_mount
@@ -114,7 +118,9 @@ backend/
 │   │   ├── activityLog.js # Activity audit logging
 │   │   └── chunkUpload.js # Chunked upload tracking
 │   ├── routes/
-│   │   ├── auth.js       # Authentication endpoints
+│   │   ├── auth.js       # Authentication endpoints (logout, refresh)
+│   │   ├── auth/
+│   │   │   └── web3.js   # SIWE web3 auth (nonce, verify)
 │   │   ├── files.js      # File operations
 │   │   ├── folders.js     # Folder operations
 │   │   ├── shares.js     # Share link operations
@@ -123,7 +129,7 @@ backend/
 │   ├── services/
 │   │   ├── database.js   # SQLite connection (sql.js)
 │   │   ├── thumbnail.js   # Sharp-based thumbnail generation
-│   │   └── passport.js    # OAuth strategies (future)
+│   │   └── nonceStore.js  # In-memory SIWE nonce management
 │   └── utils/
 │       └── ...
 ├── data/                   # SQLite database location
@@ -143,29 +149,31 @@ backend/
 
 ### Authentication (`/api/auth`)
 
+#### Web3 Authentication (SIWE)
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/register` | Create new account |
-| POST | `/login` | Login, returns JWT tokens |
+| POST | `/web3/nonce` | Get nonce for SIWE challenge (body: `{ address }`) |
+| POST | `/web3/verify` | Verify SIWE signature, authenticate user (body: `{ address, signature, message, name }`) |
+
+#### Session Management
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | POST | `/logout` | Logout, invalidates refresh token |
 | POST | `/refresh` | Refresh access token |
-| GET | `/me` | Get current user info |
-| PATCH | `/me` | Update user profile |
 
-**Register Request:**
-```json
-POST /api/auth/register
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "securepassword123"
-}
-```
+**Web3 Auth Flow:**
+1. Frontend requests nonce: `POST /api/auth/web3/nonce` with `{ address }`
+2. Backend returns `{ nonce }`
+3. Frontend builds SIWE message, user signs with MetaMask
+4. Frontend sends signature: `POST /api/auth/web3/verify` with `{ address, signature, message }`
+5. Backend verifies SIWE message, creates/finds user, returns JWT tokens
 
 **Login Response:**
 ```json
 {
-  "user": { "id": "uuid", "name": "John Doe", "email": "john@example.com" },
+  "user": { "id": "uuid", "name": "John Doe", "walletAddress": "0x..." },
   "accessToken": "eyJhbG...",
   "refreshToken": "eyJhbG..."
 }
@@ -265,10 +273,9 @@ POST /api/shares
 | Column | Type | Description |
 |--------|------|-------------|
 | id | TEXT (UUID) | Primary key |
-| email | TEXT | Unique email |
-| password_hash | TEXT | bcrypt hash |
-| oauth_provider | TEXT | google/github |
-| oauth_id | TEXT | OAuth ID |
+| email | TEXT | Unique email (optional) |
+| wallet_address | TEXT | Unique wallet address (EIP-55) |
+| ens_name | TEXT | ENS name (optional) |
 | name | TEXT | Display name |
 | storage_used | INTEGER | Bytes used |
 | storage_quota | INTEGER | Default 10GB (10737418240) |
@@ -357,11 +364,14 @@ Whitelist includes:
 
 ### Authentication Flow
 ```
-1. User registers/logs in → receives access + refresh tokens
-2. Access token expires after 15 minutes
-3. Frontend uses refresh token to get new access token
-4. Refresh token rotation: old token is invalidated on use
-5. Logout invalidates refresh token
+1. User connects MetaMask wallet → frontend requests nonce from server
+2. User signs SIWE message with wallet → frontend sends signature to server
+3. Server verifies SIWE message (domain, chain, nonce, signature)
+4. Server creates/finds user by wallet address → issues access + refresh tokens
+5. Access token expires after 15 minutes
+6. Frontend uses refresh token to get new access token
+7. Refresh token rotation: old token is invalidated on use
+8. Logout invalidates refresh token
 ```
 
 ## File Storage

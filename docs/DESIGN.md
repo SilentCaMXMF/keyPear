@@ -580,10 +580,13 @@ frontend/
 │   ├── main.js            # Entry point
 │   ├── pages/
 │   │   ├── dashboard.js   # Main dashboard component
-│   │   ├── login.js       # Login form
-│   │   └── register.js   # Registration form
+│   │   ├── web3-login.js  # MetaMask SIWE login
+│   │   └── settings.js   # Settings page
+│   ├── lib/
+│   │   ├── api.ts         # API client
+│   │   └── web3.js        # MetaMask/SIWE helpers
 │   ├── utils/
-│   │   ├── api.js         # API client
+│   │   ├── api.js         # API utilities
 │   │   └── auth.js        # Auth utilities
 │   ├── components/
 │   │   └── *.jsx          # React components (if migrated)

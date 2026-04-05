@@ -4,14 +4,13 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import fileUpload from 'express-fileupload';
-import passport from 'passport';
 import rateLimit from 'express-rate-limit';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { initDatabase } from './services/database.js';
 
 dotenv.config();
 
-// Validate required environment variables at startup
 if (!process.env.JWT_ACCESS_SECRET) {
   throw new Error('JWT_ACCESS_SECRET is required. Copy .env.example to .env and configure.');
 }
@@ -26,6 +25,7 @@ import sharesRoutes from './routes/shares.js';
 import chunksRoutes from './routes/chunks.js';
 import logsRoutes from './routes/logs.js';
 import { ChunkUpload } from './models/index.js';
+import { nonceStore } from './services/nonceStore.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -64,23 +64,20 @@ const authLimiter = rateLimit({
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) {
       return callback(null, true);
     }
-    
-    // Check exact match
+
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
-    // Check regex patterns
+
     for (const pattern of allowedOriginPatterns) {
       if (pattern.test(origin)) {
         return callback(null, true);
       }
     }
-    
+
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -101,7 +98,6 @@ app.use(fileUpload({
   limits: { fileSize: 100 * 1024 * 1024 },
   abortOnLimit: true,
 }));
-app.use(passport.initialize());
 app.use(globalLimiter);
 
 app.use('/api/auth', authLimiter, authRoutes);
@@ -115,7 +111,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// CORS error handler
 app.use((err, req, res, next) => {
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({ error: 'CORS policy violation' });
@@ -123,7 +118,6 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-// Cleanup expired chunks every hour
 setInterval(async () => {
   try {
     const deleted = await ChunkUpload.deleteExpired();

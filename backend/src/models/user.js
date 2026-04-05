@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import { db } from './index.js';
-import bcrypt from 'bcrypt';
 
 const User = {
   async create({ email, passwordHash, oauthProvider, oauthId, name }) {
@@ -13,8 +12,26 @@ const User = {
     return this.findById(id);
   },
 
+  async createWallet({ walletAddress, name }) {
+    const id = uuidv4();
+    await db.query(
+      `INSERT INTO users (id, wallet_address, name, storage_quota, storage_used)
+       VALUES ($1, $2, $3, 10737418240, 0)`,
+      [id, walletAddress.toLowerCase(), name]
+    );
+    return this.findById(id);
+  },
+
   async findByEmail(email) {
     const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    return result.rows[0];
+  },
+
+  async findByWallet(walletAddress) {
+    const result = await db.query(
+      'SELECT * FROM users WHERE wallet_address = $1',
+      [walletAddress.toLowerCase()]
+    );
     return result.rows[0];
   },
 
