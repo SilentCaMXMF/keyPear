@@ -268,11 +268,11 @@ export function dashboardPage() {
     </div>
 
     <!-- Context Menu -->
-    <div id="context-menu" class="fixed bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-2 min-w-48 z-60 hidden">
+    <div id="context-menu" class="fixed bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-2 min-w-48 z-[60] hidden">
     </div>
 
     <!-- Move Modal -->
-    <div id="move-modal" class="fixed inset-0 bg-black/50 z-70 hidden flex items-center justify-center p-4">
+    <div id="move-modal" class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4">
       <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full p-6">
         <h3 class="text-lg font-bold text-on-surface mb-4">Move to...</h3>
         <div id="folder-tree" class="max-h-64 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-lg p-2 mb-4"></div>

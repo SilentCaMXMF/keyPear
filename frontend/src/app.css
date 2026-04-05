@@ -5,8 +5,49 @@
 
 /* CSS variables stay unlayered (needed globally) */
 :root {
+  /* Primary Colors */
   --primary: #006b22;
   --primary-container: #01872e;
+  --on-primary: #ffffff;
+  --on-primary-container: #f7fff1;
+
+  /* Surface Colors */
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f0f4fc;
+  --surface-container: #eaeef6;
+  --surface-container-high: #e4e8f0;
+  --surface-container-highest: #dee3eb;
+
+  /* Semantic */
+  --background: #f7f9ff;
+  --on-background: #171c22;
+  --on-surface: #171c22;
+  --on-surface-variant: #3e4a3d;
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --on-error: #ffffff;
+  --on-error-container: #93000a;
+  --success: #006e25;
+  --success-container: #80f98b;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-4: 1rem;
+  --space-8: 2rem;
+
+  /* Borders */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 20px 40px rgba(23, 28, 34, 0.06);
 }
 
 @layer base {
@@ -26,6 +67,15 @@
 }
 
 @layer components {
+  /* ============================================
+     DRAG AND DROP
+     ============================================ */
+  .dragover {
+    background: rgba(0, 107, 34, 0.05);
+    border: 2px dashed var(--primary);
+    border-radius: 0.75rem;
+  }
+
   /* ============================================
      RESPONSIVE - TABLET
      ============================================ */

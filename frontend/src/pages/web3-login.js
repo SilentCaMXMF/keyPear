@@ -4,7 +4,7 @@ import { detectMetaMask, requestAccount, buildSiweMessage, signMessage, getChain
 export function web3LoginPage(props = {}) {
   return `
     <div class="min-h-screen flex flex-col bg-[#f7f9ff]">
-      <header class="fixed top-0 left-0 right-0 z-40 bg-white/60 backdrop-blur-xl shadow-sm px-6 py-3 flex justify-between items-center">
+      <header class="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 px-6 py-3 flex justify-between items-center">
         <div class="flex items-center gap-2">
           <span class="material-symbols-outlined text-emerald-600 text-2xl" style="font-variation-settings: 'FILL' 1;">shield</span>
           <span class="text-xl font-black text-black tracking-tighter">keyPear</span>
@@ -65,7 +65,7 @@ export function web3LoginPage(props = {}) {
                 <div class="relative group mt-2">
                   <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-emerald-600 transition-colors">person</span>
                   <input
-                    class="w-full pl-12 pr-4 py-4 bg-slate-100 rounded-lg border-none focus:ring-2 focus:ring-emerald-600/20 text-sm placeholder:text-slate-400 outline-none transition-all"
+                    class="w-full pl-12 pr-4 py-4 bg-slate-100 rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-sm placeholder:text-slate-400 outline-none transition-all"
                     placeholder="Enter display name"
                     type="text"
                     id="display-name"
@@ -76,7 +76,7 @@ export function web3LoginPage(props = {}) {
               </div>
 
               <div class="pt-4 flex flex-col gap-4">
-                <button id="connect-wallet-btn" class="w-full bg-[#006b22] text-white font-bold py-4 rounded-lg shadow-md hover:opacity-90 active:scale-[0.99] transition-all flex justify-center items-center gap-2" type="button">
+                <button id="connect-wallet-btn" class="w-full bg-gradient-to-br from-primary to-primary-container text-white font-bold py-4 rounded-lg shadow-lg shadow-emerald-900/20 hover:opacity-90 active:scale-[0.99] transition-all flex justify-center items-center gap-2" type="button">
                   <span class="material-symbols-outlined text-lg">account_balance_wallet</span>
                   Connect MetaMask
                 </button>

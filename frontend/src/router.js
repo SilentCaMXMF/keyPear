@@ -1,12 +1,12 @@
 import { web3LoginPage, initWeb3LoginPage } from './pages/web3-login.js';
 import { dashboardPage, initDashboardPage } from './pages/dashboard.js';
-import { settingsPage } from './pages/settings.js';
+import { settingsPage, initSettingsPage } from './pages/settings.js';
 
 const routes = {
   '/': { render: web3LoginPage, init: initWeb3LoginPage },
   '/login': { render: web3LoginPage, init: initWeb3LoginPage },
   '/dashboard': { render: dashboardPage, init: initDashboardPage },
-  '/settings': { render: settingsPage, init: null },
+  '/settings': { render: settingsPage, init: initSettingsPage },
 };
 
 export const router = {
