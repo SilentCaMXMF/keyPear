@@ -1,5 +1,7 @@
 {
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd frontend && npm install",
+  "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
   "framework": "vite",
   "rewrites": [
@@ -7,5 +9,9 @@
   ],
   "redirects": [
     { "source": "/favicon.ico", "destination": "/favicon.svg", "permanent": true }
-  ]
+  ],
+  "github": {
+    "enabled": true,
+    "autoJobCancelation": true
+  }
 }
